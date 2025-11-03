@@ -1,4 +1,3 @@
-'use client';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -13,17 +12,6 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import createBook from './actions/create-book';
-import { useFormStatus } from 'react-dom';
-
-function SubmitButton() {
-  console.log('pending');
-  const { pending } = useFormStatus();
-  return (
-    <Button type="submit" disabled={pending}>
-      {pending ? 'Saving...' : 'Save'}
-    </Button>
-  );
-}
 
 export default function DialogDemo() {
   return (
@@ -31,8 +19,8 @@ export default function DialogDemo() {
       <DialogTrigger asChild>
         <Button variant="outline">Add Book</Button>
       </DialogTrigger>
-      <form action={createBook}>
-        <DialogContent className="sm:max-w-[425px] bg-gray-200">
+      <DialogContent className="sm:max-w-[425px] bg-gray-200">
+        <form action={createBook} className="no-style">
           <DialogHeader>
             <DialogTitle>Create Book</DialogTitle>
             <DialogDescription>Create a new book.</DialogDescription>
@@ -51,14 +39,16 @@ export default function DialogDemo() {
               <Input id="authorId" name="authorId" defaultValue="1" disabled />
             </div>
           </div>
-          <DialogFooter>
+          <DialogFooter className="pt-5">
             <DialogClose asChild>
               <Button variant="outline">Cancel</Button>
             </DialogClose>
-            <SubmitButton />
+            <DialogClose asChild>
+              <Button type="submit">Save</Button>
+            </DialogClose>
           </DialogFooter>
-        </DialogContent>
-      </form>
+        </form>
+      </DialogContent>
     </Dialog>
   );
 }
