@@ -1,6 +1,6 @@
 {
   "extends": "@repo/typescript-config/base.json",
-  "include": ["src"],
+  "include": ["src", "*.ts"],
   "exclude": ["node_modules", "dist"],
   "compilerOptions": {
     "module": "nodenext",
