@@ -1,28 +1,30 @@
-import { CreateBookRequest } from '../../../../packages/types/src/books/dto/create-book-request';
-import { GetBookRequest } from '../../../../packages/types/src/books/dto/get-book-request';
-import { Book } from './../../../../packages/types/src/books/interface/book';
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
+import { NodePgDatabase } from 'drizzle-orm/node-postgres';
+import * as schema from './schema';
+import { DATABASE_CONNECTION } from '../database/database-connection';
+import { CreateBookRequestDto } from './dto/create-book-request';
+import { BookResponseDto } from './dto/book-response';
+import { GetBookRequestDto } from './dto/get-book-request';
 
 @Injectable()
 export class BookService {
-  private readonly books: Book[] = [];
-  createBook(createBook: CreateBookRequest): string {
-    const book: Book = {
-      id: this.books.length + 1,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      ...createBook,
+  constructor(
+    @Inject(DATABASE_CONNECTION)
+    private readonly db: NodePgDatabase<typeof schema>,
+  ) {}
+  async createBook(
+    createBook: CreateBookRequestDto,
+  ): Promise<BookResponseDto | undefined> {
+    const book = {
+      name: createBook.name,
+      description: createBook.description,
+      userId: createBook.userId,
     };
-    this.books.push(book);
-    return 'Successfully created book';
+    const [row] = await this.db.insert(schema.books).values(book).returning();
+    return row;
   }
 
-  getBooks(getBook: GetBookRequest): Book | Book[] {
-    if (getBook.id) {
-      const book = this.books.find((book) => book.id === Number(getBook.id));
-      if (!book) throw new Error('Book not found');
-      return book;
-    }
-    return this.books;
+  async getBooks(getBook: GetBookRequestDto): Promise<BookResponseDto[]> {
+    return await this.db.query.books.findMany();
   }
 }
