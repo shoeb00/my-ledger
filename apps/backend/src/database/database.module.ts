@@ -21,6 +21,7 @@ import * as usersSchema from '../user/schema';
           schema: {
             ...usersSchema,
           },
+          casing: 'snake_case',
         });
       },
       inject: [ConfigService],
