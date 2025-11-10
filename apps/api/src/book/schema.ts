@@ -9,15 +9,15 @@ import {
 import { users } from '../user/schema';
 
 export const books = pgTable('books', {
-  id: serial().primaryKey(),
-  userId: integer()
+  id: serial('id').primaryKey(),
+  userId: integer('user_id')
     .notNull()
     .references(() => users.id),
   balance: numeric('balance', { precision: 10, scale: 2 })
     .default('0.00')
     .notNull(),
-  name: varchar().notNull(),
-  description: varchar(),
-  createdAt: timestamp().defaultNow().notNull(),
-  updatedAt: timestamp().defaultNow().notNull(),
+  name: varchar('name').notNull(),
+  description: varchar('description'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });

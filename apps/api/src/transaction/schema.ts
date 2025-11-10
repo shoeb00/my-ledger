@@ -9,17 +9,17 @@ import {
 import { books } from '../book/schema';
 import { users } from '../user/schema';
 
-export const transaction = pgTable('transaction', {
-  id: serial().primaryKey(),
-  bookId: integer()
+export const transaction = pgTable('transactions', {
+  id: serial('id').primaryKey(),
+  bookId: integer('book_id')
     .notNull()
     .references(() => books.id),
-  userId: integer()
+  userId: integer('user_id')
     .notNull()
     .references(() => users.id),
   amount: numeric('amount', { precision: 10, scale: 2 }).notNull(),
-  description: varchar(),
-  paymentType: varchar(),
-  createdAt: timestamp().defaultNow().notNull(),
-  updatedAt: timestamp().defaultNow().notNull(),
+  description: varchar('description'),
+  paymentType: varchar('payment_type'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
