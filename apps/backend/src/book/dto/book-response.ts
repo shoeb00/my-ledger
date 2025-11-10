@@ -1,17 +1,21 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { GetBookRequestDto } from './get-book-request';
-import { IsDate, IsString } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
-export class BookResponseDto extends GetBookRequestDto {
+export class BookResponseDto {
   @ApiProperty()
-  @IsDate()
+  id: number;
+
+  @ApiProperty()
+  name: string;
+
+  @ApiPropertyOptional()
+  description: string | null;
+
+  @ApiProperty()
   createdAt: Date;
 
   @ApiProperty()
-  @IsDate()
   updatedAt: Date;
 
   @ApiProperty()
-  @IsString()
   balance: string;
 }

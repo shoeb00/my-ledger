@@ -17,6 +17,7 @@ export const books = pgTable('books', {
     .default('0.00')
     .notNull(),
   name: varchar().notNull(),
+  description: varchar(),
   createdAt: timestamp().defaultNow().notNull(),
   updatedAt: timestamp().defaultNow().notNull(),
 });
