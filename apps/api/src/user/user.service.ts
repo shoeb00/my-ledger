@@ -1,7 +1,9 @@
-import { Get, Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, Post } from '@nestjs/common';
 import { DATABASE_CONNECTION } from '../database/database-connection';
 import * as schema from './schema';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
+import { UserResponseDto } from './dto/user-response';
+import { CreateUserRequestDto } from './dto/create-user-request';
 
 @Injectable()
 export class UserService {
@@ -10,8 +12,11 @@ export class UserService {
     private readonly db: NodePgDatabase<typeof schema>,
   ) {}
 
-  @Get()
-  async getAllUsers() {
-    return await this.db.query.users.findMany();
+  @Post()
+  async registerUser(
+    body: CreateUserRequestDto,
+  ): Promise<UserResponseDto | undefined> {
+    const [user] = await this.db.insert(schema.users).values(body).returning();
+    return user;
   }
 }
