@@ -1,15 +1,8 @@
 import type { Metadata } from 'next';
 import localFont from 'next/font/local';
 import './globals.css';
-import {
-  ClerkProvider,
-  SignedIn,
-  SignedOut,
-  SignInButton,
-  SignUpButton,
-  UserButton,
-} from '@clerk/nextjs';
-import { Button } from '@/components/ui/button';
+import { ClerkProvider } from '@clerk/nextjs';
+import Navbar from './components/navbar';
 
 const geistSans = localFont({
   src: './fonts/GeistVF.woff',
@@ -34,19 +27,7 @@ export default function RootLayout({
     <ClerkProvider>
       <html lang="en">
         <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-          <header className="flex justify-end items-center p-4 gap-4 h-16">
-            <SignedOut>
-              <SignInButton mode="modal">
-                <Button>Sign In</Button>
-              </SignInButton>
-              <SignUpButton mode="modal">
-                <Button variant="outline"> Sign Up </Button>
-              </SignUpButton>
-            </SignedOut>
-            <SignedIn>
-              <UserButton showName={true} />
-            </SignedIn>
-          </header>
+          <Navbar />
           {children}
         </body>
       </html>
