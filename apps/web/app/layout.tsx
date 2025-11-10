@@ -36,15 +36,15 @@ export default function RootLayout({
         <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
           <header className="flex justify-end items-center p-4 gap-4 h-16">
             <SignedOut>
-              <SignInButton mode='modal'>
+              <SignInButton mode="modal">
                 <Button>Sign In</Button>
               </SignInButton>
-              <SignUpButton mode='modal'>
+              <SignUpButton mode="modal">
                 <Button variant="outline"> Sign Up </Button>
               </SignUpButton>
             </SignedOut>
             <SignedIn>
-              <UserButton />
+              <UserButton showName={true} />
             </SignedIn>
           </header>
           {children}
