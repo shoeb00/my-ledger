@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  ParseIntPipe,
+  Post,
+  Query,
+} from '@nestjs/common';
 import { ApiOkResponse, ApiParam, ApiTags } from '@nestjs/swagger';
 import { TransactionService } from './transaction.service';
 import { TransactionResponseDto } from './dto/transaction-response';
@@ -15,7 +23,7 @@ export class TransactionController {
   @ApiOkResponse({
     type: TransactionResponseDto,
   })
-  async get(@Param('id') id: number) {
+  async get(@Param('id', ParseIntPipe) id: number) {
     return await this.service.get(id);
   }
 

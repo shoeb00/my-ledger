@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEnum, IsNumber, IsString } from 'class-validator';
+import { IsEmail, IsEnum, IsNumber } from 'class-validator';
 import { Roles } from '../../permissions/enum/roles';
 
 type rolesEnum = Exclude<Roles, Roles.AUTHOR>;
@@ -14,6 +14,10 @@ export class InviteUserRequestDto {
   bookId: number;
 
   @ApiProperty()
-  @IsString()
+  @IsEmail()
   email: string;
+
+  @ApiProperty()
+  @IsEmail()
+  invitedBy: string;
 }

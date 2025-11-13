@@ -1,3 +1,4 @@
+import { permissions } from './../permissions/schema';
 import {
   BadRequestException,
   Inject,
@@ -5,7 +6,7 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common';
 import { DATABASE_CONNECTION } from '../database/database-connection';
-import * as schema from './schema';
+import * as usersSchema from './schema';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { UserResponseDto } from './dto/user-response';
 import { CreateUserRequestDto } from './dto/create-user-request';
@@ -14,6 +15,9 @@ import { InviteUserRequestDto } from './dto/invite-user-request';
 import { PermissionsService } from '../permissions/permissions.service';
 import { rolesEnum } from '../permissions/dto/create-or-update-permissions-request';
 import { BookService } from '../book/book.service';
+import { books } from '../book/schema';
+
+const schema = { ...usersSchema, permissions, books };
 
 @Injectable()
 export class UserService {
@@ -51,11 +55,22 @@ export class UserService {
     return user;
   }
 
+  async getInvitations(email: string) {
+    return await this.db.query.invitations.findMany({
+      where: eq(schema.invitations.invitedBy, email),
+    });
+  }
+
   async inviteUser(body: InviteUserRequestDto) {
     const user = await this.db.query.users.findFirst({
       where: eq(schema.users.email, body.email),
     });
     if (!user) {
+      const [count] = await this.db
+        .select({ count: schema.invitations.id })
+        .from(schema.invitations);
+      if (Number(count?.count) >= 20)
+        throw new BadRequestException('Max invites reached');
       const [invitation] = await this.db
         .insert(schema.invitations)
         .values(body)
@@ -85,5 +100,16 @@ export class UserService {
     if (!row)
       throw new BadRequestException('Invite not found or already accepted');
     return row;
+  }
+
+  async getEmails(userId: number) {
+    return await this.db
+      .select({ email: schema.users.email, userId: schema.users.id })
+      .from(schema.permissions)
+      .leftJoin(
+        schema.users,
+        eq(schema.books.userId, schema.permissions.userId),
+      )
+      .where(eq(schema.permissions.userId, userId));
   }
 }

@@ -1,0 +1,2 @@
+ALTER TABLE "invitations" ADD COLUMN "invited_by" varchar NOT NULL;--> statement-breakpoint
+ALTER TABLE "invitations" ADD CONSTRAINT "invitations_invited_by_users_email_fk" FOREIGN KEY ("invited_by") REFERENCES "public"."users"("email") ON DELETE no action ON UPDATE no action;

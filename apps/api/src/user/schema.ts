@@ -23,6 +23,9 @@ export const invitations = pgTable('invitations', {
   bookId: integer('book_id')
     .notNull()
     .references(() => books.id),
+  invitedBy: varchar('invited_by')
+    .notNull()
+    .references(() => users.email),
   email: varchar('email').notNull(),
   role: roleEnum('role').$type<Roles>().notNull(),
   accepted: boolean('accepted').default(false).notNull(),

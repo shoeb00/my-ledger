@@ -16,8 +16,18 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Get('get/:id')
-  async getUser(@Param('id') id: number) {
+  async getUser(@Param('id', ParseIntPipe) id: number) {
     return await this.userService.getUser(id);
+  }
+
+  @Get('invitations/:email')
+  async getInvitations(@Param('email') email: string) {
+    return await this.userService.getInvitations(email);
+  }
+
+  @Get('emails/:userId')
+  async getEmails(@Param('userId') userId: number) {
+    return await this.userService.getEmails(userId);
   }
 
   @Post('register')
