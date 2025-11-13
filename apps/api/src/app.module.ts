@@ -13,6 +13,7 @@ import { TransactionService } from './transaction/transaction.service';
 import { PermissionsModule } from './permissions/permissions.module';
 import { PermissionsController } from './permissions/permissions.controller';
 import { PermissionsService } from './permissions/permissions.service';
+import { WebhooksModule } from './webhooks/webhooks.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { PermissionsService } from './permissions/permissions.service';
     BookModule,
     TransactionModule,
     PermissionsModule,
+    WebhooksModule,
   ],
   controllers: [
     BookController,
