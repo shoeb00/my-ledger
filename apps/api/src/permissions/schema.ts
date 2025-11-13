@@ -1,18 +1,8 @@
-import {
-  serial,
-  timestamp,
-  pgTable,
-  integer,
-  pgEnum,
-} from 'drizzle-orm/pg-core';
+import { serial, timestamp, pgTable, integer } from 'drizzle-orm/pg-core';
 import { books } from '../book/schema';
 import { users } from '../user/schema';
 import { Roles } from './enum/roles';
-
-export const roleEnum = pgEnum(
-  'roles',
-  Object.values(Roles) as [string, ...string[]],
-);
+import { roleEnum } from '../database/enum';
 
 export const permissions = pgTable('permissions', {
   id: serial('id').primaryKey(),
