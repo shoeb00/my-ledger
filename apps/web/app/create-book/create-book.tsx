@@ -13,7 +13,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import createBook from './actions/create-book';
 
-export default function DialogDemo() {
+export default function CreateBook() {
   return (
     <Dialog>
       <DialogTrigger asChild>
