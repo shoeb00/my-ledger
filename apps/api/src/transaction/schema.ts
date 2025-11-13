@@ -9,7 +9,7 @@ import {
 import { books } from '../book/schema';
 import { users } from '../user/schema';
 
-export const transaction = pgTable('transactions', {
+export const transactions = pgTable('transactions', {
   id: serial('id').primaryKey(),
   bookId: integer('book_id')
     .notNull()

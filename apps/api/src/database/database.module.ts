@@ -4,6 +4,9 @@ import { ConfigService } from '@nestjs/config';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { Pool } from 'pg';
 import * as usersSchema from '../user/schema';
+import * as booksSchema from '../book/schema';
+import * as transactionSchema from '../transaction/schema';
+import * as permissionSchema from '../permissions/schema';
 
 @Module({
   providers: [
@@ -20,6 +23,9 @@ import * as usersSchema from '../user/schema';
         return drizzle(pool, {
           schema: {
             ...usersSchema,
+            ...booksSchema,
+            ...transactionSchema,
+            ...permissionSchema,
           },
           casing: 'snake_case',
         });

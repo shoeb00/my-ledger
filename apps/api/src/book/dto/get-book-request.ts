@@ -1,12 +1,21 @@
-import { ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
+import { IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class GetBookRequestDto {
   @ApiPropertyOptional()
-  id?: number;
+  @IsString()
+  @IsOptional()
+  name?: string;
 
   @ApiPropertyOptional()
-  title?: string;
+  @IsNumber()
+  @Type(() => Number)
+  @IsOptional()
+  bookId?: number;
 
-  @ApiPropertyOptional()
-  authorId?: number;
+  @ApiProperty()
+  @IsNumber()
+  @Type(() => Number)
+  userId: number;
 }
