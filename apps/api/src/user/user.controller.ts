@@ -6,18 +6,20 @@ import {
   Param,
   ParseIntPipe,
   Post,
+  Query,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserRequestDto } from './dto/create-user-request';
 import { InviteUserRequestDto } from './dto/invite-user-request';
+import { GetUserRequestDto } from './dto/get-user-request';
 
 @Controller('v1/user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @Get('get/:id')
-  async getUser(@Param('id', ParseIntPipe) id: number) {
-    return await this.userService.getUser(id);
+  @Get('get')
+  async getUser(@Query() query: GetUserRequestDto) {
+    return await this.userService.getUser(query);
   }
 
   @Get('invitations/:email')

@@ -9,5 +9,6 @@ import { BookService } from '../book/book.service';
   imports: [DatabaseModule],
   controllers: [UserController],
   providers: [UserService, PermissionsService, BookService],
+  exports: [UserService],
 })
 export class UserModule {}
