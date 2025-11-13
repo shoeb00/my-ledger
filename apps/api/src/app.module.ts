@@ -10,6 +10,9 @@ import { UserController } from './user/user.controller';
 import { UserService } from './user/user.service';
 import { TransactionController } from './transaction/transaction.controller';
 import { TransactionService } from './transaction/transaction.service';
+import { PermissionsModule } from './permissions/permissions.module';
+import { PermissionsController } from './permissions/permissions.controller';
+import { PermissionsService } from './permissions/permissions.service';
 
 @Module({
   imports: [
@@ -18,8 +21,14 @@ import { TransactionService } from './transaction/transaction.service';
     UserModule,
     BookModule,
     TransactionModule,
+    PermissionsModule,
   ],
-  controllers: [BookController, UserController, TransactionController],
-  providers: [BookService, UserService, TransactionService],
+  controllers: [
+    BookController,
+    UserController,
+    TransactionController,
+    PermissionsController,
+  ],
+  providers: [BookService, UserService, TransactionService, PermissionsService],
 })
 export class AppModule {}

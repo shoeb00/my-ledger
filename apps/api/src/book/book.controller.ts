@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
 import { BookService } from './book.service';
 import { GetBookRequestDto } from './dto/get-book-request';
 import { CreateBookRequestDto } from './dto/create-book-request';
@@ -8,12 +8,17 @@ export class BookController {
   constructor(private readonly bookService: BookService) {}
 
   @Post('create')
-  createBook(@Body() createBook: CreateBookRequestDto) {
-    return this.bookService.createBook(createBook);
+  async createBook(@Body() createBook: CreateBookRequestDto) {
+    return await this.bookService.createBook(createBook);
   }
 
   @Get('get')
-  getBook(@Query() getBook: GetBookRequestDto) {
-    return this.bookService.getBooks(getBook);
+  async getBook(@Query() getBook: GetBookRequestDto) {
+    return await this.bookService.getBooks(getBook);
+  }
+
+  @Get('members/:id')
+  async getMembers(@Param('id') id: number) {
+    return await this.bookService.getMembers(id);
   }
 }
