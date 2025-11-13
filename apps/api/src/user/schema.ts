@@ -8,7 +8,7 @@ import {
   integer,
 } from 'drizzle-orm/pg-core';
 import { books } from '../book/schema';
-import { roleEnum } from '../permissions/schema';
+import { roleEnum } from '../database/enum';
 
 export const users = pgTable('users', {
   id: serial('id').primaryKey(),

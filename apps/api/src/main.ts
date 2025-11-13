@@ -1,17 +1,33 @@
-// main.ts
 import 'reflect-metadata';
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
-import { ValidationPipe } from '@nestjs/common';
+import { RawBodyRequest, ValidationPipe } from '@nestjs/common';
 import {
   DocumentBuilder,
   SwaggerModule,
   type OpenAPIObject,
 } from '@nestjs/swagger';
 import { AppModule } from './app.module';
+import { json, Request, urlencoded } from 'express';
 
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
+
+  app.use(
+    json({
+      verify: (req: RawBodyRequest<Request>, res, buf: Buffer) => {
+        req.rawBody = buf;
+      },
+    }),
+  );
+  app.use(
+    urlencoded({
+      extended: true,
+      verify: (req: RawBodyRequest<Request>, res, buf: Buffer) => {
+        req.rawBody = buf;
+      },
+    }),
+  );
 
   app.useGlobalPipes(new ValidationPipe({ transform: true, whitelist: true }));
 

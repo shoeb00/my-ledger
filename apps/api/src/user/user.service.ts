@@ -10,12 +10,13 @@ import * as usersSchema from './schema';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { UserResponseDto } from './dto/user-response';
 import { CreateUserRequestDto } from './dto/create-user-request';
-import { eq } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 import { InviteUserRequestDto } from './dto/invite-user-request';
 import { PermissionsService } from '../permissions/permissions.service';
 import { rolesEnum } from '../permissions/dto/create-or-update-permissions-request';
 import { BookService } from '../book/book.service';
 import { books } from '../book/schema';
+import { GetUserRequestDto } from './dto/get-user-request';
 
 const schema = { ...usersSchema, permissions, books };
 
@@ -28,9 +29,14 @@ export class UserService {
     private readonly bookService: BookService,
   ) {}
 
-  async getUser(id: number) {
-    return await this.db.query.users.findMany({
-      where: eq(schema.users.id, id),
+  async getUser(query: GetUserRequestDto) {
+    const { id, email } = query;
+    if (!id && !email) throw new BadRequestException('Id or email is required');
+
+    const conditions = id ? [eq(schema.users.id, id)] : [];
+    if (email) conditions.push(eq(schema.users.email, email));
+    return await this.db.query.users.findFirst({
+      where: and(...conditions),
     });
   }
 
