@@ -1,4 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { Roles } from '../../permissions/enum/roles';
 
 export class BookResponseDto {
   @ApiProperty()
@@ -18,4 +19,7 @@ export class BookResponseDto {
 
   @ApiProperty()
   balance: string;
+
+  @ApiProperty({ enum: Roles })
+  role?: Roles;
 }
