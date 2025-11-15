@@ -8,7 +8,7 @@ import {
   integer,
 } from 'drizzle-orm/pg-core';
 import { books } from '../book/schema';
-import { roleEnum } from '../database/enum';
+import { pgEnum } from 'drizzle-orm/pg-core';
 
 export const users = pgTable('users', {
   id: serial('id').primaryKey(),
@@ -17,6 +17,11 @@ export const users = pgTable('users', {
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
+
+export const roleEnum = pgEnum(
+  'roles',
+  Object.values(Roles) as [string, ...string[]],
+);
 
 export const invitations = pgTable('invitations', {
   id: serial('id').primaryKey(),

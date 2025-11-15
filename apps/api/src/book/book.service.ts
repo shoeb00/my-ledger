@@ -11,7 +11,7 @@ import { DATABASE_CONNECTION } from '../database/database-connection';
 import { CreateBookRequestDto } from './dto/create-book-request';
 import { BookResponseDto } from './dto/book-response';
 import { GetBookRequestDto } from './dto/get-book-request';
-import { and, eq, ilike, inArray } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import { Roles } from '../permissions/enum/roles';
 
 const schema = { ...bookSchema, permissions, users };
@@ -24,20 +24,23 @@ export class BookService {
   ) {}
 
   async getBooks(query: GetBookRequestDto): Promise<BookResponseDto[]> {
-    const perms = await this.db.query.permissions.findMany({
-      where: eq(schema.permissions.userId, query.userId),
-    });
-
-    if (perms.length === 0) return [];
-
-    const bookIds = perms.map((p) => p.bookId);
-    const conditions = [inArray(schema.books.id, bookIds)];
-    if (query.name)
-      conditions.push(ilike(schema.books.name, `%${query.name}%`));
-    if (query.bookId) conditions.push(eq(schema.books.id, query.bookId));
-    return this.db.query.books.findMany({
-      where: and(...conditions),
-    });
+    const { name, bookId } = query;
+    const rows = await this.db
+      .select({
+        book: schema.books,
+        role: schema.permissions.role,
+      })
+      .from(schema.permissions)
+      .leftJoin(schema.books, eq(schema.books.id, schema.permissions.bookId))
+      .where(eq(schema.permissions.userId, query.userId));
+    if (rows.length === 0) return [];
+    const books: BookResponseDto[] = [];
+    for (const row of rows) {
+      if (name && !row.book?.name.includes(name)) continue;
+      if (bookId && row.book?.id !== bookId) continue;
+      books.push({ ...row.book!, role: row.role });
+    }
+    return books;
   }
 
   async createBook(createBook: CreateBookRequestDto): Promise<BookResponseDto> {

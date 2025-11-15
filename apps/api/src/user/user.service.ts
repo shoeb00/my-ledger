@@ -87,7 +87,7 @@ export class UserService {
       userId: user.id,
       bookId: body.bookId,
     });
-    if (book) throw new BadRequestException('User already has access');
+    if (book.length) throw new BadRequestException('User already has access');
     await this.permissionsService.createPermissions({
       bookId: body.bookId,
       userId: user.id,
@@ -100,7 +100,10 @@ export class UserService {
     const [row] = await this.db
       .delete(schema.invitations)
       .where(
-        eq(schema.invitations.id, id) && eq(schema.invitations.accepted, false),
+        and(
+          eq(schema.invitations.id, id),
+          eq(schema.invitations.accepted, false),
+        ),
       )
       .returning();
     if (!row)

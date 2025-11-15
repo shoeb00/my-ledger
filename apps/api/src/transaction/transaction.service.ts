@@ -11,7 +11,7 @@ import * as booksSchema from '../book/schema';
 import { DATABASE_CONNECTION } from '../database/database-connection';
 import { GetTransactionsRequestDto } from './dto/get-transaction-request';
 import { TransactionResponseDto } from './dto/transaction-response';
-import { eq, sql } from 'drizzle-orm';
+import { and, asc, desc, eq, gte, like, lte, SQL, sql } from 'drizzle-orm';
 import { CreateTransactionsRequestDto } from './dto/create-transaction-request';
 import { PermissionsService } from '../permissions/permissions.service';
 import { Roles } from '../permissions/enum/roles';
@@ -40,8 +40,46 @@ export class TransactionService {
   async getAll(
     request: GetTransactionsRequestDto,
   ): Promise<TransactionResponseDto[]> {
-    const { limit, offset } = request;
-    return await this.db.query.transactions.findMany({ limit, offset });
+    const { limit, offset, order, sort, ...rest } = request;
+    const conditions: SQL[] = [];
+    for (const [key, value] of Object.entries(rest)) {
+      if (!value) continue;
+      switch (key) {
+        case 'bookId':
+        case 'userId':
+        case 'paymentType':
+          conditions.push(eq(schema.transactions[key], value));
+          break;
+        case 'minAmount':
+          conditions.push(gte(schema.transactions.amount, value.toString()));
+          break;
+        case 'createdAfter':
+          conditions.push(
+            gte(schema.transactions['createdAt'], new Date(value)),
+          );
+          break;
+        case 'maxAmount':
+          conditions.push(lte(schema.transactions.amount, value.toString()));
+          break;
+        case 'createdBefore':
+          conditions.push(
+            lte(schema.transactions['createdAt'], new Date(value)),
+          );
+          break;
+        case 'description':
+          conditions.push(
+            like(schema.transactions[key], `%${value as string}%`),
+          );
+          break;
+      }
+    }
+    const orderDirection = order === 'desc' ? desc : asc;
+    return await this.db.query.transactions.findMany({
+      limit,
+      offset,
+      where: and(...conditions),
+      orderBy: orderDirection(schema.transactions[sort]),
+    });
   }
 
   async create(
@@ -52,7 +90,7 @@ export class TransactionService {
       bookId: body.bookId,
     });
     if (!permission || permission.role === Roles.VIEWER)
-      throw new BadRequestException('User does not have access');
+      throw new BadRequestException('You do not have access');
     if (parseFloat(body.amount) === 0)
       throw new BadRequestException('Amount cannot be 0');
     const [row] = await this.db

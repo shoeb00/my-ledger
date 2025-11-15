@@ -3,13 +3,17 @@ import {
   Injectable,
   InternalServerErrorException,
 } from '@nestjs/common';
-import * as schema from './schema';
+import * as permissionsSchema from './schema';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { DATABASE_CONNECTION } from '../database/database-connection';
 import { SavePermissionsRequestDto } from './dto/create-or-update-permissions-request';
 import { PermissionsResponse } from './dto/permissions-response';
 import { GetPermissionsRequestDto } from './dto/get-permissions-request';
-import { eq } from 'drizzle-orm';
+import { and, eq, sql } from 'drizzle-orm';
+import * as booksSchema from '../book/schema';
+import { DeletePermissionRequestDto } from './dto/delete-permission-request';
+
+const schema = { ...permissionsSchema, ...booksSchema };
 
 @Injectable()
 export class PermissionsService {
@@ -22,9 +26,10 @@ export class PermissionsService {
     body: GetPermissionsRequestDto,
   ): Promise<PermissionsResponse | undefined> {
     return await this.db.query.permissions.findFirst({
-      where:
-        eq(schema.permissions.userId, body.userId) &&
+      where: and(
+        eq(schema.permissions.userId, body.userId),
         eq(schema.permissions.bookId, body.bookId),
+      ),
     });
   }
 
@@ -34,6 +39,10 @@ export class PermissionsService {
       .values(body)
       .returning();
     if (!row) throw new InternalServerErrorException('Failed to update');
+    await this.db
+      .update(schema.books)
+      .set({ members: sql`members + 1` })
+      .where(eq(schema.books.id, body.bookId));
     return row;
   }
 
@@ -45,6 +54,24 @@ export class PermissionsService {
       .set(body)
       .returning();
     if (!row) throw new InternalServerErrorException('Failed to update');
+    return row;
+  }
+
+  async deletePermission(query: DeletePermissionRequestDto) {
+    const [row] = await this.db
+      .delete(schema.permissions)
+      .where(
+        and(
+          eq(schema.permissions.userId, query.userId),
+          eq(schema.permissions.bookId, query.bookId),
+        ),
+      )
+      .returning();
+    if (!row) throw new InternalServerErrorException('Failed to update');
+    await this.db
+      .update(schema.books)
+      .set({ members: sql`members - 1` })
+      .where(eq(schema.books.id, query.bookId));
     return row;
   }
 }

@@ -1,0 +1,1 @@
+ALTER TABLE "books" ADD COLUMN "members" integer DEFAULT 0;
