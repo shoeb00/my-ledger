@@ -1,6 +1,14 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsNumber, IsDateString, IsString, IsOptional } from 'class-validator';
+import {
+  IsNumber,
+  IsDateString,
+  IsString,
+  IsOptional,
+  IsEnum,
+  IsIn,
+} from 'class-validator';
+import { TransactionSortableFields } from '../enums/transactions-sort-fields';
 
 export class GetTransactionsRequestDto {
   @ApiProperty()
@@ -8,33 +16,36 @@ export class GetTransactionsRequestDto {
   @Type(() => Number)
   bookId: number;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ default: 10 })
   @IsNumber()
   @Type(() => Number)
   limit: number = 10;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ default: 0 })
   @IsNumber()
   @Type(() => Number)
   offset: number = 0;
 
-  @ApiPropertyOptional()
-  @IsString()
-  sort: string = 'createdAt';
+  @ApiPropertyOptional({
+    enum: TransactionSortableFields,
+    default: TransactionSortableFields.createdAt,
+  })
+  @IsEnum(TransactionSortableFields)
+  sort: TransactionSortableFields = TransactionSortableFields.createdAt;
 
-  @ApiPropertyOptional()
-  @IsString()
-  order: string = 'desc';
+  @ApiPropertyOptional({ enum: ['asc', 'desc'], default: 'desc' })
+  @IsIn(['desc', 'asc'])
+  order: 'asc' | 'desc' = 'desc';
 
   @ApiPropertyOptional()
   @IsDateString()
   @IsOptional()
-  startDate?: Date;
+  createdBefore?: string;
 
   @ApiPropertyOptional()
   @IsDateString()
   @IsOptional()
-  endDate?: Date;
+  createdAfter?: string;
 
   @ApiPropertyOptional()
   @IsNumber()
@@ -51,4 +62,14 @@ export class GetTransactionsRequestDto {
   @IsString()
   @IsOptional()
   description?: string;
+
+  @ApiPropertyOptional()
+  @IsString()
+  @IsOptional()
+  minAmount?: string;
+
+  @ApiPropertyOptional()
+  @IsString()
+  @IsOptional()
+  maxAmount?: string;
 }
