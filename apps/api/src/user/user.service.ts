@@ -10,7 +10,7 @@ import * as usersSchema from './schema';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { UserResponseDto } from './dto/user-response';
 import { CreateUserRequestDto } from './dto/create-user-request';
-import { and, eq } from 'drizzle-orm';
+import { and, eq, SQL } from 'drizzle-orm';
 import { InviteUserRequestDto } from './dto/invite-user-request';
 import { PermissionsService } from '../permissions/permissions.service';
 import { rolesEnum } from '../permissions/dto/create-or-update-permissions-request';
@@ -30,13 +30,20 @@ export class UserService {
   ) {}
 
   async getUser(query: GetUserRequestDto) {
-    const { id, email } = query;
-    if (!id && !email) throw new BadRequestException('Id or email is required');
+    const clauses: SQL[] = [];
 
-    const conditions = id ? [eq(schema.users.id, id)] : [];
-    if (email) conditions.push(eq(schema.users.email, email));
+    if (query.email) clauses.push(eq(schema.users.email, query.email));
+    if (query.id) clauses.push(eq(schema.users.id, query.id));
+    if (query.clerkUserId)
+      clauses.push(eq(schema.users.clerkUserId, query.clerkUserId));
+
+    if (clauses.length === 0) {
+      throw new BadRequestException('No query provided');
+    }
+
+    const whereExpr = clauses.length === 1 ? clauses[0] : and(...clauses);
     return await this.db.query.users.findFirst({
-      where: and(...conditions),
+      where: whereExpr,
     });
   }
 
