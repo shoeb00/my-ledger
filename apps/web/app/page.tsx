@@ -101,7 +101,7 @@ export default function Home() {
 
       {/* Footer */}
       <footer className="mx-auto max-w-6xl px-4 pb-12 text-xs text-slate-500">
-        © {new Date().getFullYear()} my_ledger. All rights reserved.
+        © {new Date().getFullYear()} my-ledger. All rights reserved.
       </footer>
     </div>
   );

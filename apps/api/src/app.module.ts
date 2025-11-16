@@ -14,6 +14,9 @@ import { PermissionsModule } from './permissions/permissions.module';
 import { PermissionsController } from './permissions/permissions.controller';
 import { PermissionsService } from './permissions/permissions.service';
 import { WebhooksModule } from './webhooks/webhooks.module';
+import { APP_GUARD } from '@nestjs/core';
+import { ClerkAuthGuard } from './auth/clerk-auth.guard';
+import { PermissionsGuard } from './auth/permissions.guard';
 
 @Module({
   imports: [
@@ -31,6 +34,13 @@ import { WebhooksModule } from './webhooks/webhooks.module';
     TransactionController,
     PermissionsController,
   ],
-  providers: [BookService, UserService, TransactionService, PermissionsService],
+  providers: [
+    BookService,
+    UserService,
+    TransactionService,
+    PermissionsService,
+    { provide: APP_GUARD, useClass: ClerkAuthGuard },
+    { provide: APP_GUARD, useClass: PermissionsGuard },
+  ],
 })
 export class AppModule {}

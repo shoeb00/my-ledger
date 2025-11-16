@@ -1,5 +1,11 @@
-import CreateBook from "../create-book/create-book";
+import CreateBook from '../book/create-book';
+import { DataTableDemo } from '../book/get-books';
 
 export default function Home() {
-  return <CreateBook/>;
+  return (
+    <div className="p-10 border-solid border-gray-400">
+      <DataTableDemo />
+      <CreateBook />
+    </div>
+  );
 }

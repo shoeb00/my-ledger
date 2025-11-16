@@ -1,6 +1,6 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsEmail, IsInt, IsOptional } from 'class-validator';
+import { IsEmail, IsInt, IsOptional, IsString } from 'class-validator';
 
 export class GetUserRequestDto {
   @ApiPropertyOptional()
@@ -13,4 +13,9 @@ export class GetUserRequestDto {
   @Type(() => Number)
   @IsInt()
   id?: number;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  clerkUserId?: string;
 }

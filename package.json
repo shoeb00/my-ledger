@@ -1,5 +1,5 @@
 {
-  "name": "my-turborepo",
+  "name": "my-ledger",
   "private": true,
   "scripts": {
     "build": "turbo run build",
