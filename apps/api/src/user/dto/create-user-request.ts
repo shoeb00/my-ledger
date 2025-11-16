@@ -9,4 +9,8 @@ export class CreateUserRequestDto {
   @ApiProperty()
   @IsEmail()
   email: string;
+
+  @ApiProperty()
+  @IsString()
+  clerkUserId: string;
 }

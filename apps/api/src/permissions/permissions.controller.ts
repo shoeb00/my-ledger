@@ -3,12 +3,15 @@ import { SavePermissionsRequestDto } from './dto/create-or-update-permissions-re
 import { PermissionsService } from './permissions.service';
 import { Body, Controller, Delete, Put, Query } from '@nestjs/common';
 import { DeletePermissionRequestDto } from './dto/delete-permission-request';
+import { Roles as rolEnum } from './enum/roles';
+import { Roles } from '../auth/roles.decorator';
 
 @Controller('v1/permissions')
 export class PermissionsController {
   constructor(private readonly permissionsService: PermissionsService) {}
 
   @Put('update')
+  @Roles(rolEnum.AUTHOR)
   async updatePermissions(
     @Body() body: SavePermissionsRequestDto,
   ): Promise<PermissionsResponse> {
@@ -16,6 +19,7 @@ export class PermissionsController {
   }
 
   @Delete('delete')
+  @Roles(rolEnum.AUTHOR)
   async deletePermission(@Query() query: DeletePermissionRequestDto) {
     return await this.permissionsService.deletePermission(query);
   }

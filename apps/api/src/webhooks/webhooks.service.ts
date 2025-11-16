@@ -59,6 +59,7 @@ export class WebhooksService {
         first_name: string;
         last_name: string;
         email_addresses: [{ email_address: string }];
+        id: string;
       };
       const email = user?.email_addresses[0]?.email_address;
       const existingUser = await this.userService.getUser({ email });
@@ -66,7 +67,11 @@ export class WebhooksService {
         return { ok: true };
       }
       const name = `${user.first_name} ${user.last_name}`.trim();
-      await this.userService.registerUser({ email, name });
+      await this.userService.registerUser({
+        email,
+        name,
+        clerkUserId: user.id,
+      });
     }
 
     return { ok: true };
