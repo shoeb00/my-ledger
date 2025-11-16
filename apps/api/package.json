@@ -1,5 +1,5 @@
 {
-  "name": "api",
+  "name": "@my-ledger/api",
   "version": "0.0.1",
   "description": "",
   "author": "",
@@ -20,6 +20,7 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
+    "@clerk/backend": "2.22.0",
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "4.0.2",
     "@nestjs/core": "^11.0.1",
@@ -78,5 +79,12 @@
     ],
     "coverageDirectory": "../coverage",
     "testEnvironment": "node"
+  },
+  "exports": {
+    "./book": "./src/book/schema.ts",
+    "./user": "./src/user/schema.ts",
+    "./transaction": "./src/transaction/schema.ts",
+    "./permissions": "./src/permissions/schema.ts",
+    "./role": "./src/permissions/enum/roles.ts"
   }
 }
