@@ -1,3 +1,4 @@
+import { RequestContextService } from './../common/request-context.service';
 import {
   CanActivate,
   ExecutionContext,
@@ -10,16 +11,20 @@ import { ROLES_KEY } from './roles.decorator';
 import { UserService } from '../user/user.service';
 import { ROLE_RANK } from '../permissions/enum/roles';
 import { Request } from 'express';
+import { PermissionsService } from '../permissions/permissions.service';
 import { UserResponseDto } from '../user/dto/user-response';
 import { PermissionsResponse } from '../permissions/dto/permissions-response';
-import { PermissionsService } from '../permissions/permissions.service';
 
-interface RequestWithAuth extends Request {
-  auth: {
-    clerkUserId: string;
-  };
-  user: UserResponseDto;
-  permissions: PermissionsResponse;
+type ReqBody = { bookId?: string } & Record<string, unknown>;
+type ReqQuery = { bookId?: string } & Record<
+  string,
+  string | string[] | undefined
+>;
+
+interface RequestWithAuth extends Request<any, any, ReqBody, ReqQuery> {
+  auth?: { clerkUserId?: string };
+  user?: UserResponseDto;
+  permissions?: PermissionsResponse;
 }
 
 @Injectable()
@@ -28,6 +33,7 @@ export class PermissionsGuard implements CanActivate {
     private reflector: Reflector,
     private usersService: UserService,
     private permissionsService: PermissionsService,
+    private requestContextService: RequestContextService,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -36,12 +42,8 @@ export class PermissionsGuard implements CanActivate {
       [context.getHandler(), context.getClass()],
     );
 
-    if (!requiredRoles || requiredRoles.length === 0) {
-      return true;
-    }
-
-    const req = context.switchToHttp().getRequest() as RequestWithAuth;
-    const clerkUserId = req.auth.clerkUserId as string;
+    const req = context.switchToHttp().getRequest<RequestWithAuth>();
+    const clerkUserId = req.auth?.clerkUserId;
     if (!clerkUserId) {
       throw new ForbiddenException(
         'No authenticated user available for authorization',
@@ -51,11 +53,19 @@ export class PermissionsGuard implements CanActivate {
     const user = await this.usersService.getUser({
       clerkUserId,
     });
-    const bookId = parseInt(req.query.bookId || req.body.bookId);
-    if (!bookId) throw new ForbiddenException('No bookId provided');
     if (!user) {
       throw new UnauthorizedException('User not found');
     }
+
+    this.requestContextService.setUser(user);
+    if (!requiredRoles || requiredRoles.length === 0) {
+      return true;
+    }
+
+    const rawBookId = req.query?.bookId || req.body?.bookId;
+    const bookId = parseInt(String(rawBookId), 10);
+    if (Number.isNaN(bookId)) throw new ForbiddenException('Invalid bookId');
+    if (!bookId) throw new ForbiddenException('No bookId provided');
 
     const permissions = await this.permissionsService.getPermissions({
       userId: user.id,
@@ -75,8 +85,7 @@ export class PermissionsGuard implements CanActivate {
       throw new ForbiddenException('Insufficient role');
     }
 
-    req.user = user;
-    req.permissions = permissions;
+    this.requestContextService.setPermissions(permissions);
     return true;
   }
 }
