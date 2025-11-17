@@ -13,6 +13,7 @@ import { BookResponseDto } from './dto/book-response';
 import { GetBookRequestDto } from './dto/get-book-request';
 import { eq } from 'drizzle-orm';
 import { Roles } from '../permissions/enum/roles';
+import { RequestContextService } from '../common/request-context.service';
 
 const schema = { ...bookSchema, permissions, users };
 
@@ -21,10 +22,13 @@ export class BookService {
   constructor(
     @Inject(DATABASE_CONNECTION)
     private readonly db: NodePgDatabase<typeof schema>,
+    private readonly cxt: RequestContextService,
   ) {}
 
   async getBooks(query: GetBookRequestDto): Promise<BookResponseDto[]> {
     const { name, bookId } = query;
+    const user = this.cxt.getUser();
+    console.log(user);
     const rows = await this.db
       .select({
         book: schema.books,
