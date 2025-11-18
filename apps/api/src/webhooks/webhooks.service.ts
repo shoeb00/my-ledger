@@ -63,7 +63,13 @@ export class WebhooksService {
       };
       const email = user?.email_addresses[0]?.email_address;
       const existingUser = await this.userService.getUser({ email });
-      if (existingUser) {
+      if (existingUser && existingUser.clerkUserId === user.id) {
+        return { ok: true };
+      } else if (existingUser) {
+        console.warn(
+          `User with email ${email} already exists with different clerkUserId`,
+        );
+        await this.userService.updateClerkUserId(existingUser.id, user.id);
         return { ok: true };
       }
       const name = `${user.first_name} ${user.last_name}`.trim();

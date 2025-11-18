@@ -2,7 +2,6 @@ import {
   Body,
   Controller,
   Get,
-  Param,
   ParseIntPipe,
   Post,
   Query,
@@ -10,7 +9,7 @@ import {
 import { BookService } from './book.service';
 import { GetBookRequestDto } from './dto/get-book-request';
 import { CreateBookRequestDto } from './dto/create-book-request';
-import { Roles } from '../auth/roles.decorator';
+import { Roles } from '../common/decorators/roles.decorator';
 import { Roles as rolesEnum } from '../permissions/enum/roles';
 
 @Controller('v1/book')
@@ -27,9 +26,9 @@ export class BookController {
     return await this.bookService.getBooks(getBook);
   }
 
-  @Get('members/:id')
+  @Get('members')
   @Roles(rolesEnum.VIEWER)
-  async getMembers(@Param('id', ParseIntPipe) id: number) {
+  async getMembers(@Query('bookId', ParseIntPipe) id: number) {
     return await this.bookService.getMembers(id);
   }
 }

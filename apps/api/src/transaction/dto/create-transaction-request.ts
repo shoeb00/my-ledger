@@ -7,10 +7,6 @@ export class CreateTransactionsRequestDto {
   bookId: number;
 
   @ApiProperty()
-  @IsNumber()
-  userId: number;
-
-  @ApiProperty()
   @IsString()
   amount: string;
 

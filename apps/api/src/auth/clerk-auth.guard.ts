@@ -7,9 +7,12 @@ import {
 } from '@nestjs/common';
 import { createClerkClient } from '@clerk/backend';
 import type { Request as ExpressReq } from 'express';
+import { Reflector } from '@nestjs/core';
+import { IS_PUBLIC } from '../common/decorators/public.decorator';
 
 @Injectable()
 export class ClerkAuthGuard implements CanActivate {
+  constructor(private readonly reflector: Reflector) {}
   private clerkClient = createClerkClient({
     secretKey: process.env.CLERK_SECRET_KEY!,
     publishableKey: process.env.CLERK_PUBLISHABLE_KEY!,
@@ -23,8 +26,13 @@ export class ClerkAuthGuard implements CanActivate {
   }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const req = context.switchToHttp().getRequest<ExpressReq>();
+    const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC, [
+      context.getHandler(),
+      context.getClass(),
+    ]);
+    if (isPublic) return true;
 
+    const req = context.switchToHttp().getRequest<ExpressReq>();
     try {
       const fullUrl = this.buildAbsoluteUrl(req);
 

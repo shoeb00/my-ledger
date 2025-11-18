@@ -13,8 +13,7 @@ import { GetTransactionsRequestDto } from './dto/get-transaction-request';
 import { TransactionResponseDto } from './dto/transaction-response';
 import { and, asc, desc, eq, gte, like, lte, SQL, sql } from 'drizzle-orm';
 import { CreateTransactionsRequestDto } from './dto/create-transaction-request';
-import { PermissionsService } from '../permissions/permissions.service';
-import { Roles } from '../permissions/enum/roles';
+import { RequestContextService } from '../common/request-context.service';
 
 const schema = { ...transactionsSchema, ...booksSchema };
 
@@ -23,7 +22,7 @@ export class TransactionService {
   constructor(
     @Inject(DATABASE_CONNECTION)
     private readonly db: NodePgDatabase<typeof schema>,
-    private readonly permissionsService: PermissionsService,
+    private readonly cxt: RequestContextService,
   ) {}
 
   async get(id: number): Promise<TransactionResponseDto> {
@@ -85,17 +84,12 @@ export class TransactionService {
   async create(
     body: CreateTransactionsRequestDto,
   ): Promise<TransactionResponseDto> {
-    const permission = await this.permissionsService.getPermissions({
-      userId: body.userId,
-      bookId: body.bookId,
-    });
-    if (!permission || permission.role === Roles.VIEWER)
-      throw new BadRequestException('You do not have access');
+    const user = this.cxt.getUser();
     if (parseFloat(body.amount) === 0)
       throw new BadRequestException('Amount cannot be 0');
     const [row] = await this.db
       .insert(schema.transactions)
-      .values(body)
+      .values({ ...body, userId: user.id })
       .returning();
     const transactionType =
       parseFloat(body.amount) > 0 ? 'credited' : 'debited';

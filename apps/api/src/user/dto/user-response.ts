@@ -11,6 +11,9 @@ export class UserResponseDto {
   email: string;
 
   @ApiProperty()
+  clerkUserId: string;
+
+  @ApiProperty()
   createdAt: Date;
 
   @ApiProperty()

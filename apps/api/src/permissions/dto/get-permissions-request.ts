@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { IsNumber } from 'class-validator';
 
@@ -8,8 +8,8 @@ export class GetPermissionsRequestDto {
   @Type(() => Number)
   bookId: number;
 
-  @ApiProperty()
+  @ApiPropertyOptional()
   @IsNumber()
   @Type(() => Number)
-  userId: number;
+  userId?: number;
 }

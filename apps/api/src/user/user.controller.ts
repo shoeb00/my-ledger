@@ -6,30 +6,25 @@ import {
   Param,
   ParseIntPipe,
   Post,
-  Query,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserRequestDto } from './dto/create-user-request';
 import { InviteUserRequestDto } from './dto/invite-user-request';
-import { GetUserRequestDto } from './dto/get-user-request';
+import { Roles } from '../common/decorators/roles.decorator';
+import { Roles as rolesEnum } from '../permissions/enum/roles';
 
 @Controller('v1/user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @Get('get')
-  async getUser(@Query() query: GetUserRequestDto) {
-    return await this.userService.getUser(query);
+  @Get('invitations')
+  async getInvitations() {
+    return await this.userService.getInvitations();
   }
 
-  @Get('invitations/:email')
-  async getInvitations(@Param('email') email: string) {
-    return await this.userService.getInvitations(email);
-  }
-
-  @Get('emails/:userId')
-  async getEmails(@Param('userId') userId: number) {
-    return await this.userService.getEmails(userId);
+  @Get('emails')
+  async getEmails() {
+    return await this.userService.getEmails();
   }
 
   @Post('register')
@@ -37,6 +32,7 @@ export class UserController {
     return await this.userService.registerUser(body);
   }
 
+  @Roles(rolesEnum.EDITOR)
   @Post('invite')
   async inviteUser(@Body() body: InviteUserRequestDto) {
     return await this.userService.inviteUser(body);
