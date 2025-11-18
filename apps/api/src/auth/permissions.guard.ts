@@ -7,13 +7,14 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { ROLES_KEY } from './roles.decorator';
+import { ROLES_KEY } from '../common/decorators/roles.decorator';
 import { UserService } from '../user/user.service';
 import { ROLE_RANK } from '../permissions/enum/roles';
 import { Request } from 'express';
 import { PermissionsService } from '../permissions/permissions.service';
 import { UserResponseDto } from '../user/dto/user-response';
 import { PermissionsResponse } from '../permissions/dto/permissions-response';
+import { IS_PUBLIC } from '../common/decorators/public.decorator';
 
 type ReqBody = { bookId?: string } & Record<string, unknown>;
 type ReqQuery = { bookId?: string } & Record<
@@ -37,6 +38,12 @@ export class PermissionsGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
+    const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC, [
+      context.getHandler(),
+      context.getClass(),
+    ]);
+    if (isPublic) return true;
+
     const requiredRoles = this.reflector.getAllAndOverride<string[]>(
       ROLES_KEY,
       [context.getHandler(), context.getClass()],
@@ -68,7 +75,6 @@ export class PermissionsGuard implements CanActivate {
     if (!bookId) throw new ForbiddenException('No bookId provided');
 
     const permissions = await this.permissionsService.getPermissions({
-      userId: user.id,
       bookId,
     });
 
