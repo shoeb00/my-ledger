@@ -28,7 +28,6 @@ export class BookService {
   async getBooks(query: GetBookRequestDto): Promise<BookResponseDto[]> {
     const { name, bookId } = query;
     const user = this.cxt.getUser();
-    console.log(user);
     const rows = await this.db
       .select({
         book: schema.books,
@@ -36,7 +35,7 @@ export class BookService {
       })
       .from(schema.permissions)
       .leftJoin(schema.books, eq(schema.books.id, schema.permissions.bookId))
-      .where(eq(schema.permissions.userId, query.userId));
+      .where(eq(schema.permissions.userId, user.id));
     if (rows.length === 0) return [];
     const books: BookResponseDto[] = [];
     for (const row of rows) {
@@ -48,14 +47,15 @@ export class BookService {
   }
 
   async createBook(createBook: CreateBookRequestDto): Promise<BookResponseDto> {
+    const user = this.cxt.getUser();
     const [row] = await this.db
       .insert(schema.books)
-      .values(createBook)
+      .values({ ...createBook, userId: user.id })
       .returning();
     if (!row) throw new InternalServerErrorException('Failed to create');
     await this.db.insert(permissions).values({
       bookId: row.id,
-      userId: createBook.userId,
+      userId: user.id,
       role: Roles.AUTHOR,
     });
     return row;
