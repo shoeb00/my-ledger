@@ -48,12 +48,6 @@ export class GetTransactionsRequestDto {
   createdAfter?: string;
 
   @ApiPropertyOptional()
-  @IsNumber()
-  @Type(() => Number)
-  @IsOptional()
-  userId?: number;
-
-  @ApiPropertyOptional()
   @IsString()
   @IsOptional()
   paymentType?: string;

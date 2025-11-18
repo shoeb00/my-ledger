@@ -12,7 +12,7 @@ import { TransactionService } from './transaction.service';
 import { TransactionResponseDto } from './dto/transaction-response';
 import { GetTransactionsRequestDto } from './dto/get-transaction-request';
 import { CreateTransactionsRequestDto } from './dto/create-transaction-request';
-import { Roles } from '../auth/roles.decorator';
+import { Roles } from '../common/decorators/roles.decorator';
 import { Roles as rolEnum } from '../permissions/enum/roles';
 
 @ApiTags('v1/transaction')
