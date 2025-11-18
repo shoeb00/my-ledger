@@ -6,10 +6,10 @@ export class DeletePermissionRequestDto {
   @ApiProperty()
   @IsNumber()
   @Type(() => Number)
-  userId: number;
+  bookId: number;
 
   @ApiProperty()
   @IsNumber()
   @Type(() => Number)
-  bookId: number;
+  permissionId: number;
 }
