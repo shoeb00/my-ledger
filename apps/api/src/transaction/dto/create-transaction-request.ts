@@ -1,5 +1,10 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsNumber, IsOptional, IsString } from 'class-validator';
+import {
+  IsNumber,
+  IsNumberString,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 
 export class CreateTransactionsRequestDto {
   @ApiProperty()
@@ -7,7 +12,7 @@ export class CreateTransactionsRequestDto {
   bookId: number;
 
   @ApiProperty()
-  @IsString()
+  @IsNumberString()
   amount: string;
 
   @ApiPropertyOptional()

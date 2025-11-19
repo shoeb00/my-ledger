@@ -78,31 +78,33 @@ export class UserService {
     });
   }
 
+  async inviteUnregisteredUser(body: InviteUserRequestDto) {
+    const currentUser = this.cxt.getUser();
+    const [count] = await this.db
+      .select({ count: schema.invitations.id })
+      .from(schema.invitations);
+    if (Number(count?.count) >= 20)
+      throw new BadRequestException('Max invites reached');
+    const invite = await this.db.query.invitations.findFirst({
+      where: and(
+        eq(schema.invitations.email, body.email),
+        eq(schema.invitations.invitedBy, currentUser.id),
+        eq(schema.invitations.bookId, body.bookId),
+      ),
+    });
+    if (invite) throw new BadRequestException('Already invited');
+    const [invitation] = await this.db
+      .insert(schema.invitations)
+      .values({ ...body, invitedBy: currentUser.id })
+      .returning();
+    return invitation;
+  }
+
   async inviteUser(body: InviteUserRequestDto) {
     const user = await this.db.query.users.findFirst({
       where: eq(schema.users.email, body.email),
     });
-    if (!user) {
-      const currentUser = this.cxt.getUser();
-      const [count] = await this.db
-        .select({ count: schema.invitations.id })
-        .from(schema.invitations);
-      if (Number(count?.count) >= 20)
-        throw new BadRequestException('Max invites reached');
-      const invite = await this.db.query.invitations.findFirst({
-        where: and(
-          eq(schema.invitations.email, body.email),
-          eq(schema.invitations.invitedBy, currentUser.id),
-          eq(schema.invitations.bookId, body.bookId),
-        ),
-      });
-      if (invite) throw new BadRequestException('Already invited');
-      const [invitation] = await this.db
-        .insert(schema.invitations)
-        .values({ ...body, invitedBy: currentUser.id })
-        .returning();
-      return invitation;
-    }
+    if (!user) return await this.inviteUnregisteredUser(body);
     const permission = await this.permissionsService.getPermissions({
       bookId: body.bookId,
       userId: user.id,

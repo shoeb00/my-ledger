@@ -1,5 +1,5 @@
 import { permissions } from './../permissions/schema';
-import { users } from './../user/schema';
+import { users, invitations } from './../user/schema';
 import {
   Inject,
   Injectable,
@@ -14,8 +14,10 @@ import { GetBookRequestDto } from './dto/get-book-request';
 import { eq } from 'drizzle-orm';
 import { Roles } from '../permissions/enum/roles';
 import { RequestContextService } from '../common/request-context.service';
+import { UpdateBookRequestDto } from './dto/update-book-request';
+import { transactions } from '../transaction/schema';
 
-const schema = { ...bookSchema, permissions, users };
+const schema = { ...bookSchema, permissions, users, invitations, transactions };
 
 @Injectable()
 export class BookService {
@@ -72,5 +74,31 @@ export class BookService {
       .from(permissions)
       .leftJoin(schema.users, eq(schema.users.id, schema.permissions.userId))
       .where(eq(schema.permissions.bookId, id));
+  }
+
+  async updateBook(query: UpdateBookRequestDto): Promise<BookResponseDto> {
+    const [row] = await this.db
+      .update(schema.books)
+      .set({ ...query })
+      .where(eq(schema.books.id, query.bookId))
+      .returning();
+    if (!row) throw new InternalServerErrorException('Failed to update');
+    return row;
+  }
+
+  async deleteBook(bookId: number) {
+    await this.db.transaction(async () => {
+      await this.db
+        .delete(schema.invitations)
+        .where(eq(schema.invitations.bookId, bookId));
+      await this.db
+        .delete(schema.transactions)
+        .where(eq(schema.transactions.bookId, bookId));
+      await this.db
+        .delete(schema.permissions)
+        .where(eq(schema.permissions.bookId, bookId));
+      await this.db.delete(schema.books).where(eq(schema.books.id, bookId));
+      return;
+    });
   }
 }

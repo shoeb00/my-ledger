@@ -14,6 +14,7 @@ import { TransactionResponseDto } from './dto/transaction-response';
 import { and, asc, desc, eq, gte, like, lte, SQL, sql } from 'drizzle-orm';
 import { CreateTransactionsRequestDto } from './dto/create-transaction-request';
 import { RequestContextService } from '../common/request-context.service';
+import { UpdateTransactionsRequestDto } from './dto/update-transaction-request';
 
 const schema = { ...transactionsSchema, ...booksSchema };
 
@@ -103,5 +104,36 @@ export class TransactionService {
       .where(eq(schema.books.id, body.bookId));
     if (!row) throw new InternalServerErrorException('Failed to create');
     return row;
+  }
+
+  async update(
+    query: UpdateTransactionsRequestDto,
+  ): Promise<TransactionResponseDto> {
+    const record = await this.db.query.transactions.findFirst({
+      where: eq(schema.transactions.id, query.transactionId),
+    });
+    if (!record) throw new NotFoundException('Transaction not found');
+    const [updatedRow] = await this.db
+      .update(schema.transactions)
+      .set({ paymentType: query.paymentType, description: query.description })
+      .where(eq(schema.transactions.id, query.transactionId))
+      .returning();
+    if (!updatedRow) throw new InternalServerErrorException('Failed to update');
+    return updatedRow;
+  }
+
+  async delete(id: number): Promise<void> {
+    const record = await this.db.query.transactions.findFirst({
+      where: and(eq(schema.transactions.id, id)),
+    });
+    if (!record) throw new NotFoundException('Transaction not found');
+    await this.db.transaction(async () => {
+      await this.db.update(schema.books).set({
+        balance: sql`${schema.books.balance} - ${record.amount}`,
+      });
+      await this.db
+        .delete(schema.transactions)
+        .where(eq(schema.transactions.id, id));
+    });
   }
 }
