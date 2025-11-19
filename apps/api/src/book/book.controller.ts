@@ -11,6 +11,7 @@ import { GetBookRequestDto } from './dto/get-book-request';
 import { CreateBookRequestDto } from './dto/create-book-request';
 import { Roles } from '../common/decorators/roles.decorator';
 import { Roles as rolesEnum } from '../permissions/enum/roles';
+import { UpdateBookRequestDto } from './dto/update-book-request';
 
 @Controller('v1/book')
 export class BookController {
@@ -30,5 +31,11 @@ export class BookController {
   @Roles(rolesEnum.VIEWER)
   async getMembers(@Query('bookId', ParseIntPipe) id: number) {
     return await this.bookService.getMembers(id);
+  }
+
+  @Post('update')
+  @Roles(rolesEnum.AUTHOR)
+  async updateBook(@Body() updateBook: UpdateBookRequestDto) {
+    return await this.bookService.updateBook(updateBook);
   }
 }
