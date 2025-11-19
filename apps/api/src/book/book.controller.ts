@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   ParseIntPipe,
   Post,
@@ -37,5 +38,11 @@ export class BookController {
   @Roles(rolesEnum.AUTHOR)
   async updateBook(@Body() updateBook: UpdateBookRequestDto) {
     return await this.bookService.updateBook(updateBook);
+  }
+
+  @Delete('delete')
+  @Roles(rolesEnum.AUTHOR)
+  async deleteBook(@Query('bookId', ParseIntPipe) id: number) {
+    return await this.bookService.deleteBook(id);
   }
 }

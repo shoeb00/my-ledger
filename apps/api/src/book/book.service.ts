@@ -85,4 +85,20 @@ export class BookService {
     if (!row) throw new InternalServerErrorException('Failed to update');
     return row;
   }
+
+  async deleteBook(bookId: number) {
+    await this.db.transaction(async () => {
+      await this.db
+        .delete(schema.invitations)
+        .where(eq(schema.invitations.bookId, bookId));
+      await this.db
+        .delete(schema.transactions)
+        .where(eq(schema.transactions.bookId, bookId));
+      await this.db
+        .delete(schema.permissions)
+        .where(eq(schema.permissions.bookId, bookId));
+      await this.db.delete(schema.books).where(eq(schema.books.id, bookId));
+      return;
+    });
+  }
 }
