@@ -1,10 +1,12 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   ParseIntPipe,
   Post,
+  Put,
   Query,
 } from '@nestjs/common';
 import { ApiOkResponse, ApiParam, ApiTags } from '@nestjs/swagger';
@@ -14,6 +16,7 @@ import { GetTransactionsRequestDto } from './dto/get-transaction-request';
 import { CreateTransactionsRequestDto } from './dto/create-transaction-request';
 import { Roles } from '../common/decorators/roles.decorator';
 import { Roles as rolEnum } from '../permissions/enum/roles';
+import { UpdateTransactionsRequestDto } from './dto/update-transaction-request';
 
 @ApiTags('v1/transaction')
 @Controller('v1/transaction')
@@ -47,5 +50,24 @@ export class TransactionController {
   })
   async create(@Body() body: CreateTransactionsRequestDto) {
     return await this.service.create(body);
+  }
+
+  @Put('update')
+  @Roles(rolEnum.EDITOR)
+  @ApiOkResponse({
+    type: TransactionResponseDto,
+  })
+  async update(@Query() query: UpdateTransactionsRequestDto) {
+    return await this.service.update(query);
+  }
+
+  @Delete('delete/:id')
+  @Roles(rolEnum.AUTHOR)
+  async delete(
+    @Param('id', ParseIntPipe) id: number,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    @Query('bookId', ParseIntPipe) _bookId: number,
+  ) {
+    return await this.service.delete(id);
   }
 }
