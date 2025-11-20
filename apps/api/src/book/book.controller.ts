@@ -5,6 +5,7 @@ import {
   Get,
   ParseIntPipe,
   Post,
+  Put,
   Query,
 } from '@nestjs/common';
 import { BookService } from './book.service';
@@ -13,6 +14,7 @@ import { CreateBookRequestDto } from './dto/create-book-request';
 import { Roles } from '../common/decorators/roles.decorator';
 import { Roles as rolesEnum } from '../permissions/enum/roles';
 import { UpdateBookRequestDto } from './dto/update-book-request';
+import { ChangeOwnerBookRequestDto } from './dto/change-owner-book-request';
 
 @Controller('v1/book')
 export class BookController {
@@ -34,7 +36,13 @@ export class BookController {
     return await this.bookService.getMembers(id);
   }
 
-  @Post('update')
+  @Put('changeOwnership')
+  @Roles(rolesEnum.AUTHOR)
+  async changeOwner(@Query() query: ChangeOwnerBookRequestDto) {
+    return await this.bookService.changeOwner(query);
+  }
+
+  @Put('update')
   @Roles(rolesEnum.AUTHOR)
   async updateBook(@Body() updateBook: UpdateBookRequestDto) {
     return await this.bookService.updateBook(updateBook);
