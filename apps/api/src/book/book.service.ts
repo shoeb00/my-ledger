@@ -11,11 +11,12 @@ import { DATABASE_CONNECTION } from '../database/database-connection';
 import { CreateBookRequestDto } from './dto/create-book-request';
 import { BookResponseDto } from './dto/book-response';
 import { GetBookRequestDto } from './dto/get-book-request';
-import { eq } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 import { Roles } from '../permissions/enum/roles';
 import { RequestContextService } from '../common/request-context.service';
 import { UpdateBookRequestDto } from './dto/update-book-request';
 import { transactions } from '../transaction/schema';
+import { ChangeOwnerBookRequestDto } from './dto/change-owner-book-request';
 
 const schema = { ...bookSchema, permissions, users, invitations, transactions };
 
@@ -74,6 +75,30 @@ export class BookService {
       .from(permissions)
       .leftJoin(schema.users, eq(schema.users.id, schema.permissions.userId))
       .where(eq(schema.permissions.bookId, id));
+  }
+
+  async changeOwner(query: ChangeOwnerBookRequestDto): Promise<void> {
+    const { id: authorId } = this.cxt.getUser();
+    await this.db.transaction(async () => {
+      await this.db
+        .update(schema.permissions)
+        .set({ role: Roles.AUTHOR })
+        .where(
+          and(
+            eq(schema.permissions.userId, query.userId),
+            eq(schema.permissions.bookId, query.bookId),
+          ),
+        );
+      await this.db
+        .update(schema.permissions)
+        .set({ role: Roles.EDITOR })
+        .where(
+          and(
+            eq(schema.permissions.userId, authorId),
+            eq(schema.permissions.bookId, query.bookId),
+          ),
+        );
+    });
   }
 
   async updateBook(query: UpdateBookRequestDto): Promise<BookResponseDto> {
