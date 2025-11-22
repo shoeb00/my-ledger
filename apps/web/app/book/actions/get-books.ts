@@ -1,13 +1,13 @@
-'use server';
-
 import { Book } from '@my-ledger/api/book';
 
-export default async function getBook(): Promise<Book[]> {
-  const data = await fetch(`${process.env.API_URL}/v1/book/get`, {
+export async function getBook(): Promise<Book[]> {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/v1/book/get`, {
     method: 'GET',
     headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
   });
-  const result = await data.json();
-  console.log("result", result)
-  return result;
+  if (!res.ok) throw new Error(`status ${res.status}`);
+  const data = await res.json();
+  console.log(data);
+  return data;
 }
