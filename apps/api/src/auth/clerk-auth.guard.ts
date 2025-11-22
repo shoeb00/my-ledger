@@ -10,10 +10,16 @@ import type { Request as ExpressReq } from 'express';
 import { Reflector } from '@nestjs/core';
 import { IS_PUBLIC } from '../common/decorators/public.decorator';
 
+interface AuthenticatedRequest extends ExpressReq {
+  auth?: {
+    clerkUserId: string;
+  };
+}
+
 @Injectable()
 export class ClerkAuthGuard implements CanActivate {
   constructor(private readonly reflector: Reflector) {}
-  private clerkClient = createClerkClient({
+  private readonly clerkClient = createClerkClient({
     secretKey: process.env.CLERK_SECRET_KEY!,
     publishableKey: process.env.CLERK_PUBLISHABLE_KEY!,
   });
@@ -32,7 +38,7 @@ export class ClerkAuthGuard implements CanActivate {
     ]);
     if (isPublic) return true;
 
-    const req = context.switchToHttp().getRequest<ExpressReq>();
+    const req = context.switchToHttp().getRequest<AuthenticatedRequest>();
     try {
       const fullUrl = this.buildAbsoluteUrl(req);
 
@@ -43,29 +49,25 @@ export class ClerkAuthGuard implements CanActivate {
         // Clerk doesn't need body normally for session check; skip sending body for safety
       });
 
-      const result = await (this.clerkClient as any).authenticateRequest(
-        fetchReq,
-        {
-          authorizedParties: [
-            process.env.FRONTEND_ORIGIN ?? 'http://localhost:3000',
-          ],
-        },
-      );
+      const result = await this.clerkClient.authenticateRequest(fetchReq, {
+        authorizedParties: [process.env.FRONTEND_ORIGIN!],
+      });
 
       // toAuth is sometimes provided by Clerk; handle both shapes
       const toAuth =
-        typeof (result as any).toAuth === 'function'
-          ? (result as any).toAuth
-          : undefined;
-      const { isAuthenticated } = result as any;
+        typeof result.toAuth === 'function' ? result.toAuth : undefined;
+      const { isAuthenticated } = result;
 
       if (!isAuthenticated) throw new UnauthorizedException('Not signed in');
 
-      const auth = toAuth ? await toAuth() : (result as any);
+      const auth = (toAuth ? toAuth() : result) as {
+        userId?: string;
+        user?: { id: string };
+      };
       const clerkUserId = auth?.userId ?? auth?.user?.id ?? undefined;
       if (!clerkUserId) throw new UnauthorizedException('Not signed in');
 
-      (req as any).auth = { clerkUserId };
+      req.auth = { clerkUserId };
       return true;
     } catch (err) {
       console.error('ClerkAuthGuard error', err);
