@@ -1,212 +1,125 @@
 'use client';
-
-import * as React from 'react';
-import {
-  ColumnDef,
-  ColumnFiltersState,
-  flexRender,
-  getCoreRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
-  SortingState,
-  useReactTable,
-  VisibilityState,
-} from '@tanstack/react-table';
-import { ArrowUpDown, ChevronDown } from 'lucide-react';
+import React, { useMemo, useState, useEffect, useCallback } from 'react';
+import { Card, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
+import { Select, SelectContent, SelectItem, SelectTrigger } from '@/components/ui/select';
+import CreateBook from './create-book';
 import { Book } from '@my-ledger/api/book';
-import { Roles } from '@my-ledger/api/role';
-import getBook from './actions/get-books';
+import BookCard from '../components/book';
+import { getBook } from './actions/get-books';
 
-export type Payment = {
-  id: string;
-  amount: number;
-  role: Roles;
-  email: string;
-};
+enum SortOptions {
+  Newest = 'newest',
+  Oldest = 'oldest',
+  BalanceDesc = 'balance-desc',
+  BalanceAsc = 'balance-asc',
+}
 
-export const columns: ColumnDef<Payment>[] = [
-  {
-    accessorKey: 'status',
-    header: 'Status',
-    cell: ({ row }) => <div className="capitalize">{row.getValue('status')}</div>,
-  },
-  {
-    accessorKey: 'email',
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-        >
-          Email
-          <ArrowUpDown />
-        </Button>
-      );
-    },
-    cell: ({ row }) => <div className="lowercase">{row.getValue('email')}</div>,
-  },
-  {
-    accessorKey: 'amount',
-    header: () => <div className="text-right">Amount</div>,
-    cell: ({ row }) => {
-      const amount = parseFloat(row.getValue('amount'));
+export default function BooksList() {
+  const [query, setQuery] = useState('');
+  const [debouncedQuery, setDebouncedQuery] = useState(query);
+  const [books, setBooks] = useState<Book[]>([]);
 
-      // Format the amount as a dollar amount
-      const formatted = new Intl.NumberFormat('en-IN', {
-        style: 'currency',
-        currency: 'INR',
-      }).format(amount);
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedQuery(query), 250);
+    return () => clearTimeout(t);
+  }, [query]);
 
-      return <div className="text-right font-medium">{formatted}</div>;
-    },
-  },
-];
-
-export function DataTableDemo() {
-  const [data, setData] = React.useState<Book[]>([]);
-  const [sorting, setSorting] = React.useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
-  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
-  const [rowSelection, setRowSelection] = React.useState({});
-
-  React.useEffect(() => {
+  useEffect(() => {
     (async () => {
-      setData(await getBook());
+      const data = await getBook();
+      setBooks(data);
     })();
-  });
+  }, []);
 
-  const table = useReactTable({
-    data,
-    columns,
-    onSortingChange: setSorting,
-    onColumnFiltersChange: setColumnFilters,
-    getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
-    onColumnVisibilityChange: setColumnVisibility,
-    onRowSelectionChange: setRowSelection,
-    state: {
-      sorting,
-      columnFilters,
-      columnVisibility,
-      rowSelection,
-    },
-  });
+  const [sort, setSort] = useState<SortOptions>(SortOptions.Newest);
+
+  const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setQuery(e.target.value);
+  }, []);
+
+  const filtered = useMemo(() => {
+    // create a shallow copy before sorting to avoid mutating props
+    const list = books.filter(b =>
+      `${b.name} ${b.description ?? ''}`.toLowerCase().includes(debouncedQuery.toLowerCase())
+    );
+
+    switch (sort) {
+      case SortOptions.Newest:
+        return [...list].sort((a, z) => +new Date(z.createdAt) - +new Date(a.createdAt));
+      case SortOptions.Oldest:
+        return [...list].sort((a, z) => +new Date(a.createdAt) - +new Date(z.createdAt));
+      case SortOptions.BalanceDesc:
+        return [...list].sort((a, z) => Number(z.balance) - Number(a.balance));
+      case SortOptions.BalanceAsc:
+        return [...list].sort((a, z) => Number(a.balance) - Number(z.balance));
+      default:
+        return list;
+    }
+  }, [books, debouncedQuery, sort]);
 
   return (
-    <div className="w-full">
-      <div className="flex items-center py-4">
-        <Input
-          placeholder="Filter emails..."
-          value={(table.getColumn('email')?.getFilterValue() as string) ?? ''}
-          onChange={event => table.getColumn('email')?.setFilterValue(event.target.value)}
-          className="max-w-sm"
-        />
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="ml-auto">
-              Columns <ChevronDown />
+    <div>
+      <header className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+        <div>
+          <h1 className="text-2xl font-semibold">Books</h1>
+          <p className="text-sm text-muted-foreground mt-1">All your books and quick stats</p>
+        </div>
+
+        <div className="flex items-center gap-2 w-full sm:w-auto max-sm:flex-col">
+          <div className="flex max-sm:w-full max-sm:pl-2 justify-between gap-2 flex-none">
+            <Input
+              value={query}
+              onChange={handleInputChange}
+              placeholder="Search books..."
+              aria-label="Search books"
+              className="min-w-0"
+            />
+            <Button variant="ghost" className="inline-flex" onClick={() => setQuery('')}>
+              Clear
             </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            {table
-              .getAllColumns()
-              .filter(column => column.getCanHide())
-              .map(column => {
-                return (
-                  <DropdownMenuCheckboxItem
-                    key={column.id}
-                    className="capitalize"
-                    checked={column.getIsVisible()}
-                    onCheckedChange={value => column.toggleVisibility(!!value)}
-                  >
-                    {column.id}
-                  </DropdownMenuCheckboxItem>
-                );
-              })}
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
-      <div className="overflow-hidden rounded-md border">
-        <Table>
-          <TableHeader>
-            {table.getHeaderGroups().map(headerGroup => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map(header => {
-                  return (
-                    <TableHead key={header.id}>
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(header.column.columnDef.header, header.getContext())}
-                    </TableHead>
-                  );
-                })}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map(row => (
-                <TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
-                  {row.getVisibleCells().map(cell => (
-                    <TableCell key={cell.id}>
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan={columns.length} className="h-24 text-center">
-                  No results.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </div>
-      <div className="flex items-center justify-end space-x-2 py-4">
-        <div className="text-muted-foreground flex-1 text-sm">
-          {table.getFilteredSelectedRowModel().rows.length} of{' '}
-          {table.getFilteredRowModel().rows.length} row(s) selected.
+          </div>
+          <div className="flex justify-between w-full">
+            <Select onValueChange={v => setSort(v as SortOptions)}>
+              <SelectTrigger aria-label="Sort books" className="ml-2">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm">Sort</span>
+                </div>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="newest">Newest</SelectItem>
+                <SelectItem value="oldest">Oldest</SelectItem>
+                <SelectItem value="balance-desc">Balance (High → Low)</SelectItem>
+                <SelectItem value="balance-asc">Balance (Low → High)</SelectItem>
+              </SelectContent>
+            </Select>
+            <CreateBook></CreateBook>
+          </div>
         </div>
-        <div className="space-x-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
-          >
-            Previous
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
-          >
-            Next
-          </Button>
+      </header>
+
+      {/* grid */}
+      <section className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+        {filtered.map(b => (
+          <BookCard key={b.id} book={b} />
+        ))}
+      </section>
+
+      {/* empty state */}
+      {filtered.length === 0 && (
+        <div className="mt-8">
+          <Card className="p-6 text-center" style={{ background: 'hsl(var(--card))' }}>
+            <CardTitle>No books found</CardTitle>
+            <p className="text-sm text-muted-foreground mt-2">
+              Try different keywords or create a new book.
+            </p>
+            <div className="mt-4 flex justify-center">
+              <CreateBook />
+            </div>
+          </Card>
         </div>
-      </div>
+      )}
     </div>
   );
 }
