@@ -1,27 +1,34 @@
 import { ApiProperty } from '@nestjs/swagger';
 
 export class TransactionResponseDto {
-  @ApiProperty()
+  @ApiProperty({ example: 1 })
   id: number;
 
-  @ApiProperty()
+  @ApiProperty({ example: 1 })
   bookId: number;
 
-  @ApiProperty()
+  @ApiProperty({ example: 1 })
   userId: number;
 
-  @ApiProperty()
+  @ApiProperty({ example: '12.00' })
   amount: string;
 
-  @ApiProperty({ nullable: true })
+  @ApiProperty({ nullable: true, example: 'Gas for the car' })
   description?: string | null;
 
-  @ApiProperty({ nullable: true })
+  @ApiProperty({ nullable: true, example: 'Credit Card' })
   paymentType: string | null;
 
-  @ApiProperty()
+  @ApiProperty({ example: '2025-01-01T00:00:00.000Z' })
   createdAt: Date;
 
-  @ApiProperty()
+  @ApiProperty({ example: '2025-01-01T00:00:00.000Z' })
   updatedAt: Date;
+}
+
+export class TransactionListResponseDto {
+  @ApiProperty({ type: [TransactionResponseDto] })
+  data: TransactionResponseDto[];
+  @ApiProperty({ example: 20 })
+  count: number;
 }

@@ -11,7 +11,10 @@ import {
 } from '@nestjs/common';
 import { ApiOkResponse, ApiParam, ApiTags } from '@nestjs/swagger';
 import { TransactionService } from './transaction.service';
-import { TransactionResponseDto } from './dto/transaction-response';
+import {
+  TransactionListResponseDto,
+  TransactionResponseDto,
+} from './dto/transaction-response';
 import { GetTransactionsRequestDto } from './dto/get-transaction-request';
 import { CreateTransactionsRequestDto } from './dto/create-transaction-request';
 import { Roles } from '../common/decorators/roles.decorator';
@@ -46,7 +49,7 @@ export class TransactionController {
   @Post('create')
   @Roles(rolEnum.EDITOR)
   @ApiOkResponse({
-    type: TransactionResponseDto,
+    type: TransactionListResponseDto,
   })
   async create(@Body() body: CreateTransactionsRequestDto) {
     return await this.service.create(body);
