@@ -10,7 +10,10 @@ import * as transactionsSchema from './schema';
 import * as booksSchema from '../book/schema';
 import { DATABASE_CONNECTION } from '../database/database-connection';
 import { GetTransactionsRequestDto } from './dto/get-transaction-request';
-import { TransactionResponseDto } from './dto/transaction-response';
+import {
+  TransactionListResponseDto,
+  TransactionResponseDto,
+} from './dto/transaction-response';
 import { and, asc, desc, eq, gte, like, lte, SQL, sql } from 'drizzle-orm';
 import { CreateTransactionsRequestDto } from './dto/create-transaction-request';
 import { RequestContextService } from '../common/request-context.service';
@@ -39,7 +42,7 @@ export class TransactionService {
 
   async getAll(
     request: GetTransactionsRequestDto,
-  ): Promise<TransactionResponseDto[]> {
+  ): Promise<TransactionListResponseDto> {
     const { limit, offset, order, sort, ...rest } = request;
     const conditions: SQL[] = [];
     for (const [key, value] of Object.entries(rest)) {
@@ -74,12 +77,17 @@ export class TransactionService {
       }
     }
     const orderDirection = order === 'desc' ? desc : asc;
-    return await this.db.query.transactions.findMany({
+    const data = await this.db.query.transactions.findMany({
       limit,
       offset,
       where: and(...conditions),
       orderBy: orderDirection(schema.transactions[sort]),
     });
+    const count = await this.db.$count(
+      transactionsSchema.transactions,
+      and(...conditions),
+    );
+    return { data: data as TransactionResponseDto[], count };
   }
 
   async create(

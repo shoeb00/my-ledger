@@ -8,6 +8,7 @@ import {
 } from 'drizzle-orm/pg-core';
 import { books } from '../book/schema';
 import { users } from '../user/schema';
+import { InferSelectModel } from 'drizzle-orm';
 
 export const transactions = pgTable('transactions', {
   id: serial('id').primaryKey(),
@@ -23,3 +24,5 @@ export const transactions = pgTable('transactions', {
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
+
+export type Transaction = InferSelectModel<typeof transactions>;

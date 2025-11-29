@@ -39,7 +39,7 @@ export class TransactionController {
   @Get('getAll')
   @Roles(rolEnum.VIEWER)
   @ApiOkResponse({
-    type: TransactionResponseDto,
+    type: TransactionListResponseDto,
     isArray: true,
   })
   async getAll(@Query() query: GetTransactionsRequestDto) {
