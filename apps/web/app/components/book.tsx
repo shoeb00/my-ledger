@@ -3,21 +3,32 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Book } from '@my-ledger/api/book';
+import { useRouter } from 'next/navigation';
 
 import React from 'react';
 
-const fmtCurrency = (value: string) => {
+export const fmtCurrency = (value: string): string => {
   const n = Number(value);
   if (!Number.isFinite(n)) return value;
   return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(n);
 };
 
-const fmtDate = (d: string | Date) => {
+export const fmtDate = (d: string | Date): string => {
   const dt = typeof d === 'string' ? new Date(d) : d;
-  return dt.toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: 'numeric' });
+  return dt.toLocaleDateString('en-IN', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    timeZone: 'Asia/Kolkata',
+    weekday: 'short',
+    hour: 'numeric',
+    minute: 'numeric',
+    second: 'numeric',
+  });
 };
 
 export default function BookCard({ book }: Readonly<{ book: Readonly<Book> }>) {
+  const router = useRouter();
   return (
     <Card
       key={book.id}
@@ -58,7 +69,7 @@ export default function BookCard({ book }: Readonly<{ book: Readonly<Book> }>) {
           </div>
 
           <div className="flex items-center gap-2">
-            <Badge variant="secondary">{book.members ?? 0} members</Badge>
+            <Badge variant="outline">{book.members ?? 0} members</Badge>
           </div>
         </div>
 
@@ -67,10 +78,10 @@ export default function BookCard({ book }: Readonly<{ book: Readonly<Book> }>) {
             Last updated {fmtDate(book.updatedAt ?? book.createdAt)}
           </div>
           <div className="flex items-center gap-2">
-            <Button variant="ghost" size="sm">
+            <Button variant="ghost" size="sm" onClick={() => router.push(`/book/${book.id}`)}>
               View
             </Button>
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" onClick={() => router.push(`/book/${book.id}/info`)}>
               Edit
             </Button>
           </div>
