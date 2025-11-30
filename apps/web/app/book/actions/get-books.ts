@@ -1,7 +1,9 @@
 import { Book } from '@my-ledger/api/book';
 
-export async function getBook(): Promise<Book[]> {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/v1/book/get`, {
+export async function getBook(bookId?: string): Promise<Book[]> {
+  const url = new URL(`${process.env.NEXT_PUBLIC_API_URL}/v1/book/get`);
+  if (bookId) url.searchParams.set('bookId', bookId);
+  const res = await fetch(url.href, {
     method: 'GET',
     headers: { 'Content-Type': 'application/json' },
     credentials: 'include',
