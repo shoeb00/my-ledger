@@ -16,8 +16,11 @@ export async function getTransaction(filter: FetchParams): Promise<response> {
     headers: { 'Content-Type': 'application/json' },
     credentials: 'include',
   });
-  if (!res.ok) throw new Error(`status ${res.status}`);
-  const data = await res.json();
+
+  if (!res.ok) {
+    console.log('err response', res);
+    throw new Error(`status ${res.status}`);
+  }  const data = await res.json();
   console.log('response', data);
   return data;
 }
