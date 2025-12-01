@@ -31,9 +31,9 @@ export default function CreateBook() {
       const book = await createBook(fd);
       console.log('book created', book);
       formRef.current?.reset();
-    } catch (err: any) {
+    } catch (err) {
       console.error('createBook error', err);
-      setError(err.message ?? 'Failed to create book');
+      setError(err instanceof Error ? err.message : 'Failed to create book');
     } finally {
       setLoading(false);
     }
@@ -45,7 +45,7 @@ export default function CreateBook() {
         <Button className="ml-2">Add Book</Button>
       </DialogTrigger>
 
-      <DialogContent className="sm:max-w-[425px] bg-gray-200">
+      <DialogContent className="sm:max-w-[425px]">
         <form ref={formRef} onSubmit={handleSubmit} className="no-style">
           <DialogHeader>
             <DialogTitle>Create Book</DialogTitle>
