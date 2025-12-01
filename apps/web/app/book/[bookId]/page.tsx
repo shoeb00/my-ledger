@@ -7,10 +7,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@/components/ui/select';
 import { getTransaction } from './actions/get-transaction';
-import TransactionCard from '../../components/transaction';
+import TransactionList from '../components/transaction';
 import { getBook } from '../actions/get-books';
 import { Book } from '@my-ledger/api/book';
 import { MoreVerticalIcon } from 'lucide-react';
+import AddTransactionDialog from './components/add-transaction';
 
 type paymentType = 'all' | 'debit' | 'credit';
 type order = 'asc' | 'desc';
@@ -39,6 +40,7 @@ export default function PageClient() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // TODO: use useReducer and handle refresh
   const [query, setQuery] = useState('');
   const [paymentType, setPaymentType] = useState<paymentType>('all');
   const [createdAfter, setCreatedAfter] = useState<string | undefined>(undefined);
@@ -197,10 +199,7 @@ export default function PageClient() {
               Reset
             </Button>
 
-            {/* TODO: Add transaction dialog */}
-            <div className="relative">
-              <Button onClick={() => console.log('add transaction')}>Add Transaction</Button>
-            </div>
+            <AddTransactionDialog bookId={bookId} />
 
             <div className="relative">
               <Button variant="outline" onClick={() => router.push(`/book/${bookId}/info`)}>
@@ -321,7 +320,7 @@ export default function PageClient() {
         </div>
       </section>
 
-      <TransactionCard transactions={transactions} />
+      <TransactionList transactions={transactions} />
 
       <section className="flex items-center justify-between mt-4">
         <div className="flex items-center gap-2">

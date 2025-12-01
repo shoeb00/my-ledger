@@ -3,24 +3,17 @@
 import React from 'react';
 import type { Transaction as Tx } from '@my-ledger/api/transaction';
 import { Button } from '@/components/ui/button';
-import { Trash2, Edit2 } from 'lucide-react';
-import { fmtCurrency, fmtDate } from './book';
+import { Edit2 } from 'lucide-react';
+import { fmtCurrency, fmtDate } from '../../components/book';
 import { Badge } from '@/components/ui/badge';
+import DeleteTransactionDialog from '../[bookId]/components/delete-transaction';
+import EditTransactionDialog from '../[bookId]/components/edit-transaction';
+import { PaymentMethodEnum } from '../../enums/payment-methods';
 
 export function TransactionRow({ tx }: { tx: Tx }) {
   const amountNum = fmtCurrency(tx.amount);
   const isDebit = amountNum[0] === '-';
   const displayAmount = isDebit ? amountNum.slice(1) : amountNum;
-
-  const onDeleteAction = (e: React.MouseEvent<HTMLButtonElement>, tx: Tx) => {
-    console.log('onDeleteAction', tx.id);
-    e.stopPropagation();
-  };
-
-  const onEditAction = (e: React.MouseEvent<HTMLButtonElement>, tx: Tx) => {
-    console.log('onEditAction', tx.id);
-    e.stopPropagation();
-  };
 
   return (
     <article
@@ -29,9 +22,9 @@ export function TransactionRow({ tx }: { tx: Tx }) {
       className="w-full rounded-lg border bg-card px-4 py-3 shadow-sm hover:shadow-md transition flex justify-between gap-4"
     >
       <div className="flex items-center justify-between gap-4">
-        <div className="min-w-0">
+        <div className="min-w-30">
           <div className="text-sm font-medium truncate">{tx.description ?? '—'}</div>
-          <div className="text-sm text-muted-foreground truncate">{tx.paymentType ?? '—'}</div>
+          <div className="text-[8px] font-bold truncate">{tx.paymentType ?? '—'}</div>
         </div>
 
         <div className="mt-2 flex items-center justify-between gap-2 md:hidden">
@@ -70,13 +63,13 @@ export function TransactionRow({ tx }: { tx: Tx }) {
       </div>
 
       <div className="flex items-center gap-2">
-        <Button size="sm" variant="ghost" onClick={e => onEditAction(e, tx)}>
-          <Edit2 className="h-4 w-4" />
-        </Button>
-
-        <Button size="sm" variant="ghost" onClick={e => onDeleteAction(e, tx)}>
-          <Trash2 className="h-4 w-4" />
-        </Button>
+        <EditTransactionDialog
+          bookId={tx.bookId.toString()}
+          transactionId={tx.id.toString()}
+          description={tx.description ?? ''}
+          paymentType={(tx.paymentType as PaymentMethodEnum) ?? PaymentMethodEnum.OTHER}
+        />
+        <DeleteTransactionDialog bookId={tx.bookId.toString()} transactionId={tx.id.toString()} />
       </div>
     </article>
   );

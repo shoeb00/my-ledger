@@ -8,8 +8,11 @@ export async function getBook(bookId?: string): Promise<Book[]> {
     headers: { 'Content-Type': 'application/json' },
     credentials: 'include',
   });
-  if (!res.ok) throw new Error(`status ${res.status}`);
-  const data = await res.json();
+
+  if (!res.ok) {
+    console.log('err response', res);
+    throw new Error(`status ${res.status}`);
+  }  const data = await res.json();
   console.log(data);
   return data;
 }
