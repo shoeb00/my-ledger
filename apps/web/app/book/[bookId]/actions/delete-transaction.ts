@@ -16,7 +16,6 @@ export async function deleteTransaction({
   if (!res.ok) {
     console.log('err response', res);
     throw new Error(`status ${res.status}`);
-  }  const data = await res.json();
-  console.log('response', data);
-  return data;
+  }
+  return;
 }
