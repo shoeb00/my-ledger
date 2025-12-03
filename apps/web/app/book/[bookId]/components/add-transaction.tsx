@@ -1,13 +1,12 @@
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
-  DialogClose,
   DialogContent,
   DialogTrigger,
   DialogFooter,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { PaymentMethod } from '../../../components/payment-method';
 import { addTransaction } from '../actions/add-transaction';
@@ -15,25 +14,48 @@ import { PaymentMethodEnum } from '../../../enums/payment-methods';
 import { Plus, Minus } from 'lucide-react';
 import { fmtCurrency } from '../../../components/book';
 
-export default function AddTransactionDialog({ bookId }: { bookId: string }) {
+export default function AddTransactionDialog({
+  bookId,
+  refetchAction,
+}: {
+  bookId: string;
+  refetchAction: () => void;
+}) {
+  const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [_error, setError] = useState<string | null>(null);
   const [description, setDescription] = useState('');
   const [paymentMethod, setPaymentMethod] = useState(PaymentMethodEnum.CASH);
-  const [amount, setAmount] = useState<number>();
+  const [amountStr, setAmountStr] = useState('');
   const [isPositive, setIsPositive] = useState(true);
+
+  function resetForm() {
+    setDescription('');
+    setPaymentMethod(PaymentMethodEnum.CASH);
+    setAmountStr('');
+    setIsPositive(true);
+    setLoading(false);
+    setError(null);
+  }
+
+  useEffect(() => {
+    if (!open) resetForm();
+  }, [open]);
 
   async function handleAdd() {
     setError(null);
     setLoading(true);
     try {
-      const finalAmount = amount && (isPositive ? amount : -amount);
+      const amount = Number(amountStr.trim());
+      const finalAmount = isPositive ? amount : -amount;
       await addTransaction({
         description,
         paymentType: paymentMethod,
         amount: finalAmount?.toFixed(2).toString() || '0',
         bookId: Number(bookId),
       });
+      refetchAction();
+      setOpen(false);
     } catch (err) {
       console.error('add error', err);
       setError(err instanceof Error ? err.message : 'Failed to add transaction');
@@ -43,7 +65,7 @@ export default function AddTransactionDialog({ bookId }: { bookId: string }) {
   }
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={o => setOpen(o)}>
       <DialogTrigger asChild>
         <Button>
           <Plus className="h-4 w-4" /> Transaction
@@ -52,19 +74,28 @@ export default function AddTransactionDialog({ bookId }: { bookId: string }) {
       <DialogContent className="">
         <DialogTitle className="font-bold text-2xl">Add Transaction</DialogTitle>
         <div className="flex gap-4 justify-between">
-          <Button className='flex-1' variant={isPositive ? 'default' : 'outline'} onClick={() => setIsPositive(true)}>
+          <Button
+            className="flex-1"
+            variant={isPositive ? 'default' : 'outline'}
+            onClick={() => setIsPositive(true)}
+          >
             <Plus className="h-4 w-4" />
             Cash-In
           </Button>
-          <Button className='flex-1' variant={isPositive ? 'outline' : 'default'} onClick={() => setIsPositive(false)}>
+          <Button
+            className="flex-1"
+            variant={isPositive ? 'outline' : 'default'}
+            onClick={() => setIsPositive(false)}
+          >
             <Minus className="h-4 w-4" />
             Cash-Out
           </Button>
         </div>
         <Input
           placeholder={fmtCurrency('12.99')}
-          value={amount}
-          onChange={e => setAmount(Number(e.target.value))}
+          value={amountStr}
+          onChange={e => setAmountStr(e.target.value)}
+          type="number"
         />
         <Input
           placeholder="Transaction description"
@@ -73,13 +104,10 @@ export default function AddTransactionDialog({ bookId }: { bookId: string }) {
         />
         <PaymentMethod paymentMethod={paymentMethod} setPaymentMethod={setPaymentMethod} />
         <DialogFooter>
-          <DialogClose asChild>
-            <Button variant="outline">Cancel</Button>
-          </DialogClose>
-
-          <DialogClose asChild>
-            <Button onClick={handleAdd}>{loading ? 'Updating...' : 'Update'}</Button>
-          </DialogClose>
+          <Button variant="outline" onClick={() => setOpen(false)}>
+            Cancel
+          </Button>
+          <Button onClick={handleAdd}>{loading ? 'Adding...' : 'Add'}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
