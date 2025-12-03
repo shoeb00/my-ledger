@@ -26,6 +26,7 @@ export default function EditTransactionDialog(query: EditRequestPayload) {
     try {
       console.log('query', query);
       await updateTransaction({ ...query, description, paymentType: paymentMethod });
+      query.refetchAction();
     } catch (err) {
       console.error('update error', err);
       setError(err instanceof Error ? err.message : 'Failed to update transaction');

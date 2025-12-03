@@ -5,4 +5,5 @@ export interface EditRequestPayload {
   transactionId: string;
   description: string;
   paymentType: PaymentMethodEnum;
+  refetchAction: () => void;
 }

@@ -14,9 +14,11 @@ import { deleteTransaction } from '../actions/delete-transaction';
 export default function DeleteTransactionDialog({
   transactionId,
   bookId,
+  refetchAction,
 }: {
   transactionId: string;
   bookId: string;
+  refetchAction: () => void;
 }) {
   const [loading, setLoading] = useState(false);
   const [_error, setError] = useState<string | null>(null);
@@ -26,6 +28,7 @@ export default function DeleteTransactionDialog({
     setLoading(true);
     try {
       await deleteTransaction({ transactionId, bookId });
+      refetchAction();
     } catch (err) {
       console.error('delete error', err);
       setError(err instanceof Error ? err.message : 'Failed to delete transaction');
