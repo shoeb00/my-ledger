@@ -57,6 +57,8 @@ export default function PageClient() {
   const [debited, setDebited] = useState('0');
   const [credited, setCredited] = useState('0');
   const [bookName, setBookName] = useState('');
+  const [refetchTransactions, setRefetchTransactions] = useState(false);
+  const [refetchBookDetails, setRefetchBookDetails] = useState(false);
 
   useEffect(() => {
     const t = setTimeout(() => setDebouncedQuery(query), 250);
@@ -116,7 +118,7 @@ export default function PageClient() {
 
   useEffect(() => {
     fetchTransactions();
-  }, [fetchTransactions]);
+  }, [fetchTransactions, refetchTransactions, refetchBookDetails]);
 
   useEffect(() => {
     (async () => {
@@ -127,7 +129,12 @@ export default function PageClient() {
       setCredited(data.credited || '0');
       setBookName(data.name);
     })();
-  }, [bookId]);
+  }, [bookId, refetchBookDetails]);
+
+  const refetch = () => {
+    setRefetchBookDetails(!refetchBookDetails);
+    setRefetchTransactions(!refetchTransactions);
+  };
 
   // pagination helpers
   const currentPage = Math.floor(offset / limit) + 1;
@@ -199,7 +206,7 @@ export default function PageClient() {
               Reset
             </Button>
 
-            <AddTransactionDialog bookId={bookId} />
+            <AddTransactionDialog bookId={bookId} refetchAction={refetch} />
 
             <div className="relative">
               <Button variant="outline" onClick={() => router.push(`/book/${bookId}/info`)}>
@@ -320,7 +327,7 @@ export default function PageClient() {
         </div>
       </section>
 
-      <TransactionList transactions={transactions} />
+      <TransactionList transactions={transactions} refetchAction={refetch} />
 
       <section className="flex items-center justify-between mt-4">
         <div className="flex items-center gap-2">

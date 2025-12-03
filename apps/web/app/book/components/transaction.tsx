@@ -10,7 +10,7 @@ import DeleteTransactionDialog from '../[bookId]/components/delete-transaction';
 import EditTransactionDialog from '../[bookId]/components/edit-transaction';
 import { PaymentMethodEnum } from '../../enums/payment-methods';
 
-export function TransactionRow({ tx }: { tx: Tx }) {
+export function TransactionRow({ tx, refetchAction }: { tx: Tx; refetchAction: () => void }) {
   const amountNum = fmtCurrency(tx.amount);
   const isDebit = amountNum[0] === '-';
   const displayAmount = isDebit ? amountNum.slice(1) : amountNum;
@@ -68,14 +68,25 @@ export function TransactionRow({ tx }: { tx: Tx }) {
           transactionId={tx.id.toString()}
           description={tx.description ?? ''}
           paymentType={(tx.paymentType as PaymentMethodEnum) ?? PaymentMethodEnum.OTHER}
+          refetchAction={refetchAction}
         />
-        <DeleteTransactionDialog bookId={tx.bookId.toString()} transactionId={tx.id.toString()} />
+        <DeleteTransactionDialog
+          bookId={tx.bookId.toString()}
+          transactionId={tx.id.toString()}
+          refetchAction={refetchAction}
+        />
       </div>
     </article>
   );
 }
 
-export default function TransactionList({ transactions }: { transactions: Tx[] }) {
+export default function TransactionList({
+  transactions,
+  refetchAction,
+}: {
+  transactions: Tx[];
+  refetchAction: () => void;
+}) {
   if (!transactions || transactions.length === 0) {
     return (
       <div className="rounded-md border border-dashed p-6 text-center text-sm text-muted-foreground">
@@ -88,7 +99,7 @@ export default function TransactionList({ transactions }: { transactions: Tx[] }
   return (
     <section className="space-y-2">
       {transactions.map(tx => (
-        <TransactionRow key={tx.id} tx={tx} />
+        <TransactionRow key={tx.id} tx={tx} refetchAction={refetchAction} />
       ))}
     </section>
   );
