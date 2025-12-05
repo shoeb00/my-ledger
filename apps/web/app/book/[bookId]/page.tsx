@@ -12,6 +12,7 @@ import { getBook } from '../actions/get-books';
 import { Book } from '@my-ledger/api/book';
 import { MoreVerticalIcon } from 'lucide-react';
 import AddTransactionDialog from './components/add-transaction';
+import LoaderCircle from '../../components/loader';
 
 type paymentType = 'all' | 'debit' | 'credit';
 type order = 'asc' | 'desc';
@@ -36,7 +37,7 @@ export default function PageClient() {
   const bookId = params.bookId as string;
 
   const [transactions, setTransactions] = useState<Transaction[]>([]);
-  // TODO: Use loader and handle errors with a toast
+  // TODO: Handle errors with a toast
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -327,7 +328,9 @@ export default function PageClient() {
         </div>
       </section>
 
-      <TransactionList transactions={transactions} refetchAction={refetch} />
+      <LoaderCircle loading={loading}>
+        <TransactionList bookId={bookId} transactions={transactions} refetchAction={refetch} />
+      </LoaderCircle>
 
       <section className="flex items-center justify-between mt-4">
         <div className="flex items-center gap-2">
