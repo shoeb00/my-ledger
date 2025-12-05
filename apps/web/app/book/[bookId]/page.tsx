@@ -10,8 +10,9 @@ import { getTransaction } from './actions/get-transaction';
 import TransactionList from '../components/transaction';
 import { getBook } from '../actions/get-books';
 import { Book } from '@my-ledger/api/book';
-import { MoreVerticalIcon } from 'lucide-react';
+import { MoreVerticalIcon, ChevronLeft } from 'lucide-react';
 import AddTransactionDialog from './components/add-transaction';
+import LoaderCircle from '../../components/loader';
 
 type paymentType = 'all' | 'debit' | 'credit';
 type order = 'asc' | 'desc';
@@ -24,7 +25,6 @@ export type FetchParams = {
   order?: order;
   createdBefore?: string;
   createdAfter?: string;
-  paymentType?: paymentType;
   description?: string;
   minAmount?: string;
   maxAmount?: string;
@@ -36,7 +36,7 @@ export default function PageClient() {
   const bookId = params.bookId as string;
 
   const [transactions, setTransactions] = useState<Transaction[]>([]);
-  // TODO: Use loader and handle errors with a toast
+  // TODO: Handle errors with a toast
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -47,7 +47,7 @@ export default function PageClient() {
   const [createdBefore, setCreatedBefore] = useState<string | undefined>(undefined);
   const [minAmount, setMinAmount] = useState<string | undefined>(undefined);
   const [maxAmount, setMaxAmount] = useState<string | undefined>(undefined);
-  const [limit, setLimit] = useState<number>(10);
+  const [limit, setLimit] = useState<number>(5);
   const [offset, setOffset] = useState<number>(0);
   const [sort, setSort] = useState<string>('createdAt');
   const [order, setOrder] = useState<order>('desc');
@@ -75,11 +75,14 @@ export default function PageClient() {
       order,
     };
     if (debouncedQuery) p.description = debouncedQuery;
-    if (paymentType && paymentType !== 'all') p.paymentType = paymentType as paymentType;
     if (createdAfter) p.createdAfter = createdAfter;
     if (createdBefore) p.createdBefore = createdBefore;
     if (minAmount) p.minAmount = minAmount;
     if (maxAmount) p.maxAmount = maxAmount;
+    if (paymentType && paymentType !== 'all') {
+      if (paymentType === 'debit') p.maxAmount = '0';
+      if (paymentType === 'credit') p.minAmount = '0';
+    }
     console.log('buildParams', p);
     return p;
   }, [
@@ -145,7 +148,12 @@ export default function PageClient() {
     <div className="space-y-6">
       <section className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div className="grid gap-2">
-          <h2 className="text-xl font-semibold">{bookName}</h2>
+          <div className="flex flex-row items-center gap-2">
+            <Button variant={'outline'} onClick={() => router.push('/home')}>
+              <ChevronLeft />
+            </Button>
+            <h2 className="text-xl font-semibold">{bookName}</h2>
+          </div>
           <div className="flex gap-4 items-center text-sm text-muted-foreground">
             <div>
               Balance: <strong>{balance}</strong>
@@ -218,6 +226,7 @@ export default function PageClient() {
       </section>
 
       {/* Extra filters */}
+      {/* TODO: use shadcn datepicker */}
       <section className="grid grid-cols-1 md:grid-cols-4 gap-3">
         <div>
           <label className="text-xs text-muted-foreground">Created After</label>
@@ -327,7 +336,9 @@ export default function PageClient() {
         </div>
       </section>
 
-      <TransactionList transactions={transactions} refetchAction={refetch} />
+      <LoaderCircle loading={loading}>
+        <TransactionList bookId={bookId} transactions={transactions} refetchAction={refetch} />
+      </LoaderCircle>
 
       <section className="flex items-center justify-between mt-4">
         <div className="flex items-center gap-2">
@@ -335,7 +346,7 @@ export default function PageClient() {
             Prev
           </Button>
           <div>Page {currentPage}</div>
-          <Button onClick={nextPage} disabled={totalCount < limit}>
+          <Button onClick={nextPage} disabled={totalCount < offset + limit}>
             Next
           </Button>
         </div>

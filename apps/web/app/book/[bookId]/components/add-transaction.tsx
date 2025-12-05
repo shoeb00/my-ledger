@@ -96,6 +96,7 @@ export default function AddTransactionDialog({
           value={amountStr}
           onChange={e => setAmountStr(e.target.value)}
           type="number"
+          min='0.1'
         />
         <Input
           placeholder="Transaction description"

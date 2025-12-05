@@ -8,6 +8,7 @@ import CreateBook from './create-book';
 import { Book } from '@my-ledger/api/book';
 import BookCard from '../components/book';
 import { getBook } from './actions/get-books';
+import LoaderCircle from '../components/loader';
 
 enum SortOptions {
   Newest = 'newest',
@@ -17,6 +18,8 @@ enum SortOptions {
 }
 
 export default function BooksList() {
+  const [loading, setLoading] = useState(false);
+  const [_error, setError] = useState<string | null>(null);
   const [query, setQuery] = useState('');
   const [debouncedQuery, setDebouncedQuery] = useState(query);
   const [books, setBooks] = useState<Book[]>([]);
@@ -28,8 +31,16 @@ export default function BooksList() {
 
   useEffect(() => {
     (async () => {
-      const data = await getBook();
-      setBooks(data);
+      try {
+        setLoading(true);
+        const data = await getBook();
+        setBooks(data);
+      } catch (err) {
+        console.error('getBook error', err);
+        setError(err instanceof Error ? err.message : 'Failed to get books');
+      } finally {
+        setLoading(false);
+      }
     })();
   }, []);
 
@@ -99,27 +110,27 @@ export default function BooksList() {
         </div>
       </header>
 
-      {/* grid */}
-      <section className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-        {filtered.map(b => (
-          <BookCard key={b.id} book={b} />
-        ))}
-      </section>
+      <LoaderCircle loading={loading}>
+        <section className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+          {filtered.map(b => (
+            <BookCard key={b.id} book={b} />
+          ))}
+        </section>
 
-      {/* empty state */}
-      {filtered.length === 0 && (
-        <div className="mt-8">
-          <Card className="p-6 text-center" style={{ background: 'hsl(var(--card))' }}>
-            <CardTitle>No books found</CardTitle>
-            <p className="text-sm text-muted-foreground mt-2">
-              Try different keywords or create a new book.
-            </p>
-            <div className="mt-4 flex justify-center">
-              <CreateBook />
-            </div>
-          </Card>
-        </div>
-      )}
+        {!loading && filtered.length === 0 && (
+          <div className="mt-8">
+            <Card className="p-6 text-center" style={{ background: 'hsl(var(--card))' }}>
+              <CardTitle>No books found</CardTitle>
+              <p className="text-sm text-muted-foreground mt-2">
+                Try different keywords or create a new book.
+              </p>
+              <div className="mt-4 flex justify-center">
+                <CreateBook />
+              </div>
+            </Card>
+          </div>
+        )}
+      </LoaderCircle>
     </div>
   );
 }

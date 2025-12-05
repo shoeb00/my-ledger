@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import DeleteTransactionDialog from '../[bookId]/components/delete-transaction';
 import EditTransactionDialog from '../[bookId]/components/edit-transaction';
 import { PaymentMethodEnum } from '../../enums/payment-methods';
+import AddTransactionDialog from '../[bookId]/components/add-transaction';
 
 export function TransactionRow({ tx, refetchAction }: { tx: Tx; refetchAction: () => void }) {
   const amountNum = fmtCurrency(tx.amount);
@@ -81,23 +82,26 @@ export function TransactionRow({ tx, refetchAction }: { tx: Tx; refetchAction: (
 }
 
 export default function TransactionList({
+  bookId,
   transactions,
   refetchAction,
 }: {
+  bookId: string;
   transactions: Tx[];
   refetchAction: () => void;
 }) {
   if (!transactions || transactions.length === 0) {
     return (
-      <div className="rounded-md border border-dashed p-6 text-center text-sm text-muted-foreground">
+      <div className="rounded-md border border-dashed h-85 p-6 text-center text-sm text-muted-foreground">
         <div className="mb-2 font-medium">No transactions yet</div>
-        <div className="text-xs">Create a transaction to see it listed here.</div>
+        <div className="mb-4 text-xs">Create a transaction to see it listed here.</div>
+        <AddTransactionDialog bookId={bookId} refetchAction={refetchAction} />
       </div>
     );
   }
 
   return (
-    <section className="space-y-2">
+    <section className="h-85 overflow-auto space-y-2">
       {transactions.map(tx => (
         <TransactionRow key={tx.id} tx={tx} refetchAction={refetchAction} />
       ))}
