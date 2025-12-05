@@ -10,7 +10,7 @@ import { getTransaction } from './actions/get-transaction';
 import TransactionList from '../components/transaction';
 import { getBook } from '../actions/get-books';
 import { Book } from '@my-ledger/api/book';
-import { MoreVerticalIcon } from 'lucide-react';
+import { MoreVerticalIcon, ChevronLeft } from 'lucide-react';
 import AddTransactionDialog from './components/add-transaction';
 import LoaderCircle from '../../components/loader';
 
@@ -148,7 +148,12 @@ export default function PageClient() {
     <div className="space-y-6">
       <section className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div className="grid gap-2">
-          <h2 className="text-xl font-semibold">{bookName}</h2>
+          <div className="flex flex-row items-center gap-2">
+            <Button variant={'outline'} onClick={() => router.push('/home')}>
+              <ChevronLeft />
+            </Button>
+            <h2 className="text-xl font-semibold">{bookName}</h2>
+          </div>
           <div className="flex gap-4 items-center text-sm text-muted-foreground">
             <div>
               Balance: <strong>{balance}</strong>
@@ -221,6 +226,7 @@ export default function PageClient() {
       </section>
 
       {/* Extra filters */}
+      {/* TODO: use shadcn datepicker */}
       <section className="grid grid-cols-1 md:grid-cols-4 gap-3">
         <div>
           <label className="text-xs text-muted-foreground">Created After</label>
