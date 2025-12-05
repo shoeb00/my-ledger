@@ -47,7 +47,7 @@ export default function PageClient() {
   const [createdBefore, setCreatedBefore] = useState<string | undefined>(undefined);
   const [minAmount, setMinAmount] = useState<string | undefined>(undefined);
   const [maxAmount, setMaxAmount] = useState<string | undefined>(undefined);
-  const [limit, setLimit] = useState<number>(10);
+  const [limit, setLimit] = useState<number>(5);
   const [offset, setOffset] = useState<number>(0);
   const [sort, setSort] = useState<string>('createdAt');
   const [order, setOrder] = useState<order>('desc');
@@ -340,7 +340,7 @@ export default function PageClient() {
             Prev
           </Button>
           <div>Page {currentPage}</div>
-          <Button onClick={nextPage} disabled={totalCount < limit}>
+          <Button onClick={nextPage} disabled={totalCount < offset + limit}>
             Next
           </Button>
         </div>
