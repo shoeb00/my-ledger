@@ -25,7 +25,6 @@ export type FetchParams = {
   order?: order;
   createdBefore?: string;
   createdAfter?: string;
-  paymentType?: paymentType;
   description?: string;
   minAmount?: string;
   maxAmount?: string;
@@ -76,11 +75,14 @@ export default function PageClient() {
       order,
     };
     if (debouncedQuery) p.description = debouncedQuery;
-    if (paymentType && paymentType !== 'all') p.paymentType = paymentType as paymentType;
     if (createdAfter) p.createdAfter = createdAfter;
     if (createdBefore) p.createdBefore = createdBefore;
     if (minAmount) p.minAmount = minAmount;
     if (maxAmount) p.maxAmount = maxAmount;
+    if (paymentType && paymentType !== 'all') {
+      if (paymentType === 'debit') p.maxAmount = '0';
+      if (paymentType === 'credit') p.minAmount = '0';
+    }
     console.log('buildParams', p);
     return p;
   }, [
