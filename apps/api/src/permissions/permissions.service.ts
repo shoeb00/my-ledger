@@ -49,7 +49,7 @@ export class PermissionsService {
     if (!row) throw new InternalServerErrorException('Failed to update');
     await this.db
       .update(schema.books)
-      .set({ members: sql`members + 1` })
+      .set({ members: sql`members + 1`, updatedAt: sql`now()` })
       .where(eq(schema.books.id, body.bookId));
     return row;
   }
@@ -74,7 +74,7 @@ export class PermissionsService {
     if (permission.role === body.role) return permission;
     const [row] = await this.db
       .update(schema.permissions)
-      .set({ role: body.role })
+      .set({ role: body.role, updatedAt: sql`now()` })
       .where(eq(schema.permissions.id, permission.id))
       .returning();
     if (!row) throw new InternalServerErrorException('Failed to update');

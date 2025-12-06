@@ -21,7 +21,7 @@ export const books = pgTable('books', {
   description: varchar('description'),
   credited: numeric('credited', { precision: 10, scale: 2 }).default('0.00'),
   debited: numeric('debited', { precision: 10, scale: 2 }).default('0.00'),
-  members: integer('members').default(1),
+  members: integer('members').default(1).notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });

@@ -22,4 +22,7 @@ export class BookResponseDto {
 
   @ApiProperty({ enum: Roles })
   role?: Roles;
+
+  @ApiPropertyOptional()
+  lastTransaction?: Date;
 }

@@ -11,7 +11,7 @@ import { DATABASE_CONNECTION } from '../database/database-connection';
 import { CreateBookRequestDto } from './dto/create-book-request';
 import { BookResponseDto } from './dto/book-response';
 import { GetBookRequestDto } from './dto/get-book-request';
-import { and, eq } from 'drizzle-orm';
+import { and, eq, sql } from 'drizzle-orm';
 import { Roles } from '../permissions/enum/roles';
 import { RequestContextService } from '../common/request-context.service';
 import { UpdateBookRequestDto } from './dto/update-book-request';
@@ -35,16 +35,26 @@ export class BookService {
       .select({
         book: schema.books,
         role: schema.permissions.role,
+        lastTransaction: sql`max(${schema.transactions.createdAt})`,
       })
       .from(schema.permissions)
       .leftJoin(schema.books, eq(schema.books.id, schema.permissions.bookId))
-      .where(eq(schema.permissions.userId, user.id));
+      .leftJoin(
+        schema.transactions,
+        eq(schema.books.id, schema.transactions.bookId),
+      )
+      .where(eq(schema.permissions.userId, user.id))
+      .groupBy(schema.books.id, schema.permissions.role);
     if (rows.length === 0) return [];
     const books: BookResponseDto[] = [];
     for (const row of rows) {
       if (name && !row.book?.name.includes(name)) continue;
       if (bookId && row.book?.id !== bookId) continue;
-      books.push({ ...row.book!, role: row.role });
+      books.push({
+        ...row.book!,
+        role: row.role,
+        lastTransaction: row.lastTransaction as Date,
+      });
     }
     return books;
   }
@@ -82,7 +92,7 @@ export class BookService {
     await this.db.transaction(async () => {
       await this.db
         .update(schema.permissions)
-        .set({ role: Roles.AUTHOR })
+        .set({ role: Roles.AUTHOR, updatedAt: sql`now()` })
         .where(
           and(
             eq(schema.permissions.userId, query.userId),
@@ -91,7 +101,7 @@ export class BookService {
         );
       await this.db
         .update(schema.permissions)
-        .set({ role: Roles.EDITOR })
+        .set({ role: Roles.EDITOR, updatedAt: sql`now()` })
         .where(
           and(
             eq(schema.permissions.userId, authorId),
@@ -104,7 +114,7 @@ export class BookService {
   async updateBook(query: UpdateBookRequestDto): Promise<BookResponseDto> {
     const [row] = await this.db
       .update(schema.books)
-      .set({ ...query })
+      .set({ ...query, updatedAt: sql`now()` })
       .where(eq(schema.books.id, query.bookId))
       .returning();
     if (!row) throw new InternalServerErrorException('Failed to update');
