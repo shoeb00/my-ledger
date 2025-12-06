@@ -108,6 +108,7 @@ export class TransactionService {
       .set({
         [transactionType]: sql`${booksSchema.books[transactionType]} + ${amount} `,
         balance: sql`${booksSchema.books.balance} + ${body.amount}`,
+        updatedAt: sql`now()`,
       })
       .where(eq(schema.books.id, body.bookId));
     if (!row) throw new InternalServerErrorException('Failed to create');
@@ -123,7 +124,11 @@ export class TransactionService {
     if (!record) throw new NotFoundException('Transaction not found');
     const [updatedRow] = await this.db
       .update(schema.transactions)
-      .set({ paymentType: query.paymentType, description: query.description })
+      .set({
+        paymentType: query.paymentType,
+        description: query.description,
+        updatedAt: sql`now()`,
+      })
       .where(eq(schema.transactions.id, query.transactionId))
       .returning();
     if (!updatedRow) throw new InternalServerErrorException('Failed to update');
@@ -138,6 +143,7 @@ export class TransactionService {
     await this.db.transaction(async () => {
       await this.db.update(schema.books).set({
         balance: sql`${schema.books.balance} - ${record.amount}`,
+        updatedAt: sql`now()`,
       });
       await this.db
         .delete(schema.transactions)

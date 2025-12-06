@@ -11,7 +11,7 @@ import * as usersSchema from './schema';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { UserResponseDto } from './dto/user-response';
 import { CreateUserRequestDto } from './dto/create-user-request';
-import { and, eq, inArray, ne } from 'drizzle-orm';
+import { and, eq, inArray, ne, sql } from 'drizzle-orm';
 import { InviteUserRequestDto } from './dto/invite-user-request';
 import { PermissionsService } from '../permissions/permissions.service';
 import { books } from '../book/schema';
@@ -59,7 +59,7 @@ export class UserService {
     await this.db.insert(schema.permissions).values(permissions);
     await this.db
       .update(schema.invitations)
-      .set({ accepted: true })
+      .set({ accepted: true, updatedAt: sql`now()` })
       .where(eq(schema.invitations.email, body.email));
     return user;
   }
@@ -67,7 +67,7 @@ export class UserService {
   async updateClerkUserId(userId: number, clerkUserId: string): Promise<void> {
     await this.db
       .update(schema.users)
-      .set({ clerkUserId })
+      .set({ clerkUserId, updatedAt: sql`now()` })
       .where(eq(schema.users.id, userId));
   }
 
