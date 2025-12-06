@@ -35,16 +35,26 @@ export class BookService {
       .select({
         book: schema.books,
         role: schema.permissions.role,
+        lastTransaction: sql`max(${schema.transactions.createdAt})`,
       })
       .from(schema.permissions)
       .leftJoin(schema.books, eq(schema.books.id, schema.permissions.bookId))
-      .where(eq(schema.permissions.userId, user.id));
+      .leftJoin(
+        schema.transactions,
+        eq(schema.books.id, schema.transactions.bookId),
+      )
+      .where(eq(schema.permissions.userId, user.id))
+      .groupBy(schema.books.id, schema.permissions.role);
     if (rows.length === 0) return [];
     const books: BookResponseDto[] = [];
     for (const row of rows) {
       if (name && !row.book?.name.includes(name)) continue;
       if (bookId && row.book?.id !== bookId) continue;
-      books.push({ ...row.book!, role: row.role });
+      books.push({
+        ...row.book!,
+        role: row.role,
+        lastTransaction: row.lastTransaction as Date,
+      });
     }
     return books;
   }
