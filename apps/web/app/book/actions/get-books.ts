@@ -1,6 +1,9 @@
 import { Book } from '@my-ledger/api/book';
 
-export async function getBook(bookId?: string): Promise<Book[]> {
+export interface BookResponse extends Book {
+  lastTransaction: string;
+}
+export async function getBook(bookId?: string): Promise<BookResponse[]> {
   const url = new URL(`${process.env.NEXT_PUBLIC_API_URL}/v1/book/get`);
   if (bookId) url.searchParams.set('bookId', bookId);
   const res = await fetch(url.href, {
@@ -12,7 +15,8 @@ export async function getBook(bookId?: string): Promise<Book[]> {
   if (!res.ok) {
     console.log('err response', res);
     throw new Error(`status ${res.status}`);
-  }  const data = await res.json();
+  }
+  const data = await res.json();
   console.log(data);
   return data;
 }
