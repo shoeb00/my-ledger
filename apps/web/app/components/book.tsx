@@ -2,10 +2,10 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Book } from '@my-ledger/api/book';
 import { useRouter } from 'next/navigation';
 
 import React from 'react';
+import { BookResponse } from '../book/actions/get-books';
 
 export const fmtCurrency = (value: string): string => {
   const n = Number(value);
@@ -27,7 +27,7 @@ export const fmtDate = (d: string | Date): string => {
   });
 };
 
-export default function BookCard({ book }: Readonly<{ book: Readonly<Book> }>) {
+export default function BookCard({ book }: Readonly<{ book: Readonly<BookResponse> }>) {
   const router = useRouter();
   return (
     <Card
@@ -75,13 +75,17 @@ export default function BookCard({ book }: Readonly<{ book: Readonly<Book> }>) {
 
         <div className="mt-4 flex items-center justify-between gap-2">
           <div className="text-sm text-muted-foreground">
-            Last updated {fmtDate(book.updatedAt ?? book.createdAt)}
+            Last updated {fmtDate(book.lastTransaction ?? book.updatedAt ?? book.createdAt)}
           </div>
           <div className="flex items-center gap-2">
             <Button variant="ghost" size="sm" onClick={() => router.push(`/book/${book.id}`)}>
               View
             </Button>
-            <Button variant="outline" size="sm" onClick={() => router.push(`/book/${book.id}/info`)}>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => router.push(`/book/${book.id}/info`)}
+            >
               Edit
             </Button>
           </div>

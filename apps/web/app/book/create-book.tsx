@@ -10,16 +10,17 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-  DialogClose,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { createBook } from './actions/create-book';
+import { toast } from 'sonner';
 
-export default function CreateBook() {
+export default function CreateBook({ refetchAction }: { refetchAction: () => void }) {
   const formRef = useRef<HTMLFormElement | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [open, setOpen] = useState(false);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -31,16 +32,20 @@ export default function CreateBook() {
       const book = await createBook(fd);
       console.log('book created', book);
       formRef.current?.reset();
+      refetchAction();
+      setOpen(false);
+      toast.success('Book created successfully');
     } catch (err) {
-      console.error('createBook error', err);
-      setError(err instanceof Error ? err.message : 'Failed to create book');
+      const message = err instanceof Error ? err.message : 'Failed to create book';
+      setError(message);
+      toast.error(message);
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button className="ml-2">Add Book</Button>
       </DialogTrigger>
@@ -55,25 +60,27 @@ export default function CreateBook() {
           <div className="grid gap-4">
             <div className="grid gap-3">
               <Label htmlFor="name">Name</Label>
-              <Input id="name" name="name" placeholder="Trip to Goa" />
+              <Input id="name" name="name" placeholder="Trip to Goa" required maxLength={50} />
             </div>
 
             <div className="grid gap-3">
               <Label htmlFor="description">Description</Label>
-              <Input id="description" name="description" placeholder="Vacation to Goa" />
+              <Input
+                id="description"
+                name="description"
+                placeholder="Vacation to Goa"
+                maxLength={120}
+              />
             </div>
           </div>
 
           {error && <div className="text-sm text-destructive mt-2">{error}</div>}
 
           <DialogFooter className="pt-5">
-            <DialogClose asChild>
-              <Button variant="outline" type="button">
-                Cancel
-              </Button>
-            </DialogClose>
+            <Button variant="outline" type="button" onClick={() => setOpen(false)}>
+              Cancel
+            </Button>
 
-            {/* Keep this as a normal submit button (do not wrap with DialogClose) */}
             <Button type="submit" disabled={loading}>
               {loading ? 'Saving…' : 'Save'}
             </Button>
