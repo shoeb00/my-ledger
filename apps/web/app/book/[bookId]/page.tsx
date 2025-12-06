@@ -13,6 +13,7 @@ import { Book } from '@my-ledger/api/book';
 import { MoreVerticalIcon, ChevronLeft } from 'lucide-react';
 import AddTransactionDialog from './components/add-transaction';
 import LoaderCircle from '../../components/loader';
+import { toast } from 'sonner';
 
 type paymentType = 'all' | 'debit' | 'credit';
 type order = 'asc' | 'desc';
@@ -36,9 +37,8 @@ export default function PageClient() {
   const bookId = params.bookId as string;
 
   const [transactions, setTransactions] = useState<Transaction[]>([]);
-  // TODO: Handle errors with a toast
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [_error, setError] = useState<string | null>(null);
 
   // TODO: use useReducer and handle refresh
   const [query, setQuery] = useState('');
@@ -113,6 +113,7 @@ export default function PageClient() {
       const message = err instanceof Error ? err.message : 'Failed to fetch transactions';
       console.error('fetchTransactions error', err);
       setError(message);
+      toast.error(message);
       if (message === 'status 403') router.push('/home');
     } finally {
       setLoading(false);

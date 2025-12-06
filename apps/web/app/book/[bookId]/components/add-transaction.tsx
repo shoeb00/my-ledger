@@ -13,6 +13,7 @@ import { addTransaction } from '../actions/add-transaction';
 import { PaymentMethodEnum } from '../../../enums/payment-methods';
 import { Plus, Minus } from 'lucide-react';
 import { fmtCurrency } from '../../../components/book';
+import { toast } from 'sonner';
 
 export default function AddTransactionDialog({
   bookId,
@@ -56,9 +57,12 @@ export default function AddTransactionDialog({
       });
       refetchAction();
       setOpen(false);
+      toast.success('Transaction added successfully');
     } catch (err) {
       console.error('add error', err);
-      setError(err instanceof Error ? err.message : 'Failed to add transaction');
+      const message = err instanceof Error ? err.message : 'Failed to add transaction';
+      setError(message);
+      toast.error(message);
     } finally {
       setLoading(false);
     }
@@ -96,7 +100,7 @@ export default function AddTransactionDialog({
           value={amountStr}
           onChange={e => setAmountStr(e.target.value)}
           type="number"
-          min='0.1'
+          min="0.1"
         />
         <Input
           placeholder="Transaction description"
