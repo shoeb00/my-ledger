@@ -5,9 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@/components/ui/select';
 import CreateBook from './create-book';
-import { Book } from '@my-ledger/api/book';
 import BookCard from '../components/book';
-import { getBook } from './actions/get-books';
+import { BookResponse, getBook } from './actions/get-books';
 import LoaderCircle from '../components/loader';
 
 enum SortOptions {
@@ -22,7 +21,8 @@ export default function BooksList() {
   const [_error, setError] = useState<string | null>(null);
   const [query, setQuery] = useState('');
   const [debouncedQuery, setDebouncedQuery] = useState(query);
-  const [books, setBooks] = useState<Book[]>([]);
+  const [books, setBooks] = useState<BookResponse[]>([]);
+  const [refetchAction, setRefetchAction] = useState(false);
 
   useEffect(() => {
     const t = setTimeout(() => setDebouncedQuery(query), 250);
@@ -42,7 +42,7 @@ export default function BooksList() {
         setLoading(false);
       }
     })();
-  }, []);
+  }, [refetchAction]);
 
   const [sort, setSort] = useState<SortOptions>(SortOptions.Newest);
 
@@ -105,31 +105,33 @@ export default function BooksList() {
                 <SelectItem value="balance-asc">Balance (Low → High)</SelectItem>
               </SelectContent>
             </Select>
-            <CreateBook></CreateBook>
+            <CreateBook refetchAction={() => setRefetchAction(!refetchAction)} />
           </div>
         </div>
       </header>
 
       <LoaderCircle loading={loading}>
-        <section className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-          {filtered.map(b => (
-            <BookCard key={b.id} book={b} />
-          ))}
-        </section>
+        <div className="min-h-100">
+          <section className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+            {filtered.map(b => (
+              <BookCard key={b.id} book={b} />
+            ))}
+          </section>
 
-        {!loading && filtered.length === 0 && (
-          <div className="mt-8">
-            <Card className="p-6 text-center" style={{ background: 'hsl(var(--card))' }}>
-              <CardTitle>No books found</CardTitle>
-              <p className="text-sm text-muted-foreground mt-2">
-                Try different keywords or create a new book.
-              </p>
-              <div className="mt-4 flex justify-center">
-                <CreateBook />
-              </div>
-            </Card>
-          </div>
-        )}
+          {!loading && filtered.length === 0 && (
+            <div className="mt-8">
+              <Card className="p-6 text-center" style={{ background: 'hsl(var(--card))' }}>
+                <CardTitle>No books found</CardTitle>
+                <p className="text-sm text-muted-foreground mt-2">
+                  Try different keywords or create a new book.
+                </p>
+                <div className="mt-4 flex justify-center">
+                  <CreateBook refetchAction={() => setRefetchAction(!refetchAction)} />
+                </div>
+              </Card>
+            </div>
+          )}
+        </div>
       </LoaderCircle>
     </div>
   );
