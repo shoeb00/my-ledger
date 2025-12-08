@@ -1,7 +1,7 @@
+'use client';
+import { useParams } from 'next/navigation';
+
 export default function BookInfo() {
-  return (
-    <div>
-      <h1>Book info</h1>
-    </div>
-  );
+  const { bookId } = useParams();
+  return <h1>Book {bookId}</h1>;
 }
