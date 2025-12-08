@@ -8,6 +8,7 @@ import CreateBook from './create-book';
 import BookCard from '../components/book';
 import { BookResponse, getBook } from './actions/get-books';
 import LoaderCircle from '../components/loader';
+import { toast } from 'sonner';
 
 enum SortOptions {
   Newest = 'newest',
@@ -18,7 +19,6 @@ enum SortOptions {
 
 export default function BooksList() {
   const [loading, setLoading] = useState(false);
-  const [_error, setError] = useState<string | null>(null);
   const [query, setQuery] = useState('');
   const [debouncedQuery, setDebouncedQuery] = useState(query);
   const [books, setBooks] = useState<BookResponse[]>([]);
@@ -31,16 +31,14 @@ export default function BooksList() {
 
   useEffect(() => {
     (async () => {
-      try {
-        setLoading(true);
-        const data = await getBook();
+      setLoading(true);
+      const { err, data } = await getBook();
+      if (err) {
+        toast.error(err);
+      } else {
         setBooks(data);
-      } catch (err) {
-        console.error('getBook error', err);
-        setError(err instanceof Error ? err.message : 'Failed to get books');
-      } finally {
-        setLoading(false);
       }
+      setLoading(false);
     })();
   }, [refetchAction]);
 

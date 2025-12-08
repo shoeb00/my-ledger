@@ -38,7 +38,6 @@ export default function PageClient() {
 
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(false);
-  const [_error, setError] = useState<string | null>(null);
 
   // TODO: use useReducer and handle refresh
   const [query, setQuery] = useState('');
@@ -102,23 +101,15 @@ export default function PageClient() {
   const fetchTransactions = useCallback(async () => {
     if (!bookId) return;
     setLoading(true);
-    setError(null);
-
-    try {
-      const params = buildParams();
-      const data = await getTransaction(params);
+    const { err, data } = await getTransaction(buildParams());
+    if (err) {
+      toast.error(err);
+    } else {
       setTransactions(data.data);
       setTotalCount(data.count);
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to fetch transactions';
-      console.error('fetchTransactions error', err);
-      setError(message);
-      toast.error(message);
-      if (message === 'status 403') router.push('/home');
-    } finally {
-      setLoading(false);
     }
-  }, [bookId, buildParams, router]);
+    setLoading(false);
+  }, [bookId, buildParams]);
 
   useEffect(() => {
     fetchTransactions();
@@ -126,12 +117,16 @@ export default function PageClient() {
 
   useEffect(() => {
     (async () => {
-      const res = await getBook(bookId);
-      const data = res[0] as Book;
-      setBalance(data.balance);
-      setDebited(data.debited || '0');
-      setCredited(data.credited || '0');
-      setBookName(data.name);
+      const { err, data: res } = await getBook(bookId);
+      if (err) {
+        toast.error(err);
+      } else {
+        const data = res[0] as Book;
+        setBalance(data.balance);
+        setDebited(data.debited || '0');
+        setCredited(data.credited || '0');
+        setBookName(data.name);
+      }
     })();
   }, [bookId, refetchBookDetails]);
 

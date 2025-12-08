@@ -24,7 +24,6 @@ export default function AddTransactionDialog({
 }) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [_error, setError] = useState<string | null>(null);
   const [description, setDescription] = useState('');
   const [paymentMethod, setPaymentMethod] = useState(PaymentMethodEnum.CASH);
   const [amountStr, setAmountStr] = useState('');
@@ -36,7 +35,6 @@ export default function AddTransactionDialog({
     setAmountStr('');
     setIsPositive(true);
     setLoading(false);
-    setError(null);
   }
 
   useEffect(() => {
@@ -44,28 +42,24 @@ export default function AddTransactionDialog({
   }, [open]);
 
   async function handleAdd() {
-    setError(null);
+    const amount = Number(amountStr.trim());
+    const finalAmount = isPositive ? amount : -amount;
+    const payload = {
+      description,
+      paymentType: paymentMethod,
+      amount: finalAmount?.toFixed(2).toString() || '0',
+      bookId: Number(bookId),
+    };
     setLoading(true);
-    try {
-      const amount = Number(amountStr.trim());
-      const finalAmount = isPositive ? amount : -amount;
-      await addTransaction({
-        description,
-        paymentType: paymentMethod,
-        amount: finalAmount?.toFixed(2).toString() || '0',
-        bookId: Number(bookId),
-      });
+    const { err } = await addTransaction(payload);
+    if (err) {
+      toast.error(err);
+    } else {
       refetchAction();
-      setOpen(false);
       toast.success('Transaction added successfully');
-    } catch (err) {
-      console.error('add error', err);
-      const message = err instanceof Error ? err.message : 'Failed to add transaction';
-      setError(message);
-      toast.error(message);
-    } finally {
-      setLoading(false);
     }
+    setOpen(false);
+    setLoading(false);
   }
 
   return (

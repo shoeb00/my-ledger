@@ -1,7 +1,6 @@
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
-  DialogClose,
   DialogContent,
   DialogTrigger,
   DialogFooter,
@@ -10,6 +9,7 @@ import {
 import { Trash2Icon } from 'lucide-react';
 import { useState } from 'react';
 import { deleteTransaction } from '../actions/delete-transaction';
+import { toast } from 'sonner';
 
 export default function DeleteTransactionDialog({
   transactionId,
@@ -21,24 +21,24 @@ export default function DeleteTransactionDialog({
   refetchAction: () => void;
 }) {
   const [loading, setLoading] = useState(false);
-  const [_error, setError] = useState<string | null>(null);
+  const [open, setOpen] = useState(false);
 
   async function handleDelete() {
-    setError(null);
     setLoading(true);
-    try {
-      await deleteTransaction({ transactionId, bookId });
+    const { err } = await deleteTransaction({ transactionId, bookId });
+    console.log('err', err);
+    if (err) {
+      toast.error(err);
+    } else {
+      toast.success('Transaction deleted successfully');
       refetchAction();
-    } catch (err) {
-      console.error('delete error', err);
-      setError(err instanceof Error ? err.message : 'Failed to delete transaction');
-    } finally {
-      setLoading(false);
     }
+    setLoading(false);
+    setOpen(false);
   }
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button size="sm" variant="ghost">
           <Trash2Icon className="h-4 w-4" />
@@ -48,12 +48,8 @@ export default function DeleteTransactionDialog({
         <DialogTitle className="font-bold text-2xl">Are you sure? </DialogTitle>
         The action cannot be undone
         <DialogFooter>
-          <DialogClose>
-            <Button variant="outline">Cancel</Button>
-          </DialogClose>
-          <DialogClose>
-            <Button onClick={handleDelete}>{loading ? 'Deleting...' : 'Delete'}</Button>
-          </DialogClose>
+          <Button variant="outline">Cancel</Button>
+          <Button onClick={handleDelete}>{loading ? 'Deleting...' : 'Delete'}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

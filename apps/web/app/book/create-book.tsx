@@ -19,29 +19,22 @@ import { toast } from 'sonner';
 export default function CreateBook({ refetchAction }: { refetchAction: () => void }) {
   const formRef = useRef<HTMLFormElement | null>(null);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    setError(null);
     setLoading(true);
-
-    try {
-      const fd = new FormData(formRef.current!);
-      const book = await createBook(fd);
-      console.log('book created', book);
+    const formData = new FormData(formRef.current!);
+    const { err } = await createBook(formData);
+    if (err) {
+      toast.error(err);
+    } else {
       formRef.current?.reset();
       refetchAction();
-      setOpen(false);
       toast.success('Book created successfully');
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to create book';
-      setError(message);
-      toast.error(message);
-    } finally {
-      setLoading(false);
     }
+    setOpen(false);
+    setLoading(false);
   }
 
   return (
@@ -73,8 +66,6 @@ export default function CreateBook({ refetchAction }: { refetchAction: () => voi
               />
             </div>
           </div>
-
-          {error && <div className="text-sm text-destructive mt-2">{error}</div>}
 
           <DialogFooter className="pt-5">
             <Button variant="outline" type="button" onClick={() => setOpen(false)}>
