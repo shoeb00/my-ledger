@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 
 import React from 'react';
 import { BookResponse } from '../book/actions/get-books';
+import { EllipsisVerticalIcon } from 'lucide-react';
 
 export const fmtCurrency = (value: string): string => {
   const n = Number(value);
@@ -84,9 +85,9 @@ export default function BookCard({ book }: Readonly<{ book: Readonly<BookRespons
             <Button
               variant="outline"
               size="sm"
-              onClick={() => router.push(`/book/${book.id}/info`)}
+              onClick={() => router.push(`/book/${book.id}/settings`)}
             >
-              Edit
+              <EllipsisVerticalIcon />
             </Button>
           </div>
         </div>
