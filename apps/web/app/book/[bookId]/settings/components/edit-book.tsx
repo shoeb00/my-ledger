@@ -20,8 +20,8 @@ interface Props extends UpdateBookRequest {
 export default function EditBook(body: Props) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [name, setName] = useState(body.name);
-  const [desc, setDesc] = useState(body.description);
+  const [name, setName] = useState(body.name || '');
+  const [desc, setDesc] = useState(body.description || '');
 
   const handleUpdate = async () => {
     setLoading(true);
