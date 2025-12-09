@@ -213,7 +213,7 @@ export default function PageClient() {
             <AddTransactionDialog bookId={bookId} refetchAction={refetch} />
 
             <div className="relative">
-              <Button variant="outline" onClick={() => router.back()}>
+              <Button variant="outline" onClick={() => router.push(`/book/${bookId}/settings`)}>
                 <SettingsIcon className="w-4 h-4"></SettingsIcon>
               </Button>
             </div>
