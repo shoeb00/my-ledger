@@ -18,7 +18,7 @@ enum SortOptions {
 }
 
 export default function BooksList() {
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState('');
   const [debouncedQuery, setDebouncedQuery] = useState(query);
   const [books, setBooks] = useState<BookResponse[]>([]);

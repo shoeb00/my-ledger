@@ -15,7 +15,7 @@ import { EditRequestPayload } from '../interfaces/edit-request-payload';
 import { toast } from 'sonner';
 
 export default function EditTransactionDialog(query: EditRequestPayload) {
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
   const [description, setDescription] = useState(query.description);
   const [paymentMethod, setPaymentMethod] = useState(query.paymentType);

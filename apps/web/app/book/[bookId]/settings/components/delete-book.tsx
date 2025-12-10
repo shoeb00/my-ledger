@@ -18,7 +18,7 @@ import { DialogDescription } from '@radix-ui/react-dialog';
 export default function DeleteBook(body: Omit<UpdateBookRequest, 'description'>) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [name, setName] = useState(body.name);
 
   const handleDelete = async () => {

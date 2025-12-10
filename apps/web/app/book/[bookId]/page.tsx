@@ -37,7 +37,7 @@ export default function PageClient() {
   const bookId = params.bookId as string;
 
   const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   // TODO: use useReducer and handle refresh
   const [query, setQuery] = useState('');

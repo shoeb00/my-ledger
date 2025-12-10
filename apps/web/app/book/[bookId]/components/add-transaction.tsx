@@ -23,7 +23,7 @@ export default function AddTransactionDialog({
   refetchAction: () => void;
 }) {
   const [open, setOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [description, setDescription] = useState('');
   const [paymentMethod, setPaymentMethod] = useState(PaymentMethodEnum.CASH);
   const [amountStr, setAmountStr] = useState('');

@@ -20,7 +20,7 @@ export default function DeleteTransactionDialog({
   bookId: string;
   refetchAction: () => void;
 }) {
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
 
   async function handleDelete() {
