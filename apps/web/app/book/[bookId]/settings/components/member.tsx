@@ -13,8 +13,8 @@ export function MemberRow({ member }: { member: Member }) {
       aria-label={`Member ${member.email}`}
       className="w-full rounded-lg border bg-card px-4 py-3 shadow-sm hover:shadow-md transition flex justify-between items-center gap-4"
     >
-      <div className="text-md truncate capitalize">{member.name}</div>
-      <div className="text-md truncate">{member.email}</div>
+      <div className="text-sm truncate capitalize">{member.name}</div>
+      <div className="text-sm truncate">{member.email}</div>
 
       <Badge
         className="text-sm capitalize shrink-0 w-[120px]"

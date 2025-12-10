@@ -1,4 +1,6 @@
-import { useState } from 'react';
+'use client';
+
+import { useEffect, useState } from 'react';
 import { updateBook, type UpdateBookRequest } from '../actions/book';
 import {
   Dialog,
@@ -20,8 +22,15 @@ interface Props extends UpdateBookRequest {
 export default function EditBook(body: Props) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [name, setName] = useState(body.name || '');
-  const [desc, setDesc] = useState(body.description || '');
+  const [name, setName] = useState('');
+  const [desc, setDesc] = useState('');
+
+  useEffect(() => {
+    if (open) {
+      setName(body.name ?? '');
+      setDesc(body.description ?? '');
+    }
+  }, [open, body.name, body.description]);
 
   const handleUpdate = async () => {
     setLoading(true);
@@ -53,7 +62,6 @@ export default function EditBook(body: Props) {
             <Input
               id="name"
               name="name"
-              defaultValue={body.name}
               onChange={e => setName(e.target.value)}
               value={name}
               placeholder="Book Name"
@@ -64,7 +72,7 @@ export default function EditBook(body: Props) {
             <Input
               id="description"
               name="description"
-              defaultValue={desc}
+              value={desc}
               onChange={e => setDesc(e.target.value)}
               placeholder="Book Description"
             />
@@ -74,7 +82,9 @@ export default function EditBook(body: Props) {
           <Button variant="outline" onClick={() => setOpen(false)}>
             Cancel
           </Button>
-          <Button onClick={handleUpdate}>{loading ? 'Updating...' : 'Update'}</Button>
+          <Button onClick={handleUpdate} disabled={loading}>
+            {loading ? 'Updating...' : 'Update'}
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
