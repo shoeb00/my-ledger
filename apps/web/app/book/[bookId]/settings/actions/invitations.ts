@@ -9,7 +9,7 @@ export type InviteUserRequest = {
 
 export const inviteUser = async (body: InviteUserRequest) => {
   const endpoint = `/v1/user/invite`;
-  return await callApi(endpoint, 'POST', undefined, body);
+  return await callApi(endpoint, 'POST', undefined, { ...body, bookId: Number(body.bookId) });
 };
 
 export const getInvitations = async () => {
@@ -20,4 +20,9 @@ export const getInvitations = async () => {
 export const cancelInvitation = async (invitationId: string) => {
   const endpoint = `/v1/user/cancelInvite/${invitationId}`;
   return await callApi(endpoint, 'DELETE');
+};
+
+export const getEmails = async () => {
+  const endpoint = `/v1/user/emails`;
+  return await callApi(endpoint, 'GET');
 };
