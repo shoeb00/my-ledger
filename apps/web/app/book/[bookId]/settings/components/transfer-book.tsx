@@ -19,7 +19,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 export default function TransferBook(body: Omit<UpdateBookRequest, 'description'>) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [name, setName] = useState(body.name);
   const [agree, setAgree] = useState(false);
 
