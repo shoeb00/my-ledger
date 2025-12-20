@@ -16,7 +16,7 @@ import { Edit2Icon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface Props extends UpdateBookRequest {
-  refetchBookAction: () => void;
+  refetchAction: () => void;
 }
 
 export default function EditBook(body: Props) {
@@ -34,7 +34,7 @@ export default function EditBook(body: Props) {
 
   const handleUpdate = async () => {
     setLoading(true);
-    const { refetchBookAction, ...payload } = body;
+    const { refetchAction, ...payload } = body;
     payload.name = name;
     payload.description = desc;
     const { err } = await updateBook(payload);
@@ -42,7 +42,7 @@ export default function EditBook(body: Props) {
       toast.error(err);
     } else {
       toast.success('Book updated successfully');
-      refetchBookAction();
+      refetchAction();
     }
     setOpen(false);
     setLoading(false);
