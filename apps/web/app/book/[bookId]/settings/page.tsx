@@ -7,7 +7,7 @@ import { getInvitations } from './actions/invitations';
 import { toast } from 'sonner';
 import { Roles } from '@my-ledger/api/role';
 import { Button } from '@/components/ui/button';
-import { ChevronLeft, UserPlus2Icon } from 'lucide-react';
+import { ChevronLeft } from 'lucide-react';
 import EditBook from './components/edit-book';
 import DeleteBook from './components/delete-book';
 import TransferBook from './components/transfer-book';
@@ -15,6 +15,7 @@ import MemberRow from './components/member';
 import LoaderCircle from '../../../components/loader';
 import InvitationList from './components/invites';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import AddOrInviteUser from './components/addOrInviteUser';
 
 export type Member = {
   userId: number;
@@ -40,9 +41,10 @@ export default function BookInfo() {
   const bookId = params.bookId as string;
   const [loading, setLoading] = useState(true);
   const [book, setBook] = useState<BookResponse | null>(null);
-  const [refetchBookAction, setRefetchBookAction] = useState(false);
+  const [refetchAction, setRefetchAction] = useState(false);
   const [members, setMembers] = useState<Member[]>([]);
   const [invites, setInvites] = useState<Invitation[]>([]);
+  const [activeTab, setActiveTab] = useState('members');
 
   useEffect(() => {
     (async () => {
@@ -50,7 +52,7 @@ export default function BookInfo() {
       if (err) toast.error(err);
       if (data[0]) setBook(data[0]);
     })();
-  }, [bookId, refetchBookAction]);
+  }, [bookId, refetchAction]);
 
   useEffect(() => {
     (async () => {
@@ -63,7 +65,7 @@ export default function BookInfo() {
       }
       setLoading(false);
     })();
-  }, [bookId]);
+  }, [bookId, refetchAction]);
 
   useEffect(() => {
     (async () => {
@@ -76,7 +78,7 @@ export default function BookInfo() {
       }
       setLoading(false);
     })();
-  }, []);
+  }, [refetchAction]);
 
   return (
     <div>
@@ -92,7 +94,7 @@ export default function BookInfo() {
           <EditBook
             bookId={bookId}
             name={book?.name || ''}
-            refetchBookAction={() => setRefetchBookAction(!refetchBookAction)}
+            refetchAction={() => setRefetchAction(!refetchAction)}
             description={book?.description || ''}
           />
         </div>
@@ -102,16 +104,18 @@ export default function BookInfo() {
         </div>
       </div>
       <div className="flex flex-col gap-4 mt-4">
-        <Tabs defaultValue="members">
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="w-full">
             <div className="flex flex-row w-full justify-between">
               <div>
                 <TabsTrigger value="members">Members</TabsTrigger>
                 <TabsTrigger value="invitations">Invitations</TabsTrigger>
               </div>
-              <Button>
-                <UserPlus2Icon /> Add Member
-              </Button>
+              <AddOrInviteUser
+                userDetails={members}
+                refetchAction={() => setRefetchAction(!refetchAction)}
+                tab={activeTab as 'invites' | 'members'}
+              />
             </div>
           </TabsList>
           <LoaderCircle loading={loading}>
@@ -119,7 +123,10 @@ export default function BookInfo() {
               <MemberRow members={members} />
             </TabsContent>
             <TabsContent value="invitations">
-              <InvitationList invitations={invites} />
+              <InvitationList
+                invitations={invites}
+                refetchAction={() => setRefetchAction(!refetchAction)}
+              />
             </TabsContent>
           </LoaderCircle>
         </Tabs>
