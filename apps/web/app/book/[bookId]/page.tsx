@@ -10,7 +10,7 @@ import { getTransaction } from './actions/get-transaction';
 import TransactionList from '../components/transaction';
 import { getBook } from '../actions/get-books';
 import { Book } from '@my-ledger/api/book';
-import { MoreVerticalIcon, ChevronLeft } from 'lucide-react';
+import { ChevronLeft, SettingsIcon } from 'lucide-react';
 import AddTransactionDialog from './components/add-transaction';
 import LoaderCircle from '../../components/loader';
 import { toast } from 'sonner';
@@ -37,7 +37,7 @@ export default function PageClient() {
   const bookId = params.bookId as string;
 
   const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   // TODO: use useReducer and handle refresh
   const [query, setQuery] = useState('');
@@ -213,8 +213,8 @@ export default function PageClient() {
             <AddTransactionDialog bookId={bookId} refetchAction={refetch} />
 
             <div className="relative">
-              <Button variant="outline" onClick={() => router.push(`/book/${bookId}/info`)}>
-                <MoreVerticalIcon className="w-4 h-4"></MoreVerticalIcon>
+              <Button variant="outline" onClick={() => router.push(`/book/${bookId}/settings`)}>
+                <SettingsIcon className="w-4 h-4"></SettingsIcon>
               </Button>
             </div>
           </div>

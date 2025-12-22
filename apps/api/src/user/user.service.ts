@@ -74,7 +74,10 @@ export class UserService {
   async getInvitations() {
     const user = this.cxt.getUser();
     return await this.db.query.invitations.findMany({
-      where: eq(schema.invitations.invitedBy, user.id),
+      where: and(
+        eq(schema.invitations.invitedBy, user.id),
+        eq(schema.invitations.accepted, false),
+      ),
     });
   }
 
@@ -143,6 +146,8 @@ export class UserService {
     const rows = await this.db
       .selectDistinct({
         email: schema.users.email,
+        name: schema.users.name,
+        userId: schema.users.id,
       })
       .from(schema.permissions)
       .leftJoin(schema.users, eq(schema.users.id, schema.permissions.userId))
@@ -152,6 +157,6 @@ export class UserService {
           ne(schema.users.id, userId),
         ),
       );
-    return rows.map((row) => row.email);
+    return rows;
   }
 }

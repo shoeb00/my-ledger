@@ -18,7 +18,7 @@ import { toast } from 'sonner';
 
 export default function CreateBook({ refetchAction }: { refetchAction: () => void }) {
   const formRef = useRef<HTMLFormElement | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
