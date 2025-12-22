@@ -16,10 +16,17 @@ import { Label } from '@/components/ui/label';
 import { createBook } from './actions/create-book';
 import { toast } from 'sonner';
 
-export default function CreateBook({ refetchAction }: { refetchAction: () => void }) {
+export default function CreateBook({
+  refetchAction,
+  books,
+}: {
+  refetchAction: () => void;
+  books: number;
+}) {
   const formRef = useRef<HTMLFormElement | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
+  const bookLimit = Number(process.env.BOOKS_LIMIT) || 5;
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -40,7 +47,9 @@ export default function CreateBook({ refetchAction }: { refetchAction: () => voi
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="ml-2">Add Book</Button>
+        <Button disabled={books >= bookLimit} className="ml-2">
+          Add Book
+        </Button>
       </DialogTrigger>
 
       <DialogContent className="sm:max-w-[425px]">
