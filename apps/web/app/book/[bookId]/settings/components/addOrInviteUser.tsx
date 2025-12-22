@@ -107,30 +107,31 @@ export default function AddOrInviteUser(body: Props) {
       <DialogContent>
         <DialogTitle>{title}</DialogTitle>
         <DialogDescription>Email</DialogDescription>
-        <div className="h-70 grid gap-3">
+        <div className="max-h-70 grid gap-3">
           <Command>
             <CommandInput
               placeholder="Type an email..."
               value={email}
               onValueChange={setEmail}
             ></CommandInput>
-            {isMemberTab && <CommandEmpty>No results found</CommandEmpty>}
-            <CommandGroup className="overflow-auto m">
-              {users.map(({ name, email }) => (
-                <CommandItem
-                  value={email}
-                  key={email}
-                  onSelect={() => {
-                    setEmail(email);
-                  }}
-                  className="p-2 m-2 rounded-md border bg-card shadow-sm hover:shadow-md transition"
-                >
-                  <div className="flex flex-col">
-                    <span className="capitalize text-sm">{name}</span>
-                    <span className="font-semibold">{email}</span>
-                  </div>
-                </CommandItem>
-              ))}
+            {isMemberTab && <CommandEmpty>No users found, try inviting</CommandEmpty>}
+            <CommandGroup className="overflow-auto">
+              {isMemberTab &&
+                users.map(({ name, email }) => (
+                  <CommandItem
+                    value={email}
+                    key={email}
+                    onSelect={() => {
+                      setEmail(email);
+                    }}
+                    className="p-2 m-2 rounded-md border bg-card shadow-sm hover:shadow-md transition"
+                  >
+                    <div className="flex flex-col">
+                      <span className="capitalize text-sm">{name}</span>
+                      <span className="font-semibold">{email}</span>
+                    </div>
+                  </CommandItem>
+                ))}
             </CommandGroup>
           </Command>
         </div>

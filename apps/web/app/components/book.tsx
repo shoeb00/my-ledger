@@ -79,7 +79,7 @@ export default function BookCard({ book }: Readonly<{ book: Readonly<BookRespons
             Last updated {fmtDate(book.lastTransaction ?? book.updatedAt ?? book.createdAt)}
           </div>
           <div className="flex items-center gap-2">
-            <Button variant="ghost" size="sm" onClick={() => router.push(`/book/${book.id}`)}>
+            <Button variant="outline" size="sm" onClick={() => router.push(`/book/${book.id}`)}>
               View
             </Button>
             <Button

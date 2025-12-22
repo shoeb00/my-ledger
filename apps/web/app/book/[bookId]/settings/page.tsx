@@ -120,7 +120,7 @@ export default function BookInfo() {
           </TabsList>
           <LoaderCircle loading={loading}>
             <TabsContent value="members">
-              <MemberRow members={members} />
+              <MemberRow members={members} refetchAction={() => setRefetchAction(!refetchAction)} />
             </TabsContent>
             <TabsContent value="invitations">
               <InvitationList
