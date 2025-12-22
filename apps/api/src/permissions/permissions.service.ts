@@ -84,7 +84,7 @@ export class PermissionsService {
   async deletePermission(query: DeletePermissionRequestDto) {
     const permission = await this.db.query.permissions.findFirst({
       where: and(
-        eq(schema.permissions.id, query.permissionId),
+        eq(schema.permissions.userId, query.userId),
         eq(schema.permissions.bookId, query.bookId),
       ),
     });
@@ -93,6 +93,6 @@ export class PermissionsService {
       throw new BadRequestException('Cannot delete author permissions');
     await this.db
       .delete(schema.permissions)
-      .where(eq(schema.permissions.id, query.permissionId));
+      .where(eq(schema.permissions.id, permission.id));
   }
 }

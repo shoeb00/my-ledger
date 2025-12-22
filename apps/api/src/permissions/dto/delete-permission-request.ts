@@ -11,5 +11,5 @@ export class DeletePermissionRequestDto {
   @ApiProperty()
   @IsNumber()
   @Type(() => Number)
-  permissionId: number;
+  userId: number;
 }

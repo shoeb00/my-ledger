@@ -11,7 +11,7 @@ export const updateBookMembers = async (body: InviteUserRequest) => {
   return await callApi(endpoint, 'PUT', undefined, body);
 };
 
-export const removeBookMembers = async (bookId: string, permissionId: string) => {
+export const removeBookMembers = async (bookId: string, userId: string) => {
   const endpoint = '/v1/permissions/delete';
-  return await callApi(endpoint, 'PUT', { bookId, permissionId });
+  return await callApi(endpoint, 'DELETE', { bookId, userId });
 };
