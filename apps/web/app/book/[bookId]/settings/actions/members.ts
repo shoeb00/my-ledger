@@ -1,12 +1,16 @@
 import { callApi } from '../../../../lib/api';
-import { InviteUserRequest } from './invitations';
+import { MemberRole } from '../components/updateMemberRole';
 
 export const getBookMembers = async (bookId: string) => {
   const endpoint = `/v1/book/members`;
   return await callApi(endpoint, 'GET', { bookId });
 };
 
-export const updateBookMembers = async (body: InviteUserRequest) => {
+export const updateBookMembers = async (body: {
+  userId: string;
+  bookId: string;
+  role: MemberRole;
+}) => {
   const endpoint = '/v1/permissions/update';
   return await callApi(endpoint, 'PUT', undefined, body);
 };

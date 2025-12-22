@@ -1,12 +1,10 @@
 'use client';
 
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { MailPlusIcon, XIcon } from 'lucide-react';
 import type { Invitation } from '../page';
 import { fmtDate } from '../../../../components/book';
-import { cancelInvitation } from '../actions/invitations';
-import { toast } from 'sonner';
+import AddOrInviteUser from './addOrInviteUser';
+import CancelInvitation from './cancelInvite';
 
 export function InvitationRow({
   invitation,
@@ -15,14 +13,6 @@ export function InvitationRow({
   invitation: Invitation;
   refetchAction: () => void;
 }) {
-  const handleCancelInvite = async (id: string) => {
-    const { err } = await cancelInvitation(id);
-    if (err) toast.error(err);
-    else {
-      toast.success('Invitation canceled successfully');
-      refetchAction();
-    }
-  };
   return (
     <article
       role="listitem"
@@ -34,9 +24,7 @@ export function InvitationRow({
 
       <Badge className="text-sm capitalize shrink-0 w-[120px]">{invitation.role}</Badge>
 
-      <Button variant="ghost" onClick={() => handleCancelInvite(invitation.id.toString())}>
-        <XIcon />
-      </Button>
+      <CancelInvitation inviteId={invitation.id.toString()} refetchAction={refetchAction} />
     </article>
   );
 }
@@ -53,9 +41,7 @@ export default function InvitationList({
       <div className="rounded-md border border-dashed h-85 p-6 text-center text-sm text-muted-foreground">
         <div className="my-2 font-medium">No invitations yet</div>
         <div className="mb-4 text-xs">Add a invitation to see them listed here.</div>
-        <Button>
-          <MailPlusIcon /> Send Invitation
-        </Button>
+        <AddOrInviteUser tab="invites" refetchAction={refetchAction} userDetails={[]} />
       </div>
     );
   }

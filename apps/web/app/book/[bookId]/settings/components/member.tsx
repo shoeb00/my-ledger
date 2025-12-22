@@ -2,11 +2,19 @@
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Edit2, Trash2Icon, UserPlus2Icon } from 'lucide-react';
+import { UserPlus2Icon } from 'lucide-react';
 import type { Member } from '../page';
 import { Roles } from '@my-ledger/api/role';
+import RemoveMember from './removeMember';
+import UpdateMemberRole from './updateMemberRole';
 
-export function MemberRow({ member }: { member: Member }) {
+export function MemberRow({
+  member,
+  refetchAction,
+}: {
+  member: Member;
+  refetchAction: () => void;
+}) {
   return (
     <article
       role="listitem"
@@ -23,18 +31,24 @@ export function MemberRow({ member }: { member: Member }) {
         {member.role}
       </Badge>
       <div className="flex items-center gap-2">
-        <Button variant="ghost" disabled={member.role === Roles.AUTHOR}>
-          <Edit2 />
-        </Button>
-        <Button variant="ghost" disabled={member.role === Roles.AUTHOR}>
-          <Trash2Icon />
-        </Button>
+        <UpdateMemberRole member={member} refetchAction={refetchAction} />
+        <RemoveMember
+          userId={member.userId.toString()}
+          refetchAction={refetchAction}
+          role={member.role}
+        />
       </div>
     </article>
   );
 }
 
-export default function MemberList({ members }: { members: Member[] }) {
+export default function MemberList({
+  members,
+  refetchAction,
+}: {
+  members: Member[];
+  refetchAction: () => void;
+}) {
   if (!members || members.length === 0) {
     return (
       <div className="rounded-md border border-dashed h-85 p-6 text-center text-sm text-muted-foreground">
@@ -50,7 +64,7 @@ export default function MemberList({ members }: { members: Member[] }) {
   return (
     <section className="h-105 overflow-auto space-y-2">
       {members.map(m => (
-        <MemberRow member={m} key={m.email} />
+        <MemberRow member={m} key={m.email} refetchAction={refetchAction} />
       ))}
     </section>
   );
