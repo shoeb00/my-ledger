@@ -16,6 +16,7 @@ import LoaderCircle from '../../../components/loader';
 import InvitationList from './components/invites';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import AddOrInviteUser from './components/addOrInviteUser';
+import { useUser } from '@clerk/nextjs';
 
 export type Member = {
   userId: number;
@@ -45,6 +46,12 @@ export default function BookInfo() {
   const [members, setMembers] = useState<Member[]>([]);
   const [invites, setInvites] = useState<Invitation[]>([]);
   const [activeTab, setActiveTab] = useState('members');
+
+  const { user } = useUser();
+  const owner = members.find(
+    member =>
+      member.role === Roles.AUTHOR && member.email === user?.primaryEmailAddress?.emailAddress
+  );
 
   useEffect(() => {
     (async () => {
@@ -98,7 +105,7 @@ export default function BookInfo() {
             description={book?.description || ''}
           />
         </div>
-        <div className="flex flex-row items-center gap-4">
+        <div className="flex flex-row items-center gap-4" hidden={!owner}>
           <TransferBook bookId={bookId} name={book?.name || ''} />
           <DeleteBook bookId={bookId} name={book?.name || ''} />
         </div>

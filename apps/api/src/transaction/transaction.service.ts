@@ -140,9 +140,11 @@ export class TransactionService {
       where: and(eq(schema.transactions.id, id)),
     });
     if (!record) throw new NotFoundException('Transaction not found');
+    const key = Number(record?.amount) > 0 ? 'credited' : 'debited';
     await this.db.transaction(async () => {
       await this.db.update(schema.books).set({
         balance: sql`${schema.books.balance} - ${record.amount}`,
+        [key]: sql`${schema.books[key]} - ${Math.abs(Number(record.amount))}`,
         updatedAt: sql`now()`,
       });
       await this.db

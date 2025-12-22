@@ -103,7 +103,10 @@ export default function BooksList() {
                 <SelectItem value="balance-asc">Balance (Low → High)</SelectItem>
               </SelectContent>
             </Select>
-            <CreateBook refetchAction={() => setRefetchAction(!refetchAction)} />
+            <CreateBook
+              books={books.length}
+              refetchAction={() => setRefetchAction(!refetchAction)}
+            />
           </div>
         </div>
       </header>
@@ -124,7 +127,10 @@ export default function BooksList() {
                   Try different keywords or create a new book.
                 </p>
                 <div className="mt-4 flex justify-center">
-                  <CreateBook refetchAction={() => setRefetchAction(!refetchAction)} />
+                  <CreateBook
+                    books={books.length}
+                    refetchAction={() => setRefetchAction(!refetchAction)}
+                  />
                 </div>
               </Card>
             </div>

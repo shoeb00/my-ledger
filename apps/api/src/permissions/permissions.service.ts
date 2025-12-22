@@ -91,8 +91,14 @@ export class PermissionsService {
     if (!permission) throw new BadRequestException('Permission not found');
     if (permission.role === Roles.AUTHOR)
       throw new BadRequestException('Cannot delete author permissions');
-    await this.db
-      .delete(schema.permissions)
-      .where(eq(schema.permissions.id, permission.id));
+    await this.db.transaction(async () => {
+      await this.db
+        .delete(schema.permissions)
+        .where(eq(schema.permissions.id, permission.id));
+      await this.db.update(schema.books).set({
+        members: sql`members - 1`,
+        updatedAt: sql`now()`,
+      });
+    });
   }
 }

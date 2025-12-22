@@ -61,6 +61,12 @@ export class BookService {
 
   async createBook(createBook: CreateBookRequestDto): Promise<BookResponseDto> {
     const user = this.cxt.getUser();
+    const count = await this.db.$count(
+      schema.books,
+      eq(schema.books.userId, user.id),
+    );
+    if (count >= (Number(process.env.BOOKS_LIMIT) || 5))
+      throw new InternalServerErrorException('Max books reached');
     const [row] = await this.db
       .insert(schema.books)
       .values({ ...createBook, userId: user.id })
