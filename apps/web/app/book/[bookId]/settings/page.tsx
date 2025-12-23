@@ -106,7 +106,10 @@ export default function BookInfo() {
           />
         </div>
         <div className="flex flex-row items-center gap-4" hidden={!owner}>
-          <TransferBook bookId={bookId} name={book?.name || ''} />
+          <TransferBook
+            bookName={book?.name || ''}
+            refetchAction={() => setRefetchAction(!refetchAction)}
+          />
           <DeleteBook bookId={bookId} name={book?.name || ''} />
         </div>
       </div>

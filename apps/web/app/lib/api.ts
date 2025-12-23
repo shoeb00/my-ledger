@@ -20,7 +20,8 @@ export const callApi = async (
   method: Method,
   query?: object,
   body?: object
-): Promise<{ err: string | null; data: object }> => {
+  // TODO: add types for the data response
+): Promise<{ err: string | null; data: any }> => {
   let err = null;
   let data = null;
   try {

@@ -24,7 +24,7 @@ import {
 import { useParams } from 'next/navigation';
 import { Roles } from '@my-ledger/api/role';
 
-type userDetails = {
+export type UserDetails = {
   name: string;
   email: string;
   userId: number;
@@ -43,14 +43,14 @@ export default function AddOrInviteUser(body: Props) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState('');
-  const [users, setUsers] = useState<userDetails[]>([]);
+  const [users, setUsers] = useState<UserDetails[]>([]);
 
   useEffect(() => {
     (async () => {
       setLoading(true);
       const result = await getEmails();
       const emails = body.userDetails.map(({ email }) => email);
-      const data = result.data as userDetails[];
+      const data = result.data as UserDetails[];
       const filteredUsers = data.filter(({ email }) => !emails.includes(email));
       setUsers(filteredUsers);
       if (result.err) {
@@ -69,11 +69,13 @@ export default function AddOrInviteUser(body: Props) {
   const handleUpdate = async () => {
     setLoading(true);
     const { refetchAction } = body;
-    const { err } = await inviteUser({ email, bookId, role: Roles.VIEWER });
+    const { err, data } = await inviteUser({ email, bookId, role: Roles.VIEWER });
     if (err) {
       toast.error(err);
     } else {
-      toast.success(`User ${isMemberTab ? 'added' : 'invited'} successfully`);
+      // TODO: Identify response and Redirect user to Members tab if user exists
+      if (data?.message === 'Success') toast.success('User found, adding as a member');
+      else toast.success(`User ${isMemberTab ? 'added' : 'invited'} successfully`);
       refetchAction();
     }
     setOpen(false);
