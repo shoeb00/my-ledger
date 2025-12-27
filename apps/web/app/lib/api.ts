@@ -14,6 +14,21 @@ const safeParseResponse = async (response: Response) => {
     return null;
   }
 };
+
+interface ClerkGlobal {
+  loaded: boolean;
+  openSignIn?: () => void;
+  session?: {
+    getToken: () => string;
+  }
+}
+
+declare global {
+  interface Window {
+    Clerk?: ClerkGlobal;
+  }
+}
+
 async function waitForClerk(): Promise<void> {
   if (window.Clerk?.loaded) return;
 
@@ -38,6 +53,7 @@ export const callApi = async (
   let data = null;
   try {
     await waitForClerk();
+    if (!window.Clerk?.session) throw new Error('Session not initiated')
     const token = await window.Clerk?.session?.getToken();
     const url = new URL(API_URL + endpoint);
     if (query) {
