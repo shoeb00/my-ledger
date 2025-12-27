@@ -14,17 +14,31 @@ const safeParseResponse = async (response: Response) => {
     return null;
   }
 };
+async function waitForClerk(): Promise<void> {
+  if (window.Clerk?.loaded) return;
+
+  await new Promise<void>((resolve) => {
+    const interval = setInterval(() => {
+      if (window.Clerk?.loaded) {
+        clearInterval(interval);
+        resolve();
+      }
+    }, 50);
+  });
+}
 
 export const callApi = async (
   endpoint: string,
   method: Method,
   query?: object,
-  body?: object
+  body?: object,
   // TODO: add types for the data response
 ): Promise<{ err: string | null; data: any }> => {
   let err = null;
   let data = null;
   try {
+    await waitForClerk();
+    const token = await window.Clerk?.session?.getToken();
     const url = new URL(API_URL + endpoint);
     if (query) {
       for (const [key, value] of Object.entries(query)) {
@@ -35,11 +49,13 @@ export const callApi = async (
       console.log('url:', url);
       console.log('method:', method);
       console.log('body:', body);
+      console.log('token:', token);
     }
     const response = await fetch(url, {
       method,
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
       },
       body: body && JSON.stringify(body),
       credentials: 'include',

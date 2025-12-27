@@ -9,7 +9,7 @@ export class WebhooksController {
   constructor(private readonly webhookService: WebhooksService) {}
 
   @Public()
-  @Post()
+  @Post('clerk')
   async handleWebhook(
     @Req() req: RawBodyRequest<Request>,
     @Headers() headers: Record<string, string | string[] | undefined>,
