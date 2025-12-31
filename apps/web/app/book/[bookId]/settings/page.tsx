@@ -77,7 +77,7 @@ export default function BookInfo() {
   useEffect(() => {
     (async () => {
       setLoading(true);
-      const { err, data } = await getInvitations();
+      const { err, data } = await getInvitations(bookId);
       if (err) {
         toast.error(err);
       } else {
@@ -85,7 +85,7 @@ export default function BookInfo() {
       }
       setLoading(false);
     })();
-  }, [refetchAction]);
+  }, [refetchAction, bookId]);
 
   return (
     <div>
