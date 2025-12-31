@@ -56,7 +56,12 @@ export class UserService {
       role,
       userId: user.id,
     }));
+    const bookIds = invitations.map(({ bookId }) => bookId);
     await this.db.insert(schema.permissions).values(permissions);
+    await this.db
+      .update(schema.books)
+      .set({ members: sql`members + 1` })
+      .where(inArray(schema.books.id, bookIds));
     await this.db
       .update(schema.invitations)
       .set({ accepted: true, updatedAt: sql`now()` })
