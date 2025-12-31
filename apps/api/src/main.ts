@@ -29,7 +29,14 @@ async function bootstrap(): Promise<void> {
     }),
   );
   app.enableCors({
-    origin: process.env.FRONTEND_ORIGIN,
+    origin: (origin, callback) => {
+      const allowedOrigins = process.env.FRONTEND_ORIGIN?.split(',') ?? [];
+      if (!origin || allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      return callback(new Error('Not allowed by CORS'));
+    },
     credentials: true,
   });
   app.useGlobalPipes(new ValidationPipe({ transform: true, whitelist: true }));
