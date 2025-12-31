@@ -16,6 +16,7 @@ import { InviteUserRequestDto } from './dto/invite-user-request';
 import { PermissionsService } from '../permissions/permissions.service';
 import { books } from '../book/schema';
 import { RequestContextService } from '../common/request-context.service';
+import { count } from 'drizzle-orm';
 
 const schema = { ...usersSchema, permissions, books };
 
@@ -83,10 +84,17 @@ export class UserService {
 
   async inviteUnregisteredUser(body: InviteUserRequestDto) {
     const currentUser = this.cxt.getUser();
-    const [count] = await this.db
-      .select({ count: schema.invitations.id })
-      .from(schema.invitations);
-    if (Number(count?.count) >= 20)
+    const [rows] = await this.db
+      .select({ count: count() })
+      .from(schema.invitations)
+      .where(
+        and(
+          eq(schema.invitations.invitedBy, currentUser.id),
+          eq(schema.invitations.accepted, false),
+          eq(schema.invitations.bookId, body.bookId),
+        ),
+      );
+    if (Number(rows?.count) >= 20)
       throw new BadRequestException('Max invites reached');
     const invite = await this.db.query.invitations.findFirst({
       where: and(

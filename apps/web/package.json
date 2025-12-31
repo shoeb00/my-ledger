@@ -4,8 +4,8 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "dotenvx run -f .env.staging -- next dev --port 3000",
-    "build": "dotenvx run -f .env.staging -- next build",
+    "dev": "dotenvx run -f .env.local -- next dev --port 3000",
+    "build": "dotenvx run -f .env.local -- next build",
     "start": "next start",
     "lint": "eslint --max-warnings 0",
     "check-types": "next typegen && tsc --noEmit"
