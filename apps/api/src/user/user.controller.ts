@@ -6,6 +6,7 @@ import {
   Param,
   ParseIntPipe,
   Post,
+  Query,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserRequestDto } from './dto/create-user-request';
@@ -18,8 +19,8 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Get('invitations')
-  async getInvitations() {
-    return await this.userService.getInvitations();
+  async getInvitations(@Query('bookId', ParseIntPipe) bookId: number) {
+    return await this.userService.getInvitations(bookId);
   }
 
   @Get('emails')

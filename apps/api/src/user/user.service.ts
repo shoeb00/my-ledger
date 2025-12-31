@@ -71,10 +71,11 @@ export class UserService {
       .where(eq(schema.users.id, userId));
   }
 
-  async getInvitations() {
+  async getInvitations(bookId: number) {
     const user = this.cxt.getUser();
     return await this.db.query.invitations.findMany({
       where: and(
+        eq(schema.invitations.bookId, bookId),
         eq(schema.invitations.invitedBy, user.id),
         eq(schema.invitations.accepted, false),
       ),
