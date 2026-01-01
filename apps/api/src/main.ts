@@ -37,6 +37,8 @@ async function bootstrap(): Promise<void> {
 
       return callback(new Error('Not allowed by CORS'));
     },
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    allowedHeaders: 'Content-Type, Authorization, Accept',
     credentials: true,
   });
   app.useGlobalPipes(new ValidationPipe({ transform: true, whitelist: true }));
