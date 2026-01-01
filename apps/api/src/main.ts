@@ -30,17 +30,18 @@ async function bootstrap(): Promise<void> {
   );
   app.enableCors({
     origin: (origin, callback) => {
-      const allowedOrigins = process.env.FRONTEND_ORIGIN?.split(',') ?? [];
-      if (!origin || allowedOrigins.includes(origin)) {
-        return callback(null, true);
-      }
+      const allowedOrigins =
+        process.env.FRONTEND_ORIGIN?.split(',').map((o) => o.trim()) ?? [];
 
-      return callback(new Error('Not allowed by CORS'));
+      if (!origin || allowedOrigins.includes(origin))
+        return callback(null, true);
+      return callback(null, false);
     },
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-    allowedHeaders: 'Content-Type, Authorization, Accept',
     credentials: true,
+    methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
   });
+
   app.useGlobalPipes(new ValidationPipe({ transform: true, whitelist: true }));
 
   const config = new DocumentBuilder()
