@@ -13,7 +13,8 @@ export class DatabaseHealthService {
     try {
       await this.db_pool.query('SELECT 1');
       return { status: 'up' } as const;
-    } catch {
+    } catch (err) {
+      console.error(err);
       return { status: 'down' } as const;
     }
   }
