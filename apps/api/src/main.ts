@@ -28,7 +28,19 @@ async function bootstrap(): Promise<void> {
       },
     }),
   );
-  app.enableCors();
+  const allowedOrigins = ['https://my-ledger.app', 'https://www.my-ledger.app'];
+
+  app.enableCors({
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes(origin)) return callback(null, true);
+      return callback(new Error('Not allowed by CORS'));
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Authorization', 'Content-Type'],
+    exposedHeaders: ['Authorization'],
+  });
 
   app.useGlobalPipes(new ValidationPipe({ transform: true, whitelist: true }));
 
