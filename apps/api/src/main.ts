@@ -34,10 +34,9 @@ async function bootstrap(): Promise<void> {
         process.env.FRONTEND_ORIGIN?.split(',').map((o) => o.trim()) ?? [];
       console.log('allowedOrigins', allowedOrigins, origin);
       // if (!origin || allowedOrigins.includes(origin))
-        return callback(null, true);
+      return callback(null, true);
       // return callback(null, false);
     },
-    credentials: true,
     methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
   });

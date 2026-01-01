@@ -51,14 +51,17 @@ export const callApi = async (
 ): Promise<{ err: string | null; data: any }> => {
   let err = null;
   let data = null;
+
   try {
     await waitForClerk();
-    if (!window.Clerk?.session) throw new Error('Session not initiated')
-    const token = await window.Clerk?.session?.getToken();
+    if (!window.Clerk?.session) throw new Error('Session not initiated');
+
+    const token = await window.Clerk.session.getToken();
     const url = new URL(API_URL + endpoint);
+
     if (query) {
       for (const [key, value] of Object.entries(query)) {
-        url.searchParams.set(key, value as string);
+        url.searchParams.set(key, String(value));
       }
     }
     if (debugging) {
@@ -67,15 +70,21 @@ export const callApi = async (
       console.log('body:', body);
       console.log('token:', token);
     }
-    const response = await fetch(url, {
+
+    const headers: HeadersInit = {
+      Authorization: `Bearer ${token}`,
+    };
+
+    const options: RequestInit = {
       method,
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
-      body: body && JSON.stringify(body),
-      credentials: 'include',
-    });
+      headers,
+    };
+    if (body && method !== 'GET' && method !== 'DELETE') {
+      headers['Content-Type'] = 'application/json';
+      options.body = JSON.stringify(body);
+    }
+
+    const response = await fetch(url.toString(), options);
     data = await safeParseResponse(response);
     if (debugging) console.log('data:', data);
   } catch (error) {
@@ -83,5 +92,7 @@ export const callApi = async (
     err = message;
     if (debugging) console.error('error', error);
   }
+
   return { err, data };
 };
+
