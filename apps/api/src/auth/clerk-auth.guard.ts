@@ -25,7 +25,6 @@ export class ClerkAuthGuard implements CanActivate {
   });
 
   private buildAbsoluteUrl(req: ExpressReq) {
-    // prefer originalUrl which includes query string
     const host = req.get('host');
     const proto = (req.headers['x-forwarded-proto'] as string) ?? req.protocol;
     return `${proto}://${host}${req.originalUrl}`;
@@ -42,18 +41,13 @@ export class ClerkAuthGuard implements CanActivate {
     try {
       const fullUrl = this.buildAbsoluteUrl(req);
 
-      // globalThis.Request exists on Node 18+
-      const fetchReq = new globalThis.Request(fullUrl, {
+      const fetchReq = new Request(fullUrl, {
         method: req.method,
         headers: req.headers as HeadersInit,
-        // Clerk doesn't need body normally for session check; skip sending body for safety
       });
 
-      const result = await this.clerkClient.authenticateRequest(fetchReq, {
-        authorizedParties: [process.env.FRONTEND_ORIGIN!],
-      });
+      const result = await this.clerkClient.authenticateRequest(fetchReq);
 
-      // toAuth is sometimes provided by Clerk; handle both shapes
       const toAuth =
         typeof result.toAuth === 'function' ? result.toAuth : undefined;
       const { isAuthenticated } = result;
@@ -71,7 +65,6 @@ export class ClerkAuthGuard implements CanActivate {
       return true;
     } catch (err) {
       console.error('ClerkAuthGuard error', err);
-      // distinguish auth failures vs internal errors if you want
       if (err instanceof UnauthorizedException) throw err;
       throw new InternalServerErrorException('Failed to authenticate');
     }
