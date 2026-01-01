@@ -33,9 +33,9 @@ async function bootstrap(): Promise<void> {
       const allowedOrigins =
         process.env.FRONTEND_ORIGIN?.split(',').map((o) => o.trim()) ?? [];
       console.log('allowedOrigins', allowedOrigins, origin);
-      if (!origin || allowedOrigins.includes(origin))
+      // if (!origin || allowedOrigins.includes(origin))
         return callback(null, true);
-      return callback(null, false);
+      // return callback(null, false);
     },
     credentials: true,
     methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
