@@ -30,6 +30,7 @@ async function bootstrap(): Promise<void> {
   );
   const allowedOrigins = process.env.FRONTEND_ORIGIN?.split(',') ?? [];
   if (!allowedOrigins?.length) throw new Error('FRONTEND_ORIGIN is not set');
+  console.debug(`Allowed origins: ${allowedOrigins.join(', ')}`);
   app.enableCors({
     origin: (origin, callback) => {
       if (!origin) return callback(null, true);
