@@ -17,6 +17,9 @@ import { DatabaseInitService } from './database.init';
       useFactory: (configService: ConfigService) => {
         return new Pool({
           connectionString: configService.getOrThrow('DATABASE_URL'),
+          ssl: {
+            rejectUnauthorized: false,
+          },
         });
       },
       inject: [ConfigService],
