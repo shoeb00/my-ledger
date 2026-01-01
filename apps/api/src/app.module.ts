@@ -11,6 +11,7 @@ import { ClerkAuthGuard } from './auth/clerk-auth.guard';
 import { PermissionsGuard } from './auth/permissions.guard';
 import { CommonModule } from './common/common.module';
 import { RequestContextMiddleware } from './common/request-context.middleware';
+import { HealthModule } from './health/health.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { RequestContextMiddleware } from './common/request-context.middleware';
     PermissionsModule,
     WebhooksModule,
     CommonModule,
+    HealthModule,
   ],
   controllers: [],
   providers: [
