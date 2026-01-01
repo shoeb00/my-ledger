@@ -8,7 +8,7 @@
   "scripts": {
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
-    "start": "dotenvx run -f .env.local -- nest start --env-file .env.local",
+    "start": "nest start",
     "dev": "dotenvx run -f .env.local -- nest start --watch --env-file .env.local",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
