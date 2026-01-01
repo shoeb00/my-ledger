@@ -32,7 +32,7 @@ async function bootstrap(): Promise<void> {
     origin: (origin, callback) => {
       const allowedOrigins =
         process.env.FRONTEND_ORIGIN?.split(',').map((o) => o.trim()) ?? [];
-
+      console.log('allowedOrigins', allowedOrigins, origin);
       if (!origin || allowedOrigins.includes(origin))
         return callback(null, true);
       return callback(null, false);
