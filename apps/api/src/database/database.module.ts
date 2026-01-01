@@ -15,14 +15,9 @@ import { DatabaseInitService } from './database.init';
     {
       provide: DATABASE_POOL,
       useFactory: (configService: ConfigService) => {
-        const pool = new Pool({
-          user: configService.getOrThrow('DATABASE_USER'),
-          password: configService.getOrThrow('DATABASE_PASSWORD'),
-          host: configService.getOrThrow('DATABASE_HOST'),
-          database: configService.getOrThrow('DATABASE_NAME'),
-          port: configService.getOrThrow('DATABASE_PORT'),
+        return new Pool({
+          connectionString: configService.getOrThrow('DATABASE_URL'),
         });
-        return pool;
       },
       inject: [ConfigService],
     },
