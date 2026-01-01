@@ -28,18 +28,7 @@ async function bootstrap(): Promise<void> {
       },
     }),
   );
-  app.enableCors({
-    origin: (origin, callback) => {
-      const allowedOrigins =
-        process.env.FRONTEND_ORIGIN?.split(',').map((o) => o.trim()) ?? [];
-      console.log('allowedOrigins', allowedOrigins, origin);
-      // if (!origin || allowedOrigins.includes(origin))
-      return callback(null, true);
-      // return callback(null, false);
-    },
-    methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
-  });
+  app.enableCors();
 
   app.useGlobalPipes(new ValidationPipe({ transform: true, whitelist: true }));
 
