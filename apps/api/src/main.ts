@@ -28,8 +28,8 @@ async function bootstrap(): Promise<void> {
       },
     }),
   );
-  const allowedOrigins = ['https://my-ledger.app', 'https://www.my-ledger.app'];
-
+  const allowedOrigins = process.env.FRONTEND_ORIGIN?.split(',') ?? [];
+  if (!allowedOrigins?.length) throw new Error('FRONTEND_ORIGIN is not set');
   app.enableCors({
     origin: (origin, callback) => {
       if (!origin) return callback(null, true);
