@@ -33,11 +33,9 @@ async function bootstrap(): Promise<void> {
   console.debug(`Allowed origins: ${allowedOrigins.join(', ')}`);
   app.enableCors({
     origin: (origin, callback) => {
-      console.log(`Origin: ${origin}`);
-      return callback(null, true);
-      // if (!origin) return callback(null, true);
-      // if (allowedOrigins.includes(origin)) return callback(null, true);
-      // return callback(new Error(`Origin ${origin} not allowed by CORS`));
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes(origin)) return callback(null, true);
+      return callback(new Error(`Origin ${origin} not allowed by CORS`));
     },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
