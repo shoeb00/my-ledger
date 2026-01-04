@@ -1,10 +1,12 @@
 'use client';
 import { Button } from '@/components/ui/button';
 import { SignedIn, SignedOut, SignInButton, SignUpButton, UserButton } from '@clerk/nextjs';
+import { MoonIcon, SunDimIcon } from 'lucide-react';
 
-export default function Navbar() {
+export default function Navbar({ theme, setThemeAction }: { theme: boolean, setThemeAction: () => void }) {
   return (
     <header className="flex justify-end items-center p-4 gap-4 h-16">
+      <Button variant="ghost" onClick={setThemeAction}> {theme ? <SunDimIcon /> : <MoonIcon />}</Button>
       <SignedOut>
         <SignInButton mode="modal">
           <Button>Sign In</Button>
@@ -15,7 +17,13 @@ export default function Navbar() {
       </SignedOut>
 
       <SignedIn>
-        <UserButton showName={true} />
+        <UserButton showName appearance={{
+          elements: {
+            userButtonBox: {
+              textTransform: 'capitalize',
+            },
+          },
+        }} />
       </SignedIn>
     </header>
   );

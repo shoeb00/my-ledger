@@ -9,7 +9,7 @@ export default function LoaderCircle({
     <div className="relative w-full h-full">
       {loading && (
         <div className="absolute inset-0 z-20 flex items-center justify-center pointer-events-auto">
-          <div className="absolute inset-0 bg-white/60 backdrop-blur-sm" />
+          <div className="absolute inset-0 bg-background/50 backdrop-blur-sm" />
           <Loader2
             className="relative animate-spin h-16 w-16 z-30"
             role="status"
