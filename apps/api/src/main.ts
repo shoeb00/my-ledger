@@ -29,20 +29,19 @@ async function bootstrap(): Promise<void> {
     }),
   );
   const allowedOrigins = process.env.FRONTEND_ORIGIN?.split(',') ?? [];
-  if (allowedOrigins?.length) {
-    console.debug(`Allowed origins: ${allowedOrigins.join(', ')}`);
-    app.enableCors({
-      origin: (origin, callback) => {
-        if (!origin) return callback(null, true);
-        if (allowedOrigins.includes(origin)) return callback(null, true);
-        return callback(new Error(`Origin ${origin} not allowed by CORS`));
-      },
-      credentials: true,
-      methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-      allowedHeaders: ['Authorization', 'Content-Type'],
-      exposedHeaders: ['Authorization'],
-    });
-  }
+  if (!allowedOrigins?.length) throw new Error('FRONTEND_ORIGIN is not set');
+  console.debug(`Allowed origins: ${allowedOrigins.join(', ')}`);
+  app.enableCors({
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes(origin)) return callback(null, true);
+      return callback(new Error(`Origin ${origin} not allowed by CORS`));
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Authorization', 'Content-Type'],
+    exposedHeaders: ['Authorization'],
+  });
 
   app.useGlobalPipes(new ValidationPipe({ transform: true, whitelist: true }));
 
