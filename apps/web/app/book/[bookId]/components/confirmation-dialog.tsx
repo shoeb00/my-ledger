@@ -34,7 +34,7 @@ export default function ConfirmationDialog({ handleDelete, disabled = false }: P
           <Button variant="outline" onClick={() => setOpen(false)}>
             Cancel
           </Button>
-          <Button onClick={() => handleDelete(setLoading, setOpen)}>
+          <Button variant="destructive" onClick={() => handleDelete(setLoading, setOpen)}>
             {loading ? 'Deleting...' : 'Delete'}
           </Button>
         </DialogFooter>
