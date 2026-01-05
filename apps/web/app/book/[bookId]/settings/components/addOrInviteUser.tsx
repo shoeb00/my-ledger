@@ -67,6 +67,7 @@ export default function AddOrInviteUser(body: Props) {
   const buttonCheck = isMemberTab && !users.find(({ email: e }) => e === email)?.email;
 
   const handleUpdate = async () => {
+    if (loading) return;
     setLoading(true);
     const { refetchAction } = body;
     const { err, data } = await inviteUser({ email, bookId, role: Roles.VIEWER });

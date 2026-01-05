@@ -38,6 +38,7 @@ export default function UpdateMemberRole({ member, refetchAction }: Props) {
   const [role, setRole] = useState<MemberRole>(member.role as MemberRole);
 
   const handleUpdateMember = async () => {
+    if (loading) return;
     if (role === member.role) {
       setOpen(false);
       return;

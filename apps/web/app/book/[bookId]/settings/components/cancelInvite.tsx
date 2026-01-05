@@ -5,14 +5,17 @@ import { toast } from 'sonner';
 export default function CancelInvitation({
   inviteId,
   refetchAction,
+  loading,
 }: {
   inviteId: string;
   refetchAction: () => void;
+  loading: boolean;
 }) {
   const handleCancelInvite = async (
     setLoading: React.Dispatch<React.SetStateAction<boolean>>,
     setOpen: React.Dispatch<React.SetStateAction<boolean>>
   ) => {
+    if (loading) return;
     setLoading(true);
     const { err } = await cancelInvitation(inviteId);
     if (err) {

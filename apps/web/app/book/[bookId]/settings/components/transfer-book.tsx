@@ -35,6 +35,7 @@ export default function TransferBook(body: { bookName: string; refetchAction: ()
   const [email, setEmail] = useState('');
 
   const handleTransfer = async (userId: string) => {
+    if (loading) return;
     setLoading(true);
     const { err } = await changeOwnership(bookId, userId);
     if (err) {

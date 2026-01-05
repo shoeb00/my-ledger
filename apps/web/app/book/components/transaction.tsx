@@ -11,7 +11,7 @@ import EditTransactionDialog from '../[bookId]/components/edit-transaction';
 import { PaymentMethodEnum } from '../../enums/payment-methods';
 import AddTransactionDialog from '../[bookId]/components/add-transaction';
 
-type TransactionRow = {
+export type TransactionRow = {
   name: string,
   email: string
 } & Tx;

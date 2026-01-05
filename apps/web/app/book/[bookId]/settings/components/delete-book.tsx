@@ -22,6 +22,7 @@ export default function DeleteBook(body: Omit<UpdateBookRequest, 'description'>)
   const [name, setName] = useState(body.name);
 
   const handleDelete = async () => {
+    if (loading) return;
     setLoading(true);
     const { err } = await deleteBook(body.bookId);
     if (err) {
@@ -36,7 +37,7 @@ export default function DeleteBook(body: Omit<UpdateBookRequest, 'description'>)
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline">
+        <Button variant="outline" disabled={loading}>
           <Trash2Icon />
           Delete
         </Button>
@@ -63,7 +64,7 @@ export default function DeleteBook(body: Omit<UpdateBookRequest, 'description'>)
           <Button variant="outline" onClick={() => setOpen(false)}>
             Cancel
           </Button>
-          <Button disabled={name !== body.name} onClick={handleDelete}>
+          <Button disabled={name !== body.name || loading} onClick={handleDelete}>
             {loading ? 'Deleting...' : 'Delete'}
           </Button>
         </DialogFooter>
