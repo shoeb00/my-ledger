@@ -144,20 +144,23 @@ export class TransactionService {
   }
 
   async delete(id: number): Promise<void> {
-    const record = await this.db.query.transactions.findFirst({
-      where: and(eq(schema.transactions.id, id)),
-    });
-    if (!record) throw new NotFoundException('Transaction not found');
-    const key = Number(record?.amount) > 0 ? 'credited' : 'debited';
-    await this.db.transaction(async () => {
-      await this.db.update(schema.books).set({
+    await this.db.transaction(async (tx) => {
+      const [record] = await tx
+        .delete(schema.transactions)
+        .where(eq(schema.transactions.id, id))
+        .returning({
+          amount: schema.transactions.amount,
+        });
+
+      if (!record) throw new NotFoundException('Transaction not found');
+
+      const key = Number(record.amount) > 0 ? 'credited' : 'debited';
+
+      await tx.update(schema.books).set({
         balance: sql`${schema.books.balance} - ${record.amount}`,
         [key]: sql`${schema.books[key]} - ${Math.abs(Number(record.amount))}`,
         updatedAt: sql`now()`,
       });
-      await this.db
-        .delete(schema.transactions)
-        .where(eq(schema.transactions.id, id));
     });
   }
 }

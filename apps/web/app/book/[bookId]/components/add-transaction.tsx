@@ -65,7 +65,7 @@ export default function AddTransactionDialog({
   return (
     <Dialog open={open} onOpenChange={o => setOpen(o)}>
       <DialogTrigger asChild>
-        <Button>
+        <Button disabled={loading}>
           <Plus className="h-4 w-4" /> Transaction
         </Button>
       </DialogTrigger>
@@ -106,7 +106,7 @@ export default function AddTransactionDialog({
           <Button variant="outline" onClick={() => setOpen(false)}>
             Cancel
           </Button>
-          <Button onClick={handleAdd}>{loading ? 'Adding...' : 'Add'}</Button>
+          <Button onClick={handleAdd} disabled={loading || !amountStr}>{loading ? 'Adding...' : 'Add'}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

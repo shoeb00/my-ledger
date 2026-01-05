@@ -33,6 +33,7 @@ export default function EditBook(body: Props) {
   }, [open, body.name, body.description]);
 
   const handleUpdate = async () => {
+    if (loading) return;
     setLoading(true);
     const { refetchAction, ...payload } = body;
     payload.name = name;
@@ -65,6 +66,9 @@ export default function EditBook(body: Props) {
               onChange={e => setName(e.target.value)}
               value={name}
               placeholder="Book Name"
+              required
+              minLength={3}
+              maxLength={50}
             />
           </div>
           <div className="grid gap-3">
@@ -75,6 +79,8 @@ export default function EditBook(body: Props) {
               value={desc}
               onChange={e => setDesc(e.target.value)}
               placeholder="Book Description"
+              minLength={3}
+              maxLength={120}
             />
           </div>
         </div>
@@ -82,7 +88,7 @@ export default function EditBook(body: Props) {
           <Button variant="outline" onClick={() => setOpen(false)}>
             Cancel
           </Button>
-          <Button onClick={handleUpdate} disabled={loading}>
+          <Button onClick={handleUpdate} disabled={loading || !name}>
             {loading ? 'Updating...' : 'Update'}
           </Button>
         </DialogFooter>

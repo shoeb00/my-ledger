@@ -1,9 +1,9 @@
 import { FetchParams } from '../page';
 import { callApi } from '../../../lib/api';
-import { Transaction } from '@my-ledger/api/transaction';
+import { TransactionRow } from '../../components/transaction';
 
 type response = {
-  data: Transaction[];
+  data: TransactionRow[];
   count: number;
 };
 

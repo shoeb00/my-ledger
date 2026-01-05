@@ -11,7 +11,7 @@ import { ChevronLeft } from 'lucide-react';
 import EditBook from './components/edit-book';
 import DeleteBook from './components/delete-book';
 import TransferBook from './components/transfer-book';
-import MemberRow from './components/member';
+import MemberList from './components/member';
 import LoaderCircle from '../../../components/loader';
 import InvitationList from './components/invites';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -130,12 +130,13 @@ export default function BookInfo() {
           </TabsList>
           <LoaderCircle loading={loading}>
             <TabsContent value="members">
-              <MemberRow members={members} refetchAction={() => setRefetchAction(!refetchAction)} />
+              <MemberList members={members} refetchAction={() => setRefetchAction(!refetchAction)} />
             </TabsContent>
             <TabsContent value="invitations">
               <InvitationList
                 invitations={invites}
                 refetchAction={() => setRefetchAction(!refetchAction)}
+                loading={loading}
               />
             </TabsContent>
           </LoaderCircle>

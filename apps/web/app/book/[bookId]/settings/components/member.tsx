@@ -1,12 +1,11 @@
 'use client';
 
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { UserPlus2Icon } from 'lucide-react';
 import type { Member } from '../page';
 import { Roles } from '@my-ledger/api/role';
 import RemoveMember from './removeMember';
 import UpdateMemberRole from './updateMemberRole';
+import AddOrInviteUser from './addOrInviteUser';
 
 export function MemberRow({
   member,
@@ -54,9 +53,7 @@ export default function MemberList({
       <div className="rounded-md border border-dashed h-85 p-6 text-center text-sm text-muted-foreground">
         <div className="mb-2 font-medium">No members yet</div>
         <div className="mb-4 text-xs">Add a member to see them listed here.</div>
-        <Button>
-          <UserPlus2Icon /> Add Member
-        </Button>
+        <AddOrInviteUser tab="members" refetchAction={refetchAction} userDetails={[]} />
       </div>
     );
   }

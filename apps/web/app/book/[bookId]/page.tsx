@@ -2,12 +2,11 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { Transaction } from '@my-ledger/api/transaction';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@/components/ui/select';
 import { getTransaction } from './actions/get-transaction';
-import TransactionList from '../components/transaction';
+import TransactionList, { TransactionRow } from '../components/transaction';
 import { getBook } from '../actions/get-books';
 import { Book } from '@my-ledger/api/book';
 import { ChevronLeft, SettingsIcon } from 'lucide-react';
@@ -36,7 +35,7 @@ export default function PageClient() {
   const router = useRouter();
   const bookId = params.bookId as string;
 
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [transactions, setTransactions] = useState<TransactionRow[]>([]);
   const [loading, setLoading] = useState(true);
 
   // TODO: use useReducer and handle refresh
@@ -213,7 +212,7 @@ export default function PageClient() {
             <AddTransactionDialog bookId={bookId} refetchAction={refetch} />
 
             <div className="relative">
-              <Button variant="outline" onClick={() => router.push(`/book/${bookId}/settings`)}>
+              <Button variant="outline" disabled={loading} onClick={() => router.push(`/book/${bookId}/settings`)}>
                 <SettingsIcon className="w-4 h-4"></SettingsIcon>
               </Button>
             </div>
@@ -338,11 +337,11 @@ export default function PageClient() {
 
       <section className="flex items-center justify-between mt-4">
         <div className="flex items-center gap-2">
-          <Button onClick={prevPage} disabled={offset === 0}>
+          <Button onClick={prevPage} disabled={offset === 0 || loading}>
             Prev
           </Button>
           <div>Page {currentPage}</div>
-          <Button onClick={nextPage} disabled={totalCount < offset + limit}>
+          <Button onClick={nextPage} disabled={totalCount < offset + limit || loading}>
             Next
           </Button>
         </div>

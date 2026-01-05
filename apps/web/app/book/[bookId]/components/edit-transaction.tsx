@@ -21,6 +21,7 @@ export default function EditTransactionDialog(query: EditRequestPayload) {
   const [paymentMethod, setPaymentMethod] = useState(query.paymentType);
 
   async function handleUpdate() {
+    if (loading) return;
     setLoading(true);
     const { refetchAction, ...rest } = query;
     const { err } = await updateTransaction({ ...rest, description, paymentType: paymentMethod });
@@ -51,7 +52,7 @@ export default function EditTransactionDialog(query: EditRequestPayload) {
         <PaymentMethod paymentMethod={paymentMethod} setPaymentMethod={setPaymentMethod} />
         <DialogFooter>
           <Button variant="outline">Cancel</Button>
-          <Button onClick={handleUpdate}>{loading ? 'Updating...' : 'Update'}</Button>
+          <Button onClick={handleUpdate} disabled={loading}>{loading ? 'Updating...' : 'Update'}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

@@ -47,7 +47,7 @@ export default function CreateBook({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button disabled={books >= bookLimit} className="ml-2">
+        <Button disabled={books >= bookLimit || loading} className="ml-2">
           Add Book
         </Button>
       </DialogTrigger>
@@ -62,7 +62,7 @@ export default function CreateBook({
           <div className="grid gap-4">
             <div className="grid gap-3">
               <Label htmlFor="name">Name</Label>
-              <Input id="name" name="name" placeholder="Trip to Goa" required maxLength={50} />
+              <Input id="name" name="name" placeholder="Trip to Goa" required minLength={3} maxLength={50} />
             </div>
 
             <div className="grid gap-3">
@@ -71,6 +71,7 @@ export default function CreateBook({
                 id="description"
                 name="description"
                 placeholder="Vacation to Goa"
+                minLength={3}
                 maxLength={120}
               />
             </div>

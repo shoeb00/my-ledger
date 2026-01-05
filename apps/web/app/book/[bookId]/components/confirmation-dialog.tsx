@@ -12,7 +12,8 @@ import { useState } from 'react';
 type Props = {
   handleDelete: (
     setLoading: React.Dispatch<React.SetStateAction<boolean>>,
-    setOpen: React.Dispatch<React.SetStateAction<boolean>>
+    setOpen: React.Dispatch<React.SetStateAction<boolean>>,
+    loading: boolean
   ) => void;
   disabled?: boolean;
 };
@@ -34,7 +35,7 @@ export default function ConfirmationDialog({ handleDelete, disabled = false }: P
           <Button variant="outline" onClick={() => setOpen(false)}>
             Cancel
           </Button>
-          <Button variant="destructive" onClick={() => handleDelete(setLoading, setOpen)}>
+          <Button disabled={loading} variant="destructive" onClick={() => handleDelete(setLoading, setOpen, loading)}>
             {loading ? 'Deleting...' : 'Delete'}
           </Button>
         </DialogFooter>

@@ -9,9 +9,11 @@ import CancelInvitation from './cancelInvite';
 export function InvitationRow({
   invitation,
   refetchAction,
+  loading,
 }: {
   invitation: Invitation;
   refetchAction: () => void;
+  loading: boolean;
 }) {
   return (
     <article
@@ -24,7 +26,7 @@ export function InvitationRow({
 
       <Badge className="text-sm capitalize shrink-0 w-[120px]">{invitation.role}</Badge>
 
-      <CancelInvitation inviteId={invitation.id.toString()} refetchAction={refetchAction} />
+      <CancelInvitation inviteId={invitation.id.toString()} refetchAction={refetchAction} loading={loading} />
     </article>
   );
 }
@@ -32,9 +34,11 @@ export function InvitationRow({
 export default function InvitationList({
   invitations,
   refetchAction,
+  loading,
 }: {
   invitations: Invitation[];
   refetchAction: () => void;
+  loading: boolean;
 }) {
   if (!invitations || invitations.length === 0) {
     return (
@@ -49,7 +53,7 @@ export default function InvitationList({
   return (
     <section className="h-105 overflow-auto space-y-2">
       {invitations.map(m => (
-        <InvitationRow invitation={m} key={m.email} refetchAction={refetchAction} />
+        <InvitationRow invitation={m} key={m.email} refetchAction={refetchAction} loading={loading} />
       ))}
     </section>
   );
