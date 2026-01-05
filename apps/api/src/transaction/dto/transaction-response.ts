@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class TransactionResponseDto {
   @ApiProperty({ example: 1 })
@@ -18,6 +18,12 @@ export class TransactionResponseDto {
 
   @ApiProperty({ nullable: true, example: 'Credit Card' })
   paymentType: string | null;
+
+  @ApiPropertyOptional({ example: 'John Doe' })
+  name?: string;
+
+  @ApiPropertyOptional({ example: 'john@doe.com' })
+  email?: string;
 
   @ApiProperty({ example: '2025-01-01T00:00:00.000Z' })
   createdAt: Date;
