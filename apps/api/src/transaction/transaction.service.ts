@@ -8,6 +8,7 @@ import {
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import * as transactionsSchema from './schema';
 import * as booksSchema from '../book/schema';
+import * as userSchema from '../user/schema';
 import { DATABASE_CONNECTION } from '../database/database-connection';
 import { GetTransactionsRequestDto } from './dto/get-transaction-request';
 import {
@@ -18,8 +19,9 @@ import { and, asc, desc, eq, gte, like, lte, SQL, sql } from 'drizzle-orm';
 import { CreateTransactionsRequestDto } from './dto/create-transaction-request';
 import { RequestContextService } from '../common/request-context.service';
 import { UpdateTransactionsRequestDto } from './dto/update-transaction-request';
+import { getTableColumns } from 'drizzle-orm';
 
-const schema = { ...transactionsSchema, ...booksSchema };
+const schema = { ...transactionsSchema, ...booksSchema, ...userSchema };
 
 @Injectable()
 export class TransactionService {
@@ -77,12 +79,18 @@ export class TransactionService {
       }
     }
     const orderDirection = order === 'desc' ? desc : asc;
-    const data = await this.db.query.transactions.findMany({
-      limit,
-      offset,
-      where: and(...conditions),
-      orderBy: orderDirection(schema.transactions[sort]),
-    });
+    const data = await this.db
+      .select({
+        ...getTableColumns(schema.transactions),
+        name: schema.users.name,
+        email: schema.users.email,
+      })
+      .from(schema.transactions)
+      .leftJoin(schema.users, eq(schema.transactions.userId, schema.users.id))
+      .where(and(...conditions))
+      .orderBy(orderDirection(schema.transactions[sort]))
+      .limit(limit)
+      .offset(offset);
     const count = await this.db.$count(
       transactionsSchema.transactions,
       and(...conditions),

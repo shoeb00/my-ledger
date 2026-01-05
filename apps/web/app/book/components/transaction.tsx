@@ -11,7 +11,12 @@ import EditTransactionDialog from '../[bookId]/components/edit-transaction';
 import { PaymentMethodEnum } from '../../enums/payment-methods';
 import AddTransactionDialog from '../[bookId]/components/add-transaction';
 
-export function TransactionRow({ tx, refetchAction }: { tx: Tx; refetchAction: () => void }) {
+type TransactionRow = {
+  name: string,
+  email: string
+} & Tx;
+
+export function TransactionRow({ tx, refetchAction }: { tx: TransactionRow; refetchAction: () => void }) {
   const amountNum = fmtCurrency(tx.amount);
   const isDebit = amountNum[0] === '-';
   const displayAmount = isDebit ? amountNum.slice(1) : amountNum;
@@ -52,6 +57,10 @@ export function TransactionRow({ tx, refetchAction }: { tx: Tx; refetchAction: (
         {' '}
         {isDebit ? 'Debit' : 'Credit'}{' '}
       </Badge>
+      <div className="flex flex-col shrink-0">
+        <div className="text-xs font-semibold capitalize">{tx.name}</div>
+        <div className="text-xs text-muted-foreground">{tx.email}</div>
+      </div>
       <div className="w-45 shrink-0">
         <div className="text-xs text-muted-foreground">{fmtDate(tx.createdAt)}</div>
       </div>
@@ -87,7 +96,7 @@ export default function TransactionList({
   refetchAction,
 }: {
   bookId: string;
-  transactions: Tx[];
+  transactions: TransactionRow[];
   refetchAction: () => void;
 }) {
   if (!transactions || transactions.length === 0) {
