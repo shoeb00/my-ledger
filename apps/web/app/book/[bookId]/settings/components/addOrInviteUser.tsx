@@ -44,6 +44,7 @@ export default function AddOrInviteUser(body: Props) {
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState('');
   const [users, setUsers] = useState<UserDetails[]>([]);
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
   useEffect(() => {
     (async () => {
@@ -142,7 +143,7 @@ export default function AddOrInviteUser(body: Props) {
           <Button variant="outline" onClick={() => setOpen(false)}>
             Cancel
           </Button>
-          <Button onClick={handleUpdate} disabled={loading || buttonCheck}>
+          <Button onClick={handleUpdate} disabled={loading || buttonCheck || !emailRegex.test(email)}>
             {loading ? loadingAction : action}
           </Button>
         </DialogFooter>
