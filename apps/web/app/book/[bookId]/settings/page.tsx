@@ -125,6 +125,7 @@ export default function BookInfo() {
                 userDetails={members}
                 refetchAction={() => setRefetchAction(!refetchAction)}
                 tab={activeTab as 'invites' | 'members'}
+                setActiveTabAction={setActiveTab}
               />
             </div>
           </TabsList>
@@ -137,6 +138,7 @@ export default function BookInfo() {
                 invitations={invites}
                 refetchAction={() => setRefetchAction(!refetchAction)}
                 loading={loading}
+                setActiveTabAction={setActiveTab}
               />
             </TabsContent>
           </LoaderCircle>
