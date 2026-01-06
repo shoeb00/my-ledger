@@ -95,10 +95,13 @@ export class PermissionsService {
       await this.db
         .delete(schema.permissions)
         .where(eq(schema.permissions.id, permission.id));
-      await this.db.update(schema.books).set({
-        members: sql`members - 1`,
-        updatedAt: sql`now()`,
-      });
+      await this.db
+        .update(schema.books)
+        .set({
+          members: sql`members - 1`,
+          updatedAt: sql`now()`,
+        })
+        .where(eq(schema.books.id, query.bookId));
     });
   }
 }

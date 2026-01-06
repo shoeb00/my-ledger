@@ -115,8 +115,8 @@ export default function BookInfo() {
       </div>
       <div className="flex flex-col gap-4 mt-4">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="w-full">
-            <div className="flex flex-row w-full justify-between bg-background">
+          <TabsList className="w-full bg-background">
+            <div className="flex flex-row w-full justify-between">
               <div>
                 <TabsTrigger value="members">Members</TabsTrigger>
                 <TabsTrigger value="invitations">Invitations</TabsTrigger>
