@@ -34,6 +34,7 @@ type Props = {
   userDetails: Partial<Member>[];
   refetchAction: () => void;
   tab: 'members' | 'invites';
+  setActiveTabAction?: (tab: 'members' | 'invites') => void;
 };
 
 // TODO: use zod and add better types
@@ -44,6 +45,7 @@ export default function AddOrInviteUser(body: Props) {
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState('');
   const [users, setUsers] = useState<UserDetails[]>([]);
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
   useEffect(() => {
     (async () => {
@@ -74,8 +76,10 @@ export default function AddOrInviteUser(body: Props) {
     if (err) {
       toast.error(err);
     } else {
-      // TODO: Identify response and Redirect user to Members tab if user exists
-      if (data?.message === 'Success') toast.success('User found, adding as a member');
+      if (data === null) {
+        toast.success('User found, adding as a member');
+        if (body.setActiveTabAction) body.setActiveTabAction('members');
+      }
       else toast.success(`User ${isMemberTab ? 'added' : 'invited'} successfully`);
       refetchAction();
     }
@@ -142,7 +146,7 @@ export default function AddOrInviteUser(body: Props) {
           <Button variant="outline" onClick={() => setOpen(false)}>
             Cancel
           </Button>
-          <Button onClick={handleUpdate} disabled={loading || buttonCheck}>
+          <Button onClick={handleUpdate} disabled={loading || buttonCheck || !emailRegex.test(email)}>
             {loading ? loadingAction : action}
           </Button>
         </DialogFooter>
