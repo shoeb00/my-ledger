@@ -17,13 +17,13 @@ export const fmtCurrency = (value: string, locale = 'en-IN') => {
   return formatted === '0' ? '' : formatted;
 }
 
-export const fmtDate = (d: string | Date): string => {
+export const fmtDate = (d: string | Date, locale = 'en-IN', tz = 'Asia/Kolkata'): string => {
   const dt = typeof d === 'string' ? new Date(d) : d;
-  return dt.toLocaleDateString('en-IN', {
+  return dt.toLocaleDateString(locale, {
     year: 'numeric',
     month: 'short',
     day: 'numeric',
-    timeZone: 'Asia/Kolkata',
+    timeZone: tz,
     weekday: 'short',
     hour: 'numeric',
     minute: 'numeric',

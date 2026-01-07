@@ -19,7 +19,6 @@ export default function DeleteTransactionDialog({
     if (loading) return;
     setLoading(true);
     const { err } = await deleteTransaction({ transactionId, bookId });
-    console.log('err', err);
     if (err) {
       toast.error(err);
     } else {
