@@ -8,19 +8,22 @@ import React from 'react';
 import { BookResponse } from '../book/actions/get-books';
 import { EllipsisVerticalIcon } from 'lucide-react';
 
-export const fmtCurrency = (value: string): string => {
-  const n = Number(value);
-  if (!Number.isFinite(n)) return value;
-  return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(n);
-};
+export const fmtCurrency = (value: string, locale = 'en-IN') => {
+  const val = Number(value.replace(/,/g, '')) || 0;
+  const formatted = new Intl.NumberFormat(locale, {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  }).format(val);
+  return formatted === '0' ? '' : formatted;
+}
 
-export const fmtDate = (d: string | Date): string => {
+export const fmtDate = (d: string | Date, locale = 'en-IN', tz = 'Asia/Kolkata'): string => {
   const dt = typeof d === 'string' ? new Date(d) : d;
-  return dt.toLocaleDateString('en-IN', {
+  return dt.toLocaleDateString(locale, {
     year: 'numeric',
     month: 'short',
     day: 'numeric',
-    timeZone: 'Asia/Kolkata',
+    timeZone: tz,
     weekday: 'short',
     hour: 'numeric',
     minute: 'numeric',

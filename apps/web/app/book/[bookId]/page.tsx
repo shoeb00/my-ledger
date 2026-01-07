@@ -64,7 +64,6 @@ export default function PageClient() {
   }, [query]);
 
   const buildParams = useCallback((): FetchParams => {
-    console.log('buildParams');
     const p: FetchParams = {
       bookId,
       limit,
@@ -81,7 +80,6 @@ export default function PageClient() {
       if (paymentType === 'debit') p.maxAmount = '0';
       if (paymentType === 'credit') p.minAmount = '0';
     }
-    console.log('buildParams', p);
     return p;
   }, [
     bookId,
@@ -157,7 +155,7 @@ export default function PageClient() {
               Credited: <strong>{credited}</strong>
             </div>
             <div>
-              Debited: <strong>{debited}</strong>
+              Debited: <strong className='text-destructive'>{debited}</strong>
             </div>
           </div>
         </div>
