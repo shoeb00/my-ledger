@@ -42,7 +42,7 @@ export default function AddTransactionDialog({
   }, [open]);
 
   async function handleAdd() {
-    const amount = Number(amountStr.trim());
+    const amount = Number(amountStr.replaceAll(/,/g, ''));
     const finalAmount = isPositive ? amount : -amount;
     const payload = {
       description,
@@ -60,6 +60,12 @@ export default function AddTransactionDialog({
     }
     setOpen(false);
     setLoading(false);
+  }
+
+  const handleAmountInput = (val: string) => {
+    const amtStr = fmtCurrency(val.replaceAll(/-/g, ''));
+    setAmountStr(amtStr);
+    return amtStr;
   }
 
   return (
@@ -92,9 +98,8 @@ export default function AddTransactionDialog({
         <Input
           placeholder={fmtCurrency('12.99')}
           value={amountStr}
-          onChange={e => setAmountStr(e.target.value)}
-          type="number"
-          min="0.1"
+          onChange={(e) => handleAmountInput(e.target.value)}
+          maxLength={14}
         />
         <Input
           placeholder="Transaction description"
