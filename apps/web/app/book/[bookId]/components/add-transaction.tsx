@@ -12,8 +12,8 @@ import { PaymentMethod } from '../../../components/payment-method';
 import { addTransaction } from '../actions/add-transaction';
 import { PaymentMethodEnum } from '../../../enums/payment-methods';
 import { Plus, Minus } from 'lucide-react';
-import { fmtCurrency } from '../../../components/book';
 import { toast } from 'sonner';
+import { fmtCurrency } from '../../../lib';
 
 export default function AddTransactionDialog({
   bookId,
@@ -42,7 +42,7 @@ export default function AddTransactionDialog({
   }, [open]);
 
   async function handleAdd() {
-    const amount = Number(amountStr.replaceAll(/,/g, ''));
+    const amount = Number(amountStr.replaceAll(/,/g, '').replace(/₹/g, ''));
     const finalAmount = isPositive ? amount : -amount;
     const payload = {
       description,
