@@ -5,9 +5,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useRouter } from 'next/navigation';
 
 import React from 'react';
-import { BookResponse } from '../book/actions/get-books';
+import { BookResponse } from '../../book/actions/get-books';
 import { EllipsisVerticalIcon } from 'lucide-react';
-import { fmtCurrency, fmtDate } from '../lib';
+import { fmtCurrency, fmtDate } from '../../lib';
 
 export default function BookCard({ book }: Readonly<{ book: Readonly<BookResponse> }>) {
   const router = useRouter();
