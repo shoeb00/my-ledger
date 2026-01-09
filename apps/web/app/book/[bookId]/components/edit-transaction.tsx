@@ -51,7 +51,7 @@ export default function EditTransactionDialog(query: EditRequestPayload) {
         />
         <PaymentMethod paymentMethod={paymentMethod} setPaymentMethod={setPaymentMethod} />
         <DialogFooter>
-          <Button variant="outline">Cancel</Button>
+          <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
           <Button onClick={handleUpdate} disabled={loading}>{loading ? 'Updating...' : 'Update'}</Button>
         </DialogFooter>
       </DialogContent>
