@@ -4,12 +4,12 @@ import React from 'react';
 import type { Transaction as Tx } from '@my-ledger/api/transaction';
 import { Button } from '@/components/ui/button';
 import { Edit2 } from 'lucide-react';
-import { fmtCurrency, fmtDate } from '../../components/book';
 import { Badge } from '@/components/ui/badge';
 import DeleteTransactionDialog from '../[bookId]/components/delete-transaction';
 import EditTransactionDialog from '../[bookId]/components/edit-transaction';
 import { PaymentMethodEnum } from '../../enums/payment-methods';
 import AddTransactionDialog from '../[bookId]/components/add-transaction';
+import { fmtCurrency, fmtDate } from '../../lib';
 
 export type TransactionRow = {
   name: string,

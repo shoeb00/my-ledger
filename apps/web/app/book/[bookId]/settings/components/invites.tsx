@@ -2,9 +2,9 @@
 
 import { Badge } from '@/components/ui/badge';
 import type { Invitation } from '../page';
-import { fmtDate } from '../../../../components/book';
 import AddOrInviteUser from './addOrInviteUser';
 import CancelInvitation from './cancelInvite';
+import { fmtDate } from '../../../../lib';
 
 export function InvitationRow({
   invitation,
