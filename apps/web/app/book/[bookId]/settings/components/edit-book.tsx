@@ -14,6 +14,8 @@ import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
 import { Edit2Icon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Roles } from '@my-ledger/api/role';
+import { useHasPermission } from '../../../../lib';
 
 interface Props extends UpdateBookRequest {
   refetchAction: () => void;
@@ -24,6 +26,8 @@ export default function EditBook(body: Props) {
   const [loading, setLoading] = useState(false);
   const [name, setName] = useState('');
   const [desc, setDesc] = useState('');
+
+  const isOwner = useHasPermission(Roles.AUTHOR);
 
   useEffect(() => {
     if (open) {
@@ -51,7 +55,7 @@ export default function EditBook(body: Props) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="ghost">
+        <Button variant="ghost" hidden={!isOwner}>
           <Edit2Icon />
         </Button>
       </DialogTrigger>

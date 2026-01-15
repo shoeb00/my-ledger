@@ -13,7 +13,8 @@ import { addTransaction } from '../actions/add-transaction';
 import { PaymentMethodEnum } from '../../../enums/payment-methods';
 import { Plus, Minus } from 'lucide-react';
 import { toast } from 'sonner';
-import { fmtCurrency } from '../../../lib';
+import { fmtCurrency, useHasPermission } from '../../../lib';
+import { Roles } from '@my-ledger/api/role';
 
 export default function AddTransactionDialog({
   bookId,
@@ -68,10 +69,12 @@ export default function AddTransactionDialog({
     return amtStr;
   }
 
+  const canEdit = !useHasPermission(Roles.EDITOR);
+
   return (
     <Dialog open={open} onOpenChange={o => setOpen(o)}>
       <DialogTrigger asChild>
-        <Button disabled={loading}>
+        <Button disabled={loading} hidden={canEdit}>
           <Plus className="h-4 w-4" /> Transaction
         </Button>
       </DialogTrigger>

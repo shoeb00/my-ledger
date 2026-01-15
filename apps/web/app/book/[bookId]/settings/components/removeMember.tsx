@@ -3,6 +3,7 @@ import ConfirmationDialog from '../../components/confirmation-dialog';
 import { removeBookMembers } from '../actions/members';
 import { useParams } from 'next/navigation';
 import { Roles } from '@my-ledger/api/role';
+import { useRolesContext } from '../../../../context';
 
 type Props = {
   userId: string;
@@ -13,6 +14,8 @@ type Props = {
 export default function RemoveMember({ userId, refetchAction, role }: Props) {
   const param = useParams();
   const bookId = param.bookId as string;
+
+  const owner = useRolesContext(bookId).role === Roles.AUTHOR;
 
   const removeMember = async (
     setLoading: React.Dispatch<React.SetStateAction<boolean>>,
@@ -29,5 +32,5 @@ export default function RemoveMember({ userId, refetchAction, role }: Props) {
     setLoading(false);
     setOpen(false);
   };
-  return <ConfirmationDialog handleDelete={removeMember} disabled={Roles.AUTHOR === role} />;
+  return <ConfirmationDialog handleDelete={removeMember} disabled={Roles.AUTHOR === role} hidden={!owner} />;
 }

@@ -21,6 +21,7 @@ import { toast } from 'sonner';
 import { Roles } from '@my-ledger/api/role';
 import { UserCog2Icon } from 'lucide-react';
 import { Label } from '@/components/ui/label';
+import { useHasPermission } from '../../../../lib';
 
 type Props = {
   member: Member;
@@ -36,6 +37,8 @@ export default function UpdateMemberRole({ member, refetchAction }: Props) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [role, setRole] = useState<MemberRole>(member.role as MemberRole);
+
+  const isOwner = useHasPermission(Roles.AUTHOR);
 
   const handleUpdateMember = async () => {
     if (loading) return;
@@ -62,7 +65,7 @@ export default function UpdateMemberRole({ member, refetchAction }: Props) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button disabled={member.role === Roles.AUTHOR} size="sm" variant="ghost">
+        <Button disabled={member.role === Roles.AUTHOR} hidden={!isOwner} size="sm" variant="ghost">
           <UserCog2Icon />
         </Button>
       </DialogTrigger>

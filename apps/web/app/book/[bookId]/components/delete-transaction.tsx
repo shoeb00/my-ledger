@@ -1,6 +1,8 @@
 import { deleteTransaction } from '../actions/delete-transaction';
 import { toast } from 'sonner';
 import ConfirmationDialog from './confirmation-dialog';
+import { Roles } from '@my-ledger/api/role';
+import { useHasPermission } from '../../../lib';
 
 export default function DeleteTransactionDialog({
   transactionId,
@@ -11,6 +13,7 @@ export default function DeleteTransactionDialog({
   bookId: string;
   refetchAction: () => void;
 }) {
+  const canDelete = !useHasPermission(Roles.AUTHOR);
   async function handleDelete(
     setLoading: React.Dispatch<React.SetStateAction<boolean>>,
     setOpen: React.Dispatch<React.SetStateAction<boolean>>,
@@ -29,5 +32,5 @@ export default function DeleteTransactionDialog({
     setOpen(false);
   }
 
-  return <ConfirmationDialog handleDelete={handleDelete} />;
+  return <ConfirmationDialog handleDelete={handleDelete} hidden={canDelete} />;
 }

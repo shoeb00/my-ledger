@@ -1,6 +1,8 @@
 import ConfirmationDialog from '../../components/confirmation-dialog';
 import { cancelInvitation } from '../actions/invitations';
 import { toast } from 'sonner';
+import { useHasPermission } from '../../../../lib';
+import { Roles } from '@my-ledger/api/role';
 
 export default function CancelInvitation({
   inviteId,
@@ -11,6 +13,7 @@ export default function CancelInvitation({
   refetchAction: () => void;
   loading: boolean;
 }) {
+  const canEdit = !useHasPermission(Roles.EDITOR);
   const handleCancelInvite = async (
     setLoading: React.Dispatch<React.SetStateAction<boolean>>,
     setOpen: React.Dispatch<React.SetStateAction<boolean>>
@@ -27,5 +30,5 @@ export default function CancelInvitation({
     setLoading(false);
     setOpen(false);
   };
-  return <ConfirmationDialog handleDelete={handleCancelInvite} />;
+  return <ConfirmationDialog handleDelete={handleCancelInvite} hidden={canEdit} />;
 }
