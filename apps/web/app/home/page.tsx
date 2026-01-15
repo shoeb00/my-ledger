@@ -9,6 +9,7 @@ import LoaderCircle from '../components/loader';
 import { toast } from 'sonner';
 import { BookResponse, getBook } from '../book/actions/get-books';
 import CreateBook from '../book/create-book';
+import { Roles } from '@my-ledger/api/role';
 
 enum SortOptions {
   Newest = 'newest',
@@ -68,6 +69,9 @@ export default function Home() {
     }
   }, [books, debouncedQuery, sort]);
 
+  let booksCount = 0
+  books.forEach(({ role }) => role === Roles.AUTHOR ? booksCount++ : null);
+
   return (
     <div>
       <header className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
@@ -104,7 +108,7 @@ export default function Home() {
               </SelectContent>
             </Select>
             <CreateBook
-              books={books.length}
+              books={booksCount}
               refetchAction={() => setRefetchAction(!refetchAction)}
             />
           </div>
@@ -128,7 +132,7 @@ export default function Home() {
                 </p>
                 <div className="mt-4 flex justify-center">
                   <CreateBook
-                    books={books.length}
+                    books={booksCount}
                     refetchAction={() => setRefetchAction(!refetchAction)}
                   />
                 </div>
