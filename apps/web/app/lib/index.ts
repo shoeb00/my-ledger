@@ -1,4 +1,6 @@
 import { ROLE_RANK, Roles } from '@my-ledger/api/role';
+import { useParams } from 'next/navigation';
+import { useRolesContext } from '../context';
 
 export const fmtCurrency = (value: string, locale = 'en-IN') => {
   const val = Number(value.replace(/,/g, '').replace(/₹/g, '')) || 0;
@@ -23,8 +25,11 @@ export const fmtDate = (d: string | Date, locale = 'en-IN', tz = 'Asia/Kolkata')
   });
 };
 
-export const hasPermission = (curPermission: Roles, requiredPermission: Roles) => {
-  const rank = ROLE_RANK[curPermission];
+export const useHasPermission = (requiredPermission: Roles) => {
+  const params = useParams();
+  const bookId = params.bookId as string;
+  const role = useRolesContext(bookId).role as Roles;
+  const rank = ROLE_RANK[role];
   const requireRank = ROLE_RANK[requiredPermission];
   return rank >= requireRank;
 };
