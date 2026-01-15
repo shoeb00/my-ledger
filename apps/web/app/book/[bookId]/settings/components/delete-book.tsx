@@ -14,12 +14,16 @@ import { Trash2Icon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
 import { DialogDescription } from '@radix-ui/react-dialog';
+import { Roles } from '@my-ledger/api/role';
+import { useHasPermission } from '../../../../lib';
 
 export default function DeleteBook(body: Omit<UpdateBookRequest, 'description'>) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [name, setName] = useState(body.name);
+
+  const isOwner = useHasPermission(Roles.AUTHOR);
 
   const handleDelete = async () => {
     if (loading) return;
@@ -37,7 +41,7 @@ export default function DeleteBook(body: Omit<UpdateBookRequest, 'description'>)
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" disabled={loading}>
+        <Button variant="outline" disabled={loading} hidden={!isOwner}>
           <Trash2Icon />
           Delete
         </Button>

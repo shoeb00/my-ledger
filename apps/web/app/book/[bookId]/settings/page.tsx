@@ -16,7 +16,7 @@ import LoaderCircle from '../../../components/loader';
 import InvitationList from './components/invites';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import AddOrInviteUser from './components/addOrInviteUser';
-import { useUser } from '@clerk/nextjs';
+import { useHasPermission } from '../../../lib';
 
 export type Member = {
   userId: number;
@@ -47,12 +47,7 @@ export default function BookInfo() {
   const [invites, setInvites] = useState<Invitation[]>([]);
   const [activeTab, setActiveTab] = useState('members');
 
-  const { user } = useUser();
-  const owner = members.find(
-    member =>
-      member.role === Roles.AUTHOR && member.email === user?.primaryEmailAddress?.emailAddress
-  );
-
+  const isOwner = useHasPermission(Roles.AUTHOR);
   useEffect(() => {
     (async () => {
       const { err, data } = await getBook(bookId);
@@ -68,7 +63,8 @@ export default function BookInfo() {
       if (err) {
         toast.error(err);
       } else {
-        setMembers(data as Member[]);
+        const membersList = [...data as Member[]].sort((a, b) => a.role.localeCompare(b.role));
+        setMembers(membersList);
       }
       setLoading(false);
     })();
@@ -105,7 +101,7 @@ export default function BookInfo() {
             description={book?.description || ''}
           />
         </div>
-        <div className="flex flex-row items-center gap-4" hidden={!owner}>
+        <div className="flex flex-row items-center gap-4" hidden={!isOwner}>
           <TransferBook
             bookName={book?.name || ''}
             refetchAction={() => setRefetchAction(!refetchAction)}

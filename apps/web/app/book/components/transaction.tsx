@@ -4,12 +4,13 @@ import React from 'react';
 import type { Transaction as Tx } from '@my-ledger/api/transaction';
 import { Button } from '@/components/ui/button';
 import { Edit2 } from 'lucide-react';
-import { fmtCurrency, fmtDate } from '../../components/book';
 import { Badge } from '@/components/ui/badge';
 import DeleteTransactionDialog from '../[bookId]/components/delete-transaction';
 import EditTransactionDialog from '../[bookId]/components/edit-transaction';
 import { PaymentMethodEnum } from '../../enums/payment-methods';
 import AddTransactionDialog from '../[bookId]/components/add-transaction';
+import { fmtCurrency, fmtDate, useHasPermission } from '../../lib';
+import { Roles } from '@my-ledger/api/role';
 
 export type TransactionRow = {
   name: string,
@@ -17,6 +18,8 @@ export type TransactionRow = {
 } & Tx;
 
 export function TransactionRow({ tx, refetchAction }: { tx: TransactionRow; refetchAction: () => void }) {
+  const canEdit = !useHasPermission(Roles.AUTHOR);
+
   const amountNum = fmtCurrency(tx.amount);
   const isDebit = amountNum[0] === '-';
   const displayAmount = isDebit ? amountNum.slice(1) : amountNum;
@@ -43,6 +46,7 @@ export function TransactionRow({ tx, refetchAction }: { tx: TransactionRow; refe
             <Button
               size="sm"
               variant="ghost"
+              hidden={canEdit}
               onClick={e => {
                 e.stopPropagation();
               }}

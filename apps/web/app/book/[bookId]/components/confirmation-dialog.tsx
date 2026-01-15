@@ -16,15 +16,16 @@ type Props = {
     loading: boolean
   ) => void;
   disabled?: boolean;
+  hidden?: boolean;
 };
 
-export default function ConfirmationDialog({ handleDelete, disabled = false }: Props) {
+export default function ConfirmationDialog({ handleDelete, disabled = false, hidden = false }: Props) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button disabled={disabled} size="sm" variant="ghost">
+        <Button disabled={disabled} hidden={hidden} size="sm" variant="ghost">
           <Trash2Icon className="h-4 w-4" />
         </Button>
       </DialogTrigger>

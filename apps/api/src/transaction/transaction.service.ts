@@ -115,7 +115,7 @@ export class TransactionService {
       .update(schema.books)
       .set({
         [transactionType]: sql`${booksSchema.books[transactionType]} + ${amount} `,
-        balance: sql`${booksSchema.books.balance} + ${body.amount}`,
+        balance: sql`${booksSchema.books.balance} + ${body.amount}::numeric`,
         updatedAt: sql`now()`,
       })
       .where(eq(schema.books.id, body.bookId));
@@ -157,8 +157,8 @@ export class TransactionService {
       const key = Number(record.amount) > 0 ? 'credited' : 'debited';
 
       await tx.update(schema.books).set({
-        balance: sql`${schema.books.balance} - ${record.amount}`,
-        [key]: sql`${schema.books[key]} - ${Math.abs(Number(record.amount))}`,
+        balance: sql`${schema.books.balance} - ${record.amount}::numeric`,
+        [key]: sql`${schema.books[key]} - ABS(${record.amount}::numeric)`,
         updatedAt: sql`now()`,
       });
     });

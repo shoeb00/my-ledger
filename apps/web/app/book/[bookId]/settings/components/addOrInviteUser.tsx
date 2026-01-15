@@ -23,6 +23,7 @@ import {
 } from '@/components/ui/command';
 import { useParams } from 'next/navigation';
 import { Roles } from '@my-ledger/api/role';
+import { useHasPermission } from '../../../../lib';
 
 export type UserDetails = {
   name: string;
@@ -46,6 +47,7 @@ export default function AddOrInviteUser(body: Props) {
   const [email, setEmail] = useState('');
   const [users, setUsers] = useState<UserDetails[]>([]);
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  const canEdit = !useHasPermission(Roles.EDITOR);
 
   useEffect(() => {
     (async () => {
@@ -98,7 +100,7 @@ export default function AddOrInviteUser(body: Props) {
       }}
     >
       <DialogTrigger asChild>
-        <Button>
+        <Button hidden={canEdit}>
           {isMemberTab ? (
             <>
               <UserPlus2Icon />

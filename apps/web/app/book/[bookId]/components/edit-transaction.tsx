@@ -13,8 +13,12 @@ import { PaymentMethod } from '../../../components/payment-method';
 import { updateTransaction } from '../actions/update-transaction';
 import { EditRequestPayload } from '../interfaces/edit-request-payload';
 import { toast } from 'sonner';
+import { useHasPermission } from '../../../lib';
+import { Roles } from '@my-ledger/api/role';
 
 export default function EditTransactionDialog(query: EditRequestPayload) {
+  const canEdit = !useHasPermission(Roles.EDITOR);
+
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const [description, setDescription] = useState(query.description);
@@ -38,7 +42,7 @@ export default function EditTransactionDialog(query: EditRequestPayload) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button size="sm" variant="ghost">
+        <Button size="sm" variant="ghost" hidden={canEdit}>
           <EditIcon className="h-4 w-4" />
         </Button>
       </DialogTrigger>
@@ -51,7 +55,7 @@ export default function EditTransactionDialog(query: EditRequestPayload) {
         />
         <PaymentMethod paymentMethod={paymentMethod} setPaymentMethod={setPaymentMethod} />
         <DialogFooter>
-          <Button variant="outline">Cancel</Button>
+          <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
           <Button onClick={handleUpdate} disabled={loading}>{loading ? 'Updating...' : 'Update'}</Button>
         </DialogFooter>
       </DialogContent>
