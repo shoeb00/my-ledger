@@ -13,6 +13,7 @@ import { ChevronLeft, SettingsIcon } from 'lucide-react';
 import AddTransactionDialog from './components/add-transaction';
 import LoaderCircle from '../../components/loader';
 import { toast } from 'sonner';
+import { fmtCurrency } from '../../lib';
 
 type paymentType = 'all' | 'debit' | 'credit';
 type order = 'asc' | 'desc';
@@ -149,13 +150,13 @@ export default function PageClient() {
           </div>
           <div className="flex gap-4 items-center text-sm text-muted-foreground">
             <div>
-              Balance: <strong>{balance}</strong>
+              Balance: <strong>{fmtCurrency(balance, true)}</strong>
             </div>
             <div>
-              Credited: <strong>{credited}</strong>
+              Credited: <strong>{fmtCurrency(credited)}</strong>
             </div>
             <div>
-              Debited: <strong className='text-destructive'>{debited}</strong>
+              Debited: <strong className='text-destructive'>{fmtCurrency(debited)}</strong>
             </div>
           </div>
         </div>

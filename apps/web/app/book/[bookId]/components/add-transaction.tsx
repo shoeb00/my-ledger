@@ -64,7 +64,7 @@ export default function AddTransactionDialog({
   }
 
   const handleAmountInput = (val: string) => {
-    const amtStr = fmtCurrency(val.replaceAll(/-/g, ''));
+    const amtStr = fmtCurrency(val);
     setAmountStr(amtStr);
     return amtStr;
   }
