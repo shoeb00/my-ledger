@@ -20,7 +20,7 @@ export type TransactionRow = {
 export function TransactionRow({ tx, refetchAction }: { tx: TransactionRow; refetchAction: () => void }) {
   const canEdit = !useHasPermission(Roles.AUTHOR);
 
-  const amountNum = fmtCurrency(tx.amount);
+  const amountNum = fmtCurrency(tx.amount, true);
   const isDebit = amountNum[0] === '-';
   const displayAmount = isDebit ? amountNum.slice(1) : amountNum;
 

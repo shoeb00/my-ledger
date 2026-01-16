@@ -33,7 +33,7 @@ export default function BookCard({ book }: Readonly<{ book: Readonly<BookRespons
         </div>
 
         <div className="flex flex-col items-end">
-          <div className="text-sm font-medium">{fmtCurrency(book.balance)}</div>
+          <div className="text-sm font-medium">{fmtCurrency(book.balance, true)}</div>
           <div className="text-xs text-muted-foreground mt-1">{fmtDate(book.createdAt)}</div>
         </div>
       </CardHeader>
