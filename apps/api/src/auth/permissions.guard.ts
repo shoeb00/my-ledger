@@ -1,5 +1,6 @@
 import { RequestContextService } from './../common/request-context.service';
 import {
+  BadRequestException,
   CanActivate,
   ExecutionContext,
   ForbiddenException,
@@ -71,6 +72,7 @@ export class PermissionsGuard implements CanActivate {
 
     const rawBookId = req.query?.bookId || req.body?.bookId;
     const bookId = parseInt(String(rawBookId), 10);
+    if (bookId == null) throw new BadRequestException('BookId is required');
     if (Number.isNaN(bookId)) throw new ForbiddenException('Invalid bookId');
     if (!bookId) throw new ForbiddenException('No bookId provided');
 
