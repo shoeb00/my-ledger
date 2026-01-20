@@ -21,6 +21,7 @@ export const transactions = pgTable('transactions', {
   amount: numeric('amount', { precision: 10, scale: 2 }).notNull(),
   description: varchar('description'),
   paymentType: varchar('payment_type'),
+  category: varchar('category'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });

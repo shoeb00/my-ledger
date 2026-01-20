@@ -16,7 +16,11 @@ import {
   TransactionResponseDto,
 } from './dto/transaction-response';
 import { GetTransactionsRequestDto } from './dto/get-transaction-request';
-import { CreateTransactionsRequestDto } from './dto/create-transaction-request';
+import {
+  BookIdQueryRequestDto,
+  BulkCreateTransactionRequestDto,
+  CreateTransactionsRequestDto,
+} from './dto/create-transaction-request';
 import { Roles } from '../common/decorators/roles.decorator';
 import { Roles as rolEnum } from '../permissions/enum/roles';
 import { UpdateTransactionsRequestDto } from './dto/update-transaction-request';
@@ -51,8 +55,23 @@ export class TransactionController {
   @ApiOkResponse({
     type: TransactionListResponseDto,
   })
-  async create(@Body() body: CreateTransactionsRequestDto) {
-    return await this.service.create(body);
+  async create(
+    @Query() query: BookIdQueryRequestDto,
+    @Body() body: CreateTransactionsRequestDto,
+  ) {
+    return await this.service.create(body, query.bookId);
+  }
+
+  @Post('createBulk')
+  @Roles(rolEnum.EDITOR)
+  @ApiOkResponse({
+    example: { message: 'Transactions created successfully' },
+  })
+  async createBulk(
+    @Query() query: BookIdQueryRequestDto,
+    @Body() body: BulkCreateTransactionRequestDto,
+  ) {
+    return await this.service.createBulk(body, query.bookId);
   }
 
   @Put('update')

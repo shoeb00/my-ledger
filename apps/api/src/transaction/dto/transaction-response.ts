@@ -19,6 +19,9 @@ export class TransactionResponseDto {
   @ApiProperty({ nullable: true, example: 'Credit Card' })
   paymentType: string | null;
 
+  @ApiProperty({ nullable: true, example: 'Gas' })
+  category: string | null;
+
   @ApiPropertyOptional({ example: 'John Doe' })
   name?: string;
 
