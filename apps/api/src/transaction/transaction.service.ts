@@ -16,7 +16,10 @@ import {
   TransactionResponseDto,
 } from './dto/transaction-response';
 import { and, asc, desc, eq, gte, like, lte, SQL, sql } from 'drizzle-orm';
-import { CreateTransactionsRequestDto } from './dto/create-transaction-request';
+import {
+  BulkCreateTransactionRequestDto,
+  CreateTransactionsRequestDto,
+} from './dto/create-transaction-request';
 import { RequestContextService } from '../common/request-context.service';
 import { UpdateTransactionsRequestDto } from './dto/update-transaction-request';
 import { getTableColumns } from 'drizzle-orm';
@@ -100,13 +103,14 @@ export class TransactionService {
 
   async create(
     body: CreateTransactionsRequestDto,
+    bookId: number,
   ): Promise<TransactionResponseDto> {
     const user = this.cxt.getUser();
     if (parseFloat(body.amount) === 0)
       throw new BadRequestException('Amount cannot be 0');
     const [row] = await this.db
       .insert(schema.transactions)
-      .values({ ...body, userId: user.id })
+      .values({ ...body, userId: user.id, bookId })
       .returning();
     const transactionType =
       parseFloat(body.amount) > 0 ? 'credited' : 'debited';
@@ -118,9 +122,63 @@ export class TransactionService {
         balance: sql`${booksSchema.books.balance} + ${body.amount}::numeric`,
         updatedAt: sql`now()`,
       })
-      .where(eq(schema.books.id, body.bookId));
+      .where(eq(schema.books.id, bookId));
     if (!row) throw new InternalServerErrorException('Failed to create');
     return row;
+  }
+
+  async createBulk(
+    body: BulkCreateTransactionRequestDto,
+    bookId: number,
+  ): Promise<{ message: string }> {
+    const user = this.cxt.getUser();
+    let balance = 0;
+    let credited = 0;
+    let debited = 0;
+    type Transaction = Omit<transactionsSchema.Transaction, 'id'>;
+    const transactions: Array<Transaction> = [];
+    for (const transaction of body.transactions) {
+      if (parseFloat(transaction.amount) === 0)
+        throw new BadRequestException('Amount cannot be 0');
+      balance += parseFloat(transaction.amount);
+      if (parseFloat(transaction.amount) > 0)
+        credited += parseFloat(transaction.amount);
+      if (parseFloat(transaction.amount) < 0)
+        debited += parseFloat(transaction.amount);
+      const createdAt = transaction.createdAt
+        ? new Date(transaction.createdAt)
+        : new Date();
+      transactions.push({
+        ...transaction,
+        createdAt,
+        userId: user.id,
+        updatedAt: new Date(),
+        description: transaction.description ?? '',
+        paymentType: transaction.paymentType ?? '',
+        category: transaction.category ?? '',
+        bookId,
+      });
+    }
+    if (transactions.length === 0)
+      throw new BadRequestException('No transactions found');
+    await this.db.transaction(async (tx) => {
+      await tx
+        .insert(schema.transactions)
+        .values(transactions)
+        .returning({ id: schema.transactions.id });
+      await tx
+        .update(schema.books)
+        .set({
+          balance: sql`${booksSchema.books.balance} + ${balance}::numeric`,
+          credited: sql`${booksSchema.books.credited} + ${credited}::numeric`,
+          debited: sql`${booksSchema.books.debited} + ${debited}::numeric`,
+          updatedAt: sql`now()`,
+        })
+        .where(eq(schema.books.id, bookId));
+    });
+    return {
+      message: 'Transactions created successfully',
+    };
   }
 
   async update(

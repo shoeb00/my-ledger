@@ -11,6 +11,7 @@ import { getBook } from '../actions/get-books';
 import { Book } from '@my-ledger/api/book';
 import { ChevronLeft, SettingsIcon } from 'lucide-react';
 import AddTransactionDialog from './components/add-transaction';
+import UploadTransactionFileDialog from './components/upload-transaction-file';
 import LoaderCircle from '../../components/loader';
 import { toast } from 'sonner';
 import { fmtCurrency } from '../../lib';
@@ -209,6 +210,7 @@ export default function PageClient() {
             </Button>
 
             <AddTransactionDialog bookId={bookId} refetchAction={refetch} />
+            <UploadTransactionFileDialog refetchAction={refetch} setLoading={setLoading}/>
 
             <div className="relative">
               <Button variant="outline" disabled={loading} onClick={() => router.push(`/book/${bookId}/settings`)}>

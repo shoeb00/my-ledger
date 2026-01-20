@@ -90,7 +90,7 @@ export const callApi = async (
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Oops, something went wrong';
     err = message;
-    if (debugging) console.error('error', error);
+    if (debugging) console.log('error', error);
   }
 
   return { err, data };
