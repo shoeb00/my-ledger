@@ -15,6 +15,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { createBook } from './actions/create-book';
 import { toast } from 'sonner';
+import { useRolesContext } from '../context';
 
 export default function CreateBook({
   refetchAction,
@@ -27,6 +28,7 @@ export default function CreateBook({
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const bookLimit = Number(process.env.BOOKS_LIMIT) || 5;
+  const { refetchRoles } = useRolesContext();
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -38,6 +40,7 @@ export default function CreateBook({
     } else {
       formRef.current?.reset();
       refetchAction();
+      refetchRoles();
       toast.success('Book created successfully');
     }
     setOpen(false);
