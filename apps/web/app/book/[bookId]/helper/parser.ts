@@ -1,6 +1,6 @@
 import Papa from 'papaparse';
 import { parseIST } from '../../../lib';
-import { AddTransactionRequest } from '../actions/bulk-add-transaction';
+import { AddTransactionRequest } from '../actions/add-transaction';
 
 type InputRow = {
   Date: string;

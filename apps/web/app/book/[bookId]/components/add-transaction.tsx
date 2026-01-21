@@ -52,7 +52,7 @@ export default function AddTransactionDialog({
       bookId: Number(bookId),
     };
     setLoading(true);
-    const { err } = await addTransaction(payload);
+    const { err } = await addTransaction(payload, bookId);
     if (err) {
       toast.error(err);
     } else {
