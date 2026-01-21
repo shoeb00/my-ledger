@@ -1,6 +1,6 @@
 import { ROLE_RANK, Roles } from '@my-ledger/api/role';
 import { useParams } from 'next/navigation';
-import { useRolesContext } from '../context';
+import { useBookRole } from '../context';
 
 const getCurrencySymbol = (locale = 'en-IN') => (locale === 'en-US' ? '$' : '₹');
 
@@ -34,7 +34,7 @@ export const fmtDate = (d: string | Date, locale = 'en-IN', tz = 'Asia/Kolkata')
 export const useHasPermission = (requiredPermission: Roles) => {
   const params = useParams();
   const bookId = params.bookId as string;
-  const role = useRolesContext(bookId).role as Roles;
+  const role = useBookRole(bookId).role as Roles;
   const rank = ROLE_RANK[role];
   const requireRank = ROLE_RANK[requiredPermission];
   return rank >= requireRank;
