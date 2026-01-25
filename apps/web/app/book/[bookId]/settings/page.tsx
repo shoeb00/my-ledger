@@ -16,6 +16,7 @@ import LoaderCircle from '../../../components/loader';
 import InvitationList from './components/invites';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import AddOrInviteUser from './components/addOrInviteUser';
+import UploadTransactionFile from '../components/upload-transaction-file';
 import { useHasPermission } from '../../../lib';
 
 export type Member = {
@@ -102,6 +103,7 @@ export default function BookInfo() {
           />
         </div>
         <div className="flex flex-row items-center gap-4" hidden={!isOwner}>
+          <UploadTransactionFile hidden={!isOwner} setLoading={setLoading} />
           <TransferBook
             bookName={book?.name || ''}
             refetchAction={() => setRefetchAction(!refetchAction)}

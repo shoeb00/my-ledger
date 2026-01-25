@@ -8,14 +8,14 @@ import { AddTransactionRequest, bulkAddTransaction } from "../actions/add-transa
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { parseCsvFile } from "../helper/parser";
-import { FileUpIcon } from "lucide-react";
+import { BookUp2Icon, FileUpIcon } from "lucide-react";
 
 type Props = {
     setLoading: (bool: boolean) => void,
-    refetchAction: () => void
+    hidden: boolean
 }
 
-export default function UploadTransactionFile({ setLoading, refetchAction }: Props) {
+export default function UploadTransactionFile({ setLoading, hidden }: Props) {
     const params = useParams();
     const bookId = params.bookId as string;
     const isOwner = useHasPermission(Roles.AUTHOR);
@@ -27,7 +27,6 @@ export default function UploadTransactionFile({ setLoading, refetchAction }: Pro
             toast.error(err);
         } else {
             toast.success(data.message);
-            refetchAction();
         }
         setLoading(false);
         setOpen(false);
@@ -61,8 +60,11 @@ export default function UploadTransactionFile({ setLoading, refetchAction }: Pro
     });
 
     return <Dialog open={open} onOpenChange={setOpen}>
-        <DialogTrigger hidden={!isOwner}>
-            <Button onClick={() => setOpen(true)}>Bulk Add Transaction </Button>
+        <DialogTrigger hidden={!isOwner || hidden}>
+            <Button onClick={() => setOpen(true)}>
+                <BookUp2Icon />
+                Add Transactions from File
+            </Button>
         </DialogTrigger>
         <DialogContent className="h-[50%] pt-10">
             <Dropzone {...dropzone}>

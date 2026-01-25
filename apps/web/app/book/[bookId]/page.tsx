@@ -4,14 +4,13 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger } from '@/components/ui/select';
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { getTransaction } from './actions/get-transaction';
 import TransactionList, { TransactionRow } from '../components/transaction';
 import { getBook } from '../actions/get-books';
 import { Book } from '@my-ledger/api/book';
-import { ChevronLeft, SettingsIcon } from 'lucide-react';
+import { ChevronLeft, SearchIcon, SettingsIcon, XCircleIcon } from 'lucide-react';
 import AddTransactionDialog from './components/add-transaction';
-import UploadTransactionFileDialog from './components/upload-transaction-file';
 import LoaderCircle from '../../components/loader';
 import { toast } from 'sonner';
 import { fmtCurrency } from '../../lib';
@@ -47,7 +46,7 @@ export default function PageClient() {
   const [createdBefore, setCreatedBefore] = useState<string | undefined>(undefined);
   const [minAmount, setMinAmount] = useState<string | undefined>(undefined);
   const [maxAmount, setMaxAmount] = useState<string | undefined>(undefined);
-  const [limit, setLimit] = useState<number>(5);
+  const [limit, setLimit] = useState<number>(10);
   const [offset, setOffset] = useState<number>(0);
   const [sort, setSort] = useState<string>('createdAt');
   const [order, setOrder] = useState<order>('desc');
@@ -59,6 +58,7 @@ export default function PageClient() {
   const [bookName, setBookName] = useState('');
   const [refetchTransactions, setRefetchTransactions] = useState(false);
   const [refetchBookDetails, setRefetchBookDetails] = useState(false);
+  const [advanceSearch, setAdvanceSearch] = useState(false);
 
   useEffect(() => {
     const t = setTimeout(() => setDebouncedQuery(query), 250);
@@ -140,8 +140,8 @@ export default function PageClient() {
   const prevPage = () => setOffset(prev => Math.max(0, prev - limit));
 
   return (
-    <div className="space-y-6">
-      <section className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+    <div className="sm:space-y-2 md:space-y-6 w-full">
+      <section className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="grid gap-2">
           <div className="flex flex-row items-center gap-2">
             <Button variant={'outline'} onClick={() => router.push('/home')}>
@@ -149,51 +149,25 @@ export default function PageClient() {
             </Button>
             <h2 className="text-xl font-semibold">{bookName}</h2>
           </div>
-          <div className="flex gap-4 items-center text-sm text-muted-foreground">
-            <div>
-              Balance: <strong>{fmtCurrency(balance, true)}</strong>
-            </div>
-            <div>
+          <div className="flex sm:gap-2 md:gap-4 items-center text-sm text-muted-foreground">
+            <span>
+              Balance: <strong className='whitespace-nowrap'>{fmtCurrency(balance, true)}</strong>
+            </span>
+            <span>
               Credited: <strong>{fmtCurrency(credited)}</strong>
-            </div>
-            <div>
+            </span>
+            <span>
               Debited: <strong className='text-destructive'>{fmtCurrency(debited)}</strong>
-            </div>
+            </span>
           </div>
         </div>
-        <div className="flex items-center gap-2">
-          <div className="flex items-center gap-2">
-            <Input
-              placeholder="Search description..."
-              value={query}
-              onChange={e => {
-                setQuery(e.target.value);
-                setOffset(0);
-              }}
-              className="min-w-[220px]"
-            />
-            <Select
-              onValueChange={v => {
-                setPaymentType(v as paymentType);
-                setOffset(0);
-              }}
-            >
-              <SelectTrigger aria-label="Payment Type" className="w-40">
-                <div className="flex items-center gap-2">
-                  <span className="text-sm">
-                    {paymentType === 'all' ? 'Any type' : paymentType}
-                  </span>
-                </div>
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Any</SelectItem>
-                <SelectItem value="credit">Credit</SelectItem>
-                <SelectItem value="debit">Debit</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="flex gap-2">
+        <div className="flex flex-col items-center gap-2 w-fit">
+          <div className='flex flex-row-reverse gap-2'>
+            <Button variant={advanceSearch ? 'destructive' : 'outline'} onClick={() => setAdvanceSearch(!advanceSearch)}>
+              {!advanceSearch ?
+                <SearchIcon /> : <XCircleIcon />
+              }
+            </Button>
             <Button
               onClick={() => {
                 setQuery('');
@@ -205,25 +179,46 @@ export default function PageClient() {
                 setOrder('desc');
                 setSort('createdAt');
               }}
+              hidden={!advanceSearch}
             >
               Reset
             </Button>
-
+            <Select
+              onValueChange={v => {
+                setPaymentType(v as paymentType);
+                setOffset(0);
+              }}
+            >
+              <SelectTrigger aria-label="Payment Type" className="min-w-25">
+                <SelectValue placeholder='Transaction type' />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All</SelectItem>
+                <SelectItem value="credit">Credit</SelectItem>
+                <SelectItem value="debit">Debit</SelectItem>
+              </SelectContent>
+            </Select>
+            <Input
+              placeholder="Search description..."
+              value={query}
+              onChange={e => {
+                setQuery(e.target.value);
+                setOffset(0);
+              }}
+              className='min-w-10'
+            />
+          </div>
+          <div className="flex flex-row-reverse gap-2 w-full mb-2">
+            <Button variant="outline" disabled={loading} onClick={() => router.push(`/book/${bookId}/settings`)}>
+              <SettingsIcon className="w-4 h-4"></SettingsIcon>
+            </Button>
             <AddTransactionDialog bookId={bookId} refetchAction={refetch} />
-            <UploadTransactionFileDialog refetchAction={refetch} setLoading={setLoading}/>
-
-            <div className="relative">
-              <Button variant="outline" disabled={loading} onClick={() => router.push(`/book/${bookId}/settings`)}>
-                <SettingsIcon className="w-4 h-4"></SettingsIcon>
-              </Button>
-            </div>
           </div>
         </div>
       </section>
 
-      {/* Extra filters */}
       {/* TODO: use shadcn datepicker */}
-      <section className="grid grid-cols-1 md:grid-cols-4 gap-3">
+      <section className="grid grid-cols-1 md:grid-cols-4 gap-3" hidden={!advanceSearch}>
         <div>
           <label className="text-xs text-muted-foreground">Created After</label>
           <Input
@@ -267,41 +262,39 @@ export default function PageClient() {
               setMaxAmount(e.target.value || undefined);
               setOffset(0);
             }}
-            placeholder="100000"
+            placeholder={fmtCurrency("10000000")}
           />
         </div>
       </section>
 
-      <section className="flex items-center gap-4">
-        <div className="flex items-center gap-2">
-          <label className="text-sm">Sort</label>
+      <section className="flex items-center gap-4" hidden={!advanceSearch}>
+        <div className="flex items-center gap-2 my-2">
           <Select
             onValueChange={v => {
               setSort(v);
               setOffset(0);
             }}
+            defaultValue='createdAt'
           >
-            <SelectTrigger aria-label="Sort field" className="w-40">
-              <div className="flex items-center gap-2">
-                <span className="text-sm">{sort}</span>
-              </div>
+            <SelectTrigger aria-label="Sort field" className="min-w-20">
+              <SelectValue placeholder='Sorting fields' />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="createdAt">Created At</SelectItem>
-              <SelectItem value="amount">Amount</SelectItem>
-              {/* add your TransactionSortableFields here */}
+              <SelectGroup>
+                <SelectItem value="createdAt">Created At</SelectItem>
+                <SelectItem value="amount">Amount</SelectItem>
+              </SelectGroup>
             </SelectContent>
           </Select>
           <Select
             onValueChange={v => {
-              setOrder(v as 'asc' | 'desc');
+              setOrder(v as order);
               setOffset(0);
             }}
+            defaultValue='desc'
           >
-            <SelectTrigger aria-label="Order" className="w-[120px]">
-              <div className="flex items-center gap-2">
-                <span className="text-sm">{order}</span>
-              </div>
+            <SelectTrigger aria-label="Order" className="min-w-10">
+              <SelectValue placeholder='Order' />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="desc">Desc</SelectItem>
@@ -311,7 +304,7 @@ export default function PageClient() {
         </div>
 
         <div className="flex items-center gap-2 ml-auto">
-          <label className="text-sm">Per page</label>
+          <label className="text-[11px] sm:text-sm">Per page</label>
           <Select
             onValueChange={v => {
               setLimit(Number(v));
@@ -324,9 +317,9 @@ export default function PageClient() {
               </div>
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="5">5</SelectItem>
               <SelectItem value="10">10</SelectItem>
               <SelectItem value="25">25</SelectItem>
+              <SelectItem value="50">50</SelectItem>
             </SelectContent>
           </Select>
         </div>
