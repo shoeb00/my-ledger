@@ -6,7 +6,7 @@ export default function LoaderCircle({
   children,
 }: PropsWithChildren<{ loading: boolean }>) {
   return (
-    <div className="relative w-full h-full">
+    <div className="sm:relative w-full h-full">
       {loading && (
         <div className="absolute inset-0 z-20 flex items-center justify-center pointer-events-auto">
           <div className="absolute inset-0 bg-background/50 backdrop-blur-sm" />
