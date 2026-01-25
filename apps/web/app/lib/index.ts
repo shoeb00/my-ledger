@@ -27,7 +27,6 @@ export const fmtDate = (d: string | Date, locale = 'en-IN', tz = 'Asia/Kolkata')
     weekday: 'short',
     hour: 'numeric',
     minute: 'numeric',
-    second: 'numeric',
   });
 };
 
