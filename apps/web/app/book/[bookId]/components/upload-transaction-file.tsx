@@ -13,9 +13,10 @@ import { FileUpIcon } from "lucide-react";
 type Props = {
     setLoading: (bool: boolean) => void,
     refetchAction: () => void
+    hidden: boolean
 }
 
-export default function UploadTransactionFile({ setLoading, refetchAction }: Props) {
+export default function UploadTransactionFile({ setLoading, refetchAction, hidden }: Props) {
     const params = useParams();
     const bookId = params.bookId as string;
     const isOwner = useHasPermission(Roles.AUTHOR);
@@ -61,7 +62,7 @@ export default function UploadTransactionFile({ setLoading, refetchAction }: Pro
     });
 
     return <Dialog open={open} onOpenChange={setOpen}>
-        <DialogTrigger hidden={!isOwner}>
+        <DialogTrigger hidden={!isOwner || hidden}>
             <Button onClick={() => setOpen(true)}>Bulk Add Transaction </Button>
         </DialogTrigger>
         <DialogContent className="h-[50%] pt-10">
