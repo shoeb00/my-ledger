@@ -5,6 +5,7 @@ import Navbar from './components/navbar';
 import { Toaster } from '@/components/ui/sonner';
 import { shadcn, experimental__simple as simple } from '@clerk/themes';
 import RolesProvider from './context';
+import { SpeedInsights } from '@vercel/speed-insights/next';
 
 export default function Providers({
     children,
@@ -25,6 +26,7 @@ export default function Providers({
                 <RolesProvider>
                     <div className="max-w-7xl mx-auto p-2 sm:px-6 lg:px-8 h-[92vh] overflow-auto rounded-md border shadow-md">
                         {children}
+                        <SpeedInsights />
                     </div>
                 </RolesProvider>
             </ClerkProvider>
