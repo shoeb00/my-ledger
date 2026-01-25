@@ -335,7 +335,7 @@ export default function PageClient() {
             Prev
           </Button>
           <div>Page {currentPage}</div>
-          <Button onClick={nextPage} disabled={totalCount < offset + limit || loading}>
+          <Button onClick={nextPage} disabled={totalCount <= offset + limit || loading}>
             Next
           </Button>
         </div>
