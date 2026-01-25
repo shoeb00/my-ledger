@@ -89,7 +89,7 @@ export default function Home() {
               aria-label="Search books"
               className="min-w-0"
             />
-            <Button variant="ghost" className="inline-flex" onClick={() => setQuery('')}>
+            <Button variant={query.length ? "destructive" : "secondary"} className="inline-flex" onClick={() => setQuery('')}>
               Clear
             </Button>
           </div>
