@@ -98,7 +98,7 @@ export default function TransactionList({
   }
 
   return (
-    <section className="shrink-0 overflow-scroll space-y-2">
+    <section className="shrink-0 overflow-auto space-y-2">
       {transactions.map(tx => (
         <TransactionRow key={tx.id} tx={tx} refetchAction={refetchAction} />
       ))}
