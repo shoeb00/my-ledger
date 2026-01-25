@@ -43,7 +43,7 @@ export default function AddTransactionDialog({
   }, [open]);
 
   async function handleAdd() {
-    const amount = Number(amountStr.replaceAll(/,/g, '').replace(/₹/g, ''));
+    const amount = Number(amountStr.replace(/[^\d.]/g, ''));
     const finalAmount = isPositive ? amount : -amount;
     const payload = {
       description,
@@ -114,7 +114,7 @@ export default function AddTransactionDialog({
           <Button variant="outline" onClick={() => setOpen(false)}>
             Cancel
           </Button>
-          <Button onClick={handleAdd} disabled={loading || !amountStr}>{loading ? 'Adding...' : 'Add'}</Button>
+          <Button onClick={handleAdd} disabled={loading || amountStr === fmtCurrency('')}>{loading ? 'Adding...' : 'Add'}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

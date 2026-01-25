@@ -6,7 +6,7 @@ const getCurrencySymbol = (locale = 'en-IN') => (locale === 'en-US' ? '$' : '₹
 
 export const fmtCurrency = (value: string, allowNegative = false, locale = 'en-IN') => {
   const symbol = getCurrencySymbol(locale);
-  const val = Number(value.replace(/,/g, '').replace(/${symbol}/g, '')) || 0;
+  const val = Number(value.replace(/[^\d.]/g, '')) || 0;
   const formatted = new Intl.NumberFormat(locale, {
     minimumFractionDigits: 0,
     maximumFractionDigits: 2,
@@ -14,7 +14,7 @@ export const fmtCurrency = (value: string, allowNegative = false, locale = 'en-I
     .format(val)
     .replace('-', '');
   const isNegative = val < 0 && allowNegative ? '-' : '';
-  return formatted === '0' ? `${symbol}0.00` : `${isNegative}${symbol}${formatted}`;
+  return formatted === '0' ? `${symbol}` : `${isNegative}${symbol}${formatted}`;
 };
 
 export const fmtDate = (d: string | Date, locale = 'en-IN', tz = 'Asia/Kolkata'): string => {
