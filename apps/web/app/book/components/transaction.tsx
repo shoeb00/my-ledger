@@ -18,37 +18,61 @@ export function TransactionRow({ tx, refetchAction }: { tx: TransactionRow; refe
     <article
       role="listitem"
       aria-label={`Transaction ${tx.id}`}
-      className="w-full rounded-lg border bg-card px-4 py-3 shadow-sm hover:shadow-md transition flex justify-between"
+      className="
+    w-full rounded-lg border bg-card px-4 py-3
+    shadow-sm hover:shadow-md transition
+  "
     >
       <div
-        className={`text-right text-sm font-semibold ${+tx.amount < 0 ? 'text-destructive' : 'text-success'} w-20`}
+        className="
+      grid grid-cols-1 gap-2
+      sm:grid-cols-[80px_1fr_160px_120px_auto]
+      sm:items-center
+    "
       >
-        {fmtCurrency(tx.amount, true)}
-      </div>
-      <div className="w-100 overflow-hidden">
-        <div className="text-sm font-medium truncate">{tx.description ?? '—'}</div>
-        <div className="text-[8px] font-bold truncate">{tx.paymentType ?? '—'}</div>
-      </div>
-      <div className="flex flex-col shrink-0">
-        <div className="text-xs font-semibold capitalize">{tx.name}</div>
-        <div className="text-xs text-muted-foreground">{tx.email}</div>
-      </div>
-      <div className="w-45 shrink-0">
-        <div className="text-xs text-muted-foreground">{fmtDate(tx.createdAt)}</div>
-      </div>
-      <div className="flex items-center gap-2">
-        <EditTransactionDialog
-          bookId={tx.bookId.toString()}
-          transactionId={tx.id.toString()}
-          description={tx.description ?? ''}
-          paymentType={(tx.paymentType as PaymentMethodEnum) ?? PaymentMethodEnum.OTHER}
-          refetchAction={refetchAction}
-        />
-        <DeleteTransactionDialog
-          bookId={tx.bookId.toString()}
-          transactionId={tx.id.toString()}
-          refetchAction={refetchAction}
-        />
+        <div
+          className={`text-sm font-semibold sm:text-left ${+tx.amount < 0 ? 'text-destructive' : 'text-success'
+            }`}
+        >
+          {fmtCurrency(tx.amount, true)}
+        </div>
+
+        <div className="overflow-hidden">
+          <div className="text-sm font-medium truncate">
+            {tx.description ?? '—'}
+          </div>
+          <div className="text-[10px] font-semibold text-muted-foreground truncate">
+            {tx.paymentType ?? '—'}
+          </div>
+        </div>
+
+        <div className="flex flex-col text-xs">
+          <span className="font-semibold capitalize text-foreground truncate">
+            {tx.name}
+          </span>
+          <span className="text-muted-foreground truncate">
+            {tx.email}
+          </span>
+        </div>
+
+        <div className="text-xs text-muted-foreground">
+          {fmtDate(tx.createdAt)}
+        </div>
+
+        <div className="flex items-center gap-2 justify-end">
+          <EditTransactionDialog
+            bookId={tx.bookId.toString()}
+            transactionId={tx.id.toString()}
+            description={tx.description ?? ''}
+            paymentType={(tx.paymentType as PaymentMethodEnum) ?? PaymentMethodEnum.OTHER}
+            refetchAction={refetchAction}
+          />
+          <DeleteTransactionDialog
+            bookId={tx.bookId.toString()}
+            transactionId={tx.id.toString()}
+            refetchAction={refetchAction}
+          />
+        </div>
       </div>
     </article>
   );
