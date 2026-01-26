@@ -123,10 +123,11 @@ export default function AddOrInviteUser(body: Props) {
               value={email}
               onValueChange={setEmail}
             ></CommandInput>
-            {isMemberTab && <CommandEmpty>No users found, try inviting</CommandEmpty>}
-            <CommandGroup className="overflow-auto">
-              {isMemberTab &&
-                users.map(({ name, email }) => (
+            {isMemberTab &&
+              <CommandEmpty>No users found, try inviting</CommandEmpty>}
+            {isMemberTab &&
+              <CommandGroup className="overflow-auto">
+                {users.map(({ name, email }) => (
                   <CommandItem
                     value={email}
                     key={email}
@@ -141,7 +142,8 @@ export default function AddOrInviteUser(body: Props) {
                     </div>
                   </CommandItem>
                 ))}
-            </CommandGroup>
+              </CommandGroup>
+            }
           </Command>
         </div>
         <DialogFooter>
