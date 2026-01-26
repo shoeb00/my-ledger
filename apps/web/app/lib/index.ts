@@ -17,17 +17,25 @@ export const fmtCurrency = (value: string, allowNegative = false, locale = 'en-I
   return formatted === '0' ? `${symbol}0` : `${isNegative}${symbol}${formatted}`;
 };
 
-export const fmtDate = (d: string | Date, locale = 'en-IN', tz = 'Asia/Kolkata'): string => {
+export const fmtDate = (
+  d: string | Date,
+  fullDate = true,
+  locale = 'en-IN',
+  tz = 'Asia/Kolkata',
+): string => {
   const dt = typeof d === 'string' ? new Date(d) : d;
-  return dt.toLocaleDateString(locale, {
+  const options: Intl.DateTimeFormatOptions = {
     year: 'numeric',
     month: 'short',
     day: 'numeric',
     timeZone: tz,
-    weekday: 'short',
-    hour: 'numeric',
-    minute: 'numeric',
-  });
+  };
+  if (fullDate) {
+    options.weekday = 'short';
+    options.hour = 'numeric';
+    options.minute = 'numeric';
+  }
+  return dt.toLocaleDateString(locale, options);
 };
 
 export const useHasPermission = (requiredPermission: Roles) => {

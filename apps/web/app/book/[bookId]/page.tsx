@@ -9,7 +9,7 @@ import { getTransaction } from './actions/get-transaction';
 import TransactionList, { TransactionRow } from '../components/transaction';
 import { getBook } from '../actions/get-books';
 import { Book } from '@my-ledger/api/book';
-import { ChevronLeft, SearchIcon, SettingsIcon, XCircleIcon } from 'lucide-react';
+import { ChevronLeft, EllipsisVerticalIcon, SettingsIcon, XCircleIcon } from 'lucide-react';
 import AddTransactionDialog from './components/add-transaction';
 import LoaderCircle from '../../components/loader';
 import { toast } from 'sonner';
@@ -134,7 +134,7 @@ export default function PageClient() {
     setRefetchTransactions(!refetchTransactions);
   };
 
-  // pagination helpers
+  // TODO: scroll to the top on page change
   const currentPage = Math.floor(offset / limit) + 1;
   const nextPage = () => setOffset(prev => prev + limit);
   const prevPage = () => setOffset(prev => Math.max(0, prev - limit));
@@ -147,9 +147,9 @@ export default function PageClient() {
             <Button variant={'outline'} onClick={() => router.push('/home')}>
               <ChevronLeft />
             </Button>
-            <h2 className="text-xl font-semibold">{bookName}</h2>
+            <h2 className="text-xl truncate font-semibold">{bookName}</h2>
           </div>
-          <div className="flex sm:gap-2 md:gap-4 items-center text-sm text-muted-foreground">
+          <div className="flex gap-4 items-center text-sm text-muted-foreground">
             <span>
               Balance: <strong className='whitespace-nowrap'>{fmtCurrency(balance, true)}</strong>
             </span>
@@ -161,11 +161,11 @@ export default function PageClient() {
             </span>
           </div>
         </div>
-        <div className="flex flex-col items-center gap-2 w-fit">
-          <div className='flex flex-row-reverse gap-2'>
+        <div className="flex flex-col items-center gap-2 w-full">
+          <div className='flex flex-row-reverse gap-2 w-full'>
             <Button variant={advanceSearch ? 'destructive' : 'outline'} onClick={() => setAdvanceSearch(!advanceSearch)}>
               {!advanceSearch ?
-                <SearchIcon /> : <XCircleIcon />
+                <EllipsisVerticalIcon /> : <XCircleIcon />
               }
             </Button>
             <Button
@@ -189,7 +189,7 @@ export default function PageClient() {
                 setOffset(0);
               }}
             >
-              <SelectTrigger aria-label="Payment Type" className="min-w-25">
+              <SelectTrigger aria-label="Payment Type" className="min-w-25 w-fit">
                 <SelectValue placeholder='Transaction type' />
               </SelectTrigger>
               <SelectContent>
@@ -205,7 +205,7 @@ export default function PageClient() {
                 setQuery(e.target.value);
                 setOffset(0);
               }}
-              className='min-w-10'
+              className='min-w-10 w-fit'
             />
           </div>
           <div className="flex flex-row-reverse gap-2 w-full mb-2">

@@ -1,6 +1,4 @@
 'use client';
-
-import { Badge } from '@/components/ui/badge';
 import type { Invitation } from '../page';
 import AddOrInviteUser from './addOrInviteUser';
 import CancelInvitation from './cancelInvite';
@@ -19,12 +17,11 @@ export function InvitationRow({
     <article
       role="listitem"
       aria-label={`Invitation ${invitation.email}`}
-      className="w-full rounded-lg border bg-card px-4 py-3 shadow-sm hover:shadow-md transition flex justify-between items-center gap-4"
+      className="w-full rounded-lg border bg-card p-2 text-xs sm:text-sm shadow-sm hover:shadow-md transition flex justify-between items-center gap-2"
     >
-      <div className="text-sm truncate">{invitation.email}</div>
-      <div className="text-sm truncate">{fmtDate(invitation.createdAt)}</div>
-
-      <Badge className="text-sm capitalize shrink-0 w-[120px]">{invitation.role}</Badge>
+      <div className="w-50  overflow-hidden">{invitation.email}</div>
+      <div className='sm:hidden'>{fmtDate(invitation.createdAt, false)}</div>
+      <div className='hidden sm:inline'>{fmtDate(invitation.createdAt, true)}</div>
 
       <CancelInvitation inviteId={invitation.id.toString()} refetchAction={refetchAction} loading={loading} />
     </article>

@@ -50,7 +50,6 @@ export default function Home() {
   }, []);
 
   const filtered = useMemo(() => {
-    // create a shallow copy before sorting to avoid mutating props
     const list = books.filter(b =>
       `${b.name} ${b.description ?? ''}`.toLowerCase().includes(debouncedQuery.toLowerCase())
     );

@@ -1,107 +1,85 @@
+import { Button } from "@/components/ui/button";
+import { SignedOut, SignInButton, SignUpButton } from "@clerk/nextjs";
+
 export const dynamic = 'force-dynamic';
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100">
-      <main className="mx-auto grid max-w-6xl items-center gap-10 px-4 py-16 md:grid-cols-2 md:gap-16">
+    <div className="h-full">
+      <main className="grid max-w-6xl mx-auto items-center gap-10 px-4 py-10 md:grid-cols-2 md:gap-16">
         <div>
-          <h1 className="text-4xl font-bold leading-tight tracking-tight text-slate-900 md:text-5xl">
-            Simple shared ledgers.
+          <h1 className="text-4xl font-bold leading-tight tracking-tight md:text-5xl">
+            A simpler, free alternative to cashbook.in
             <br />
-            Focus on your entries, not auth.
+            Move your ledger in minutes.
           </h1>
-          <p className="mt-4 max-w-prose text-slate-600">
-            Create books, invite teammates, and record transactions with ease. Sign in or sign up to
-            get started—no passwords to remember.
+
+          <p className="mt-4 max-w-prose text-muted-foreground">
+            my-ledger lets you migrate your existing cashbook.in data and
+            continue tracking credits and debits without complexity.
+            Clean UI, no ads, and no lock-in.
           </p>
 
+          <ul className="mt-6 space-y-3 text-sm text-muted-foreground">
+            <li className="flex items-start gap-2">
+              <span className="mt-1 h-1.5 w-1.5 rounded-full bg-foreground" />
+              Quick migration from cashbook.in — no manual re-entry
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="mt-1 h-1.5 w-1.5 rounded-full bg-foreground" />
+              Sign in with Google, Facebook, or email — OAuth only
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="mt-1 h-1.5 w-1.5 rounded-full bg-foreground" />
+              Free to use, built for individuals and small teams
+            </li>
+          </ul>
+
           <div className="mt-8 flex flex-wrap items-center gap-3">
-            <a
-              href="/sign-up"
-              className="group inline-flex items-center rounded-2xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white shadow transition hover:shadow-md"
-            >
-              Get started free
-              <svg
-                className="ml-2 h-4 w-4 transition group-hover:translate-x-0.5"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                aria-hidden="true"
-              >
-                <path d="M5 12h14" />
-                <path d="M12 5l7 7-7 7" />
-              </svg>
-            </a>
-            <a
-              href="/sign-in"
-              className="rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
-            >
-              I already have an account
-            </a>
+            <SignedOut>
+              <SignUpButton mode="modal">
+                <Button variant="outline"> Get started </Button>
+              </SignUpButton>
+              <SignInButton mode="modal">
+                <Button>Sign In</Button>
+              </SignInButton>
+            </SignedOut>
           </div>
 
-          <p className="mt-3 text-xs text-slate-500">
-            By continuing you agree to our Terms and acknowledge our Privacy Policy.
+          <p className="mt-3 text-xs text-muted-foreground">
+            We never access or post your personal data. OAuth is used only for authentication.
           </p>
         </div>
 
-        {/* Right side illustration */}
         <div className="w-full">
-          <div className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm">
-            <div className="rounded-2xl border border-slate-200 p-4">
-              <div className="flex items-center justify-between">
-                <div className="text-sm font-semibold text-slate-700">Sample Book</div>
-                <div className="text-xs text-slate-400">#1234</div>
+          <div className="relative flex aspect-video items-center justify-center rounded-2xl border border-border bg-card">
+            <div className="text-center">
+              <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full border border-border">
+                ▶
               </div>
-              <div className="mt-4 grid grid-cols-3 gap-3 text-sm">
-                <div className="rounded-xl bg-slate-50 p-3">
-                  <div className="text-xs text-slate-500">Balance</div>
-                  <div className="mt-1 text-lg font-bold text-slate-900">₹42,180</div>
-                </div>
-                <div className="rounded-xl bg-slate-50 p-3">
-                  <div className="text-xs text-slate-500">Credits</div>
-                  <div className="mt-1 text-lg font-bold text-slate-900">₹1,20,000</div>
-                </div>
-                <div className="rounded-xl bg-slate-50 p-3">
-                  <div className="text-xs text-slate-500">Debits</div>
-                  <div className="mt-1 text-lg font-bold text-slate-900">₹77,820</div>
-                </div>
-              </div>
-              <div className="mt-4 overflow-hidden rounded-xl border border-slate-200">
-                <table className="w-full text-left text-sm">
-                  <thead className="bg-slate-50 text-slate-600">
-                    <tr>
-                      <th className="px-3 py-2">Date</th>
-                      <th className="px-3 py-2">Description</th>
-                      <th className="px-3 py-2">Amount</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {[
-                      { d: '10 Nov', t: 'Stationery', a: '-₹320' },
-                      { d: '09 Nov', t: 'Client payment', a: '+₹25,000' },
-                      { d: '08 Nov', t: 'Snacks', a: '-₹180' },
-                    ].map((row, idx) => (
-                      <tr key={idx} className="odd:bg-white even:bg-slate-50">
-                        <td className="px-3 py-2 text-slate-600">{row.d}</td>
-                        <td className="px-3 py-2 text-slate-800">{row.t}</td>
-                        <td className="px-3 py-2 font-medium text-slate-900">{row.a}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+              <p className="text-sm font-medium">Product walkthrough</p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Short video showing how my-ledger works
+              </p>
             </div>
+
+            {/* 
+              Future:
+              <video
+                className="absolute inset-0 h-full w-full rounded-2xl object-cover"
+                autoPlay
+                muted
+                loop
+                playsInline
+                src="/demo.mp4"
+              />
+            */}
           </div>
         </div>
       </main>
 
-      {/* Footer */}
-      <footer className="mx-auto max-w-6xl px-4 pb-12 text-xs text-slate-500">
-        © {new Date().getFullYear()} my-ledger. All rights reserved.
+      <footer className="mx-auto max-w-6xl px-4 pb-6 text-xs text-muted-foreground">
+        © {new Date().getFullYear()} my-ledger. Free, simple, and private.
       </footer>
     </div>
   );
