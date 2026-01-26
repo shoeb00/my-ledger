@@ -86,21 +86,24 @@ export default function BookInfo() {
 
   return (
     <div>
-      <div className="flex flex-row justify-between">
-        <div className="flex flex-row items-center gap-4">
-          <Button onClick={() => router.back()} variant="outline">
+      <div className="flex flex-row justify-between w-full">
+        <div className="flex flex-row items-center gap-1 sm:gap-4">
+          <Button onClick={() => router.back()} variant={innerWidth < 600 ? "ghost" : "outline"}>
             <ChevronLeft />
           </Button>
           <div className="flex flex-col">
-            <h1 className="text-2xl font-bold">{book?.name}</h1>
-            <h4 className="text-sm">{book?.description || 'No description'}</h4>
+            <div className='flex flex-row'>
+              <h1 className="text-lg max-h-6 sm:text-2xl sm:max-h-8 max-w-120 font-bold line-clamp-1">{book?.name}
+              </h1>
+              <EditBook
+                bookId={bookId}
+                name={book?.name || ''}
+                refetchAction={() => setRefetchAction(!refetchAction)}
+                description={book?.description || ''}
+              />
+            </div>
+            <h4 className="text-xs line-clamp-2">{book?.description || 'No description'}</h4>
           </div>
-          <EditBook
-            bookId={bookId}
-            name={book?.name || ''}
-            refetchAction={() => setRefetchAction(!refetchAction)}
-            description={book?.description || ''}
-          />
         </div>
         <div className="flex flex-row items-center gap-4" hidden={!isOwner}>
           <UploadTransactionFile hidden={!isOwner} setLoading={setLoading} />
