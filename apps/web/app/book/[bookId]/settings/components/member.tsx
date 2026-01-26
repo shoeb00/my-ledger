@@ -18,19 +18,12 @@ export function MemberRow({
     <article
       role="listitem"
       aria-label={`Member ${member.email}`}
-      className="w-full rounded-lg border bg-card px-4 py-3 shadow-sm hover:shadow-md transition flex justify-between items-center gap-4"
+      className="w-full rounded-lg border bg-card p-2 text-xs sm:text-sm shadow-sm hover:shadow-md transition  flex flex-col sm:flex-row  sm:justify-between sm:items-center gap-2"
     >
-      <div className="text-sm truncate capitalize">{member.name}</div>
-      <div className="text-sm truncate">{member.email}</div>
+      <div className="truncate capitalize">{member.name}</div>
+      <div className="truncate">{member.email}</div>
 
-      <Badge
-        className="text-sm capitalize shrink-0 w-[120px]"
-        variant={member.role === Roles.AUTHOR ? 'default' : 'outline'}
-      >
-        {member.role}
-      </Badge>
-      <div className="flex items-center gap-2">
-        <UpdateMemberRole member={member} refetchAction={refetchAction} />
+      <div className="flex flex-row-reverse items-center gap-2">
         <RemoveMember
           userId={member.userId.toString()}
           refetchAction={refetchAction}
