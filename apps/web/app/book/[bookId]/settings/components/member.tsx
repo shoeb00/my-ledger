@@ -6,6 +6,7 @@ import { Roles } from '@my-ledger/api/role';
 import RemoveMember from './removeMember';
 import UpdateMemberRole from './updateMemberRole';
 import AddOrInviteUser from './addOrInviteUser';
+import { EyeIcon, ShieldCheckIcon, SquarePenIcon } from 'lucide-react';
 
 export function MemberRow({
   member,
@@ -29,6 +30,16 @@ export function MemberRow({
           refetchAction={refetchAction}
           role={member.role}
         />
+        <UpdateMemberRole member={member} refetchAction={refetchAction} />
+        <Badge
+          className="capitalize shrink-0 min-h-6 w-fit sm:w-[120px]"
+          variant='secondary'
+        >
+          {member.role === Roles.AUTHOR && <ShieldCheckIcon />}
+          {member.role === Roles.EDITOR && <SquarePenIcon />}
+          {member.role === Roles.VIEWER && <EyeIcon />}
+          <span className='hidden sm:block'>{member.role}</span>
+        </Badge>
       </div>
     </article>
   );
@@ -43,7 +54,7 @@ export default function MemberList({
 }) {
   if (!members || members.length === 0) {
     return (
-      <div className="rounded-md border border-dashed h-85 p-6 text-center text-sm text-muted-foreground">
+      <div className="rounded-md border border-dashed h-85 p-6 text-center text-xs sm:text-sm text-muted-foreground">
         <div className="mb-2 font-medium">No members yet</div>
         <div className="mb-4 text-xs">Add a member to see them listed here.</div>
         <AddOrInviteUser tab="members" refetchAction={refetchAction} userDetails={[]} />
