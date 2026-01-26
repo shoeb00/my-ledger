@@ -18,22 +18,10 @@ export function TransactionRow({ tx, refetchAction }: { tx: TransactionRow; refe
     <article
       role="listitem"
       aria-label={`Transaction ${tx.id}`}
-      className="
-    w-full rounded-lg border bg-card px-4 py-3
-    shadow-sm hover:shadow-md transition
-  "
+      className="w-full rounded-lg border bg-card px-4 py-3 shadow-sm hover:shadow-md transition"
     >
-      <div
-        className="
-      grid grid-cols-1 gap-2
-      sm:grid-cols-[80px_1fr_160px_120px_auto]
-      sm:items-center
-    "
-      >
-        <div
-          className={`text-sm font-semibold sm:text-left ${+tx.amount < 0 ? 'text-destructive' : 'text-success'
-            }`}
-        >
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-[80px_1fr_160px_120px_auto] sm:items-center">
+        <div className={`text-sm font-semibold sm:text-left ${+tx.amount < 0 ? 'text-destructive' : 'text-success'}`} >
           {fmtCurrency(tx.amount, true)}
         </div>
 
