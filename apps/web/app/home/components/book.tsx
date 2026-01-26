@@ -17,7 +17,7 @@ export default function BookCard({ book }: Readonly<{ book: Readonly<BookRespons
     <Card
       key={book.id}
       onClick={() => router.push(`/book/${book.id}`)}
-      className="cursor-pointer p-4 transition hover:shadow-md"
+      className="cursor-pointer p-4 transition hover:shadow-xl"
     >
       <CardHeader className="px-0 pb-3">
         <div className="flex items-start justify-between gap-4">
@@ -46,11 +46,9 @@ export default function BookCard({ book }: Readonly<{ book: Readonly<BookRespons
           <CardTitle className="text-sm font-medium capitalize">
             {book.name}
           </CardTitle>
-          {book.description && (
-            <p className="text-xs text-muted-foreground line-clamp-2">
-              {book.description}
-            </p>
-          )}
+          <p className="text-xs text-muted-foreground line-clamp-2 min-h-[2.5em]">
+            {book.description}
+          </p>
         </div>
 
         <div className="flex items-center justify-between">
