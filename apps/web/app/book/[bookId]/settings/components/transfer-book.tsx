@@ -76,7 +76,9 @@ export default function TransferBook(body: { bookName: string; refetchAction: ()
       <DialogTrigger asChild>
         <Button>
           <ArrowLeftRight />
-          Transfer Ownership
+          <span className="hidden lg:block">
+            Transfer Ownership
+          </span>
         </Button>
       </DialogTrigger>
       <DialogContent>

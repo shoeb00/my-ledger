@@ -63,7 +63,9 @@ export default function UploadTransactionFile({ setLoading, hidden }: Props) {
         <DialogTrigger hidden={!isOwner || hidden}>
             <Button onClick={() => setOpen(true)}>
                 <BookUp2Icon />
-                Add Transactions from File
+                <span className="hidden sm:block">
+                    Add Transactions from File
+                </span>
             </Button>
         </DialogTrigger>
         <DialogContent className="h-[50%] pt-10">

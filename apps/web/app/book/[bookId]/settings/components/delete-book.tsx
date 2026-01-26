@@ -43,7 +43,9 @@ export default function DeleteBook(body: Omit<UpdateBookRequest, 'description'>)
       <DialogTrigger asChild>
         <Button variant="outline" disabled={loading} hidden={!isOwner}>
           <Trash2Icon />
-          Delete
+          <span className="hidden lg:block">
+            Delete
+          </span>
         </Button>
       </DialogTrigger>
       <DialogContent>
