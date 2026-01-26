@@ -1,6 +1,5 @@
 import { createContext, useEffect, useState, useCallback, useContext } from "react";
 import { BookResponse, getBook } from "./book/actions/get-books";
-import { toast } from "sonner";
 
 type RolesContextValue = {
   roles: BookResponse[];
@@ -16,10 +15,8 @@ export default function RolesProvider({ children }: { children: React.ReactNode 
 
   const fetchRoles = useCallback(async () => {
     setLoading(true);
-    const { err, data } = await getBook();
-    if (err) {
-      toast.error(err);
-    } else {
+    const { data } = await getBook();
+    if (data) {
       setRoles(data);
     }
     setLoading(false);
