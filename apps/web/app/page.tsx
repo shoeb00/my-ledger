@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { SignedOut, SignInButton, SignUpButton } from "@clerk/nextjs";
+import Image from "next/image";
 
 export const dynamic = "force-dynamic";
 
@@ -10,8 +11,9 @@ export default function Home() {
         className="
           mx-auto max-w-6xl
           grid gap-10
-          px-4 py-8
-          md:grid-cols-2 md:gap-16 md:py-12
+          px-4 py-6
+          md:grid-cols-[0.8fr_1.2fr] md:gap-16 md:py-8
+          md:items-center
         "
       >
         <div className="flex flex-col justify-center">
@@ -26,21 +28,6 @@ export default function Home() {
             continue tracking credits and debits without complexity.
             Clean UI, no ads, and no lock-in.
           </p>
-
-          <ul className="mt-5 space-y-2 sm:space-y-3 text-sm text-muted-foreground">
-            <li className="flex items-start gap-2">
-              <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-foreground" />
-              Quick migration from cashbook.in — no manual re-entry
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-foreground" />
-              Sign in with Google, Facebook, or email — OAuth only
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-foreground" />
-              Free to use, built for individuals and small teams
-            </li>
-          </ul>
 
           <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
             <SignedOut>
@@ -63,38 +50,17 @@ export default function Home() {
           </p>
         </div>
 
-        <div className="w-full md:flex md:items-center">
-          <div
-            className="
-              relative flex aspect-video items-center justify-center
-              rounded-xl sm:rounded-2xl
-              border border-border bg-card
-              text-center
-            "
-          >
-            <div className="px-4">
-              <div className="mx-auto mb-3 flex h-11 w-11 items-center justify-center rounded-full border border-border">
-                ▶
-              </div>
-              <p className="text-sm font-medium">Product walkthrough</p>
-              <p className="mt-1 text-xs text-muted-foreground">
-                Short video showing how my-ledger works
-              </p>
-            </div>
-
-            {/*
-              Future:
-              <video
-                className="absolute inset-0 h-full w-full rounded-2xl object-cover"
-                autoPlay
-                muted
-                loop
-                playsInline
-                src="/demo.mp4"
-              />
-            */}
+        <div className="w-full self-center">
+          <div className="relative w-full aspect-video rounded-2xl">
+            <Image
+              src="/demo.gif"
+              alt="Product demo"
+              fill
+              className="rounded-md"
+            />
           </div>
         </div>
+
       </main>
 
       <footer className="mx-auto max-w-6xl px-4 pb-6 text-xs text-muted-foreground">
