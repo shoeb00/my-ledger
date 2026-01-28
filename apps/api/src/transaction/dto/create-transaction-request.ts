@@ -32,8 +32,9 @@ export class CreateTransactionsRequestDto {
   @IsOptional()
   description?: string | null = null;
 
-  @ApiProperty()
+  @ApiPropertyOptional()
   @IsString()
+  @IsOptional()
   category?: string | null = null;
 }
 
