@@ -13,7 +13,7 @@ export const fmtCurrency = (value: string, allowNegative = false, locale = 'en-I
   })
     .format(val)
     .replace('-', '');
-  const isNegative = val < 0 && allowNegative ? '-' : '';
+  const isNegative = value.includes('-') && allowNegative ? '-' : '';
   return formatted === '0' ? `${symbol}0` : `${isNegative}${symbol}${formatted}`;
 };
 
