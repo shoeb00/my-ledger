@@ -1,0 +1,1 @@
+ALTER TABLE "invitations" ADD COLUMN "clerk_invite_id" text NOT NULL;
