@@ -16,7 +16,7 @@ import { InviteUserRequestDto } from './dto/invite-user-request';
 import { PermissionsService } from '../permissions/permissions.service';
 import { books } from '../book/schema';
 import { RequestContextService } from '../common/request-context.service';
-import { count } from 'drizzle-orm';
+import { ClerkService } from '../clerk/clerk.service';
 
 const schema = { ...usersSchema, permissions, books };
 
@@ -27,6 +27,7 @@ export class UserService {
     private readonly db: NodePgDatabase<typeof schema>,
     private readonly permissionsService: PermissionsService,
     private readonly cxt: RequestContextService,
+    private readonly clerkService: ClerkService,
   ) {}
 
   async getUser({
@@ -90,18 +91,6 @@ export class UserService {
 
   async inviteUnregisteredUser(body: InviteUserRequestDto) {
     const currentUser = this.cxt.getUser();
-    const [rows] = await this.db
-      .select({ count: count() })
-      .from(schema.invitations)
-      .where(
-        and(
-          eq(schema.invitations.invitedBy, currentUser.id),
-          eq(schema.invitations.accepted, false),
-          eq(schema.invitations.bookId, body.bookId),
-        ),
-      );
-    if (Number(rows?.count) >= 20)
-      throw new BadRequestException('Max invites reached');
     const invite = await this.db.query.invitations.findFirst({
       where: and(
         eq(schema.invitations.email, body.email),
@@ -110,9 +99,12 @@ export class UserService {
       ),
     });
     if (invite) throw new BadRequestException('Already invited');
+    const { id: clerkInviteId } = await this.clerkService.inviteUser(
+      body.email,
+    );
     const [invitation] = await this.db
       .insert(schema.invitations)
-      .values({ ...body, invitedBy: currentUser.id })
+      .values({ ...body, invitedBy: currentUser.id, clerkInviteId })
       .returning();
     return invitation;
   }
@@ -145,6 +137,7 @@ export class UserService {
       throw new UnauthorizedException('Unauthorized');
     if (invite.accepted)
       throw new BadRequestException('Invite already accepted');
+    await this.clerkService.revokeInvite(invite.clerkInviteId);
     await this.db
       .delete(schema.invitations)
       .where(eq(schema.invitations.id, id));
