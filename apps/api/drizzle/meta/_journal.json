@@ -57,6 +57,13 @@
       "when": 1768656594068,
       "tag": "0007_slimy_grey_gargoyle",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1769852922483,
+      "tag": "0008_fuzzy_gateway",
+      "breakpoints": true
     }
   ]
 }

@@ -68,7 +68,7 @@ export default function AddOrInviteUser(body: Props) {
   const title = isMemberTab ? 'Add User' : 'Send Invitation';
   const action = isMemberTab ? 'Add' : 'Invite';
   const loadingAction = isMemberTab ? 'Adding...' : 'Inviting...';
-  const buttonCheck = isMemberTab && !users.find(({ email: e }) => e === email)?.email;
+  const buttonCheck = (isMemberTab && !users.find(({ email: e }) => e === email)?.email) || !emailRegex.test(email);
 
   const handleUpdate = async () => {
     if (loading) return;
@@ -150,7 +150,7 @@ export default function AddOrInviteUser(body: Props) {
           <Button variant="outline" onClick={() => setOpen(false)}>
             Cancel
           </Button>
-          <Button onClick={handleUpdate} disabled={loading || buttonCheck || !emailRegex.test(email)}>
+          <Button onClick={handleUpdate} disabled={loading || buttonCheck}>
             {loading ? loadingAction : action}
           </Button>
         </DialogFooter>

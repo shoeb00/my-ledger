@@ -5,7 +5,7 @@ import {
   InternalServerErrorException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { createClerkClient } from '@clerk/backend';
+import { ClerkService } from '../clerk/clerk.service';
 import type { Request as ExpressReq } from 'express';
 import { Reflector } from '@nestjs/core';
 import { IS_PUBLIC } from '../common/decorators/public.decorator';
@@ -18,11 +18,10 @@ interface AuthenticatedRequest extends ExpressReq {
 
 @Injectable()
 export class ClerkAuthGuard implements CanActivate {
-  constructor(private readonly reflector: Reflector) {}
-  private readonly clerkClient = createClerkClient({
-    secretKey: process.env.CLERK_SECRET_KEY!,
-    publishableKey: process.env.CLERK_PUBLISHABLE_KEY!,
-  });
+  constructor(
+    private readonly reflector: Reflector,
+    private readonly clerkService: ClerkService,
+  ) {}
 
   private buildAbsoluteUrl(req: ExpressReq) {
     const host = req.get('host');
@@ -46,7 +45,8 @@ export class ClerkAuthGuard implements CanActivate {
         headers: req.headers as HeadersInit,
       });
 
-      const result = await this.clerkClient.authenticateRequest(fetchReq);
+      const client = this.clerkService.getClerkClient();
+      const result = await client.authenticateRequest(fetchReq);
 
       const toAuth =
         typeof result.toAuth === 'function' ? result.toAuth : undefined;

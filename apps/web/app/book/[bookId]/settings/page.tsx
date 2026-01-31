@@ -88,7 +88,7 @@ export default function BookInfo() {
     <div>
       <div className="flex flex-row justify-between w-full">
         <div className="flex flex-row items-center gap-1 sm:gap-4">
-          <Button onClick={() => router.back()} variant={innerWidth < 600 ? "ghost" : "outline"}>
+          <Button onClick={() => router.back()} variant="outline">
             <ChevronLeft />
           </Button>
           <div className="flex flex-col">

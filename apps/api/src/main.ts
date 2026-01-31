@@ -9,6 +9,7 @@ import {
 } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { json, Request, urlencoded } from 'express';
+import { AllExceptionsFilter } from './common/filters/all-expections.filter';
 
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -43,6 +44,7 @@ async function bootstrap(): Promise<void> {
     exposedHeaders: ['Authorization'],
   });
 
+  app.useGlobalFilters(new AllExceptionsFilter());
   app.useGlobalPipes(new ValidationPipe({ transform: true, whitelist: true }));
 
   const config = new DocumentBuilder()

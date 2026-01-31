@@ -6,6 +6,7 @@ import {
   timestamp,
   boolean,
   integer,
+  text,
 } from 'drizzle-orm/pg-core';
 import { books } from '../book/schema';
 import { pgEnum } from 'drizzle-orm/pg-core';
@@ -35,6 +36,7 @@ export const invitations = pgTable('invitations', {
   email: varchar('email').notNull(),
   role: roleEnum('role').$type<Roles>().notNull(),
   accepted: boolean('accepted').default(false).notNull(),
+  clerkInviteId: text('clerk_invite_id').notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });

@@ -3,11 +3,12 @@ import { UserController } from './user.controller';
 import { UserService } from './user.service';
 import { DatabaseModule } from '../database/database.module';
 import { PermissionsService } from '../permissions/permissions.service';
+import { ClerkService } from '../clerk/clerk.service';
 
 @Module({
   imports: [DatabaseModule],
   controllers: [UserController],
-  providers: [UserService, PermissionsService],
+  providers: [UserService, PermissionsService, ClerkService],
   exports: [UserService],
 })
 export class UserModule {}
