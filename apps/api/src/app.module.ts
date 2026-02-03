@@ -13,6 +13,7 @@ import { CommonModule } from './common/common.module';
 import { RequestContextMiddleware } from './common/request-context.middleware';
 import { HealthModule } from './health/health.module';
 import { ClerkModule } from './clerk/clerk.module';
+import { InvitationsModule } from './invitations/invitations.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { ClerkModule } from './clerk/clerk.module';
     CommonModule,
     HealthModule,
     ClerkModule,
+    InvitationsModule,
   ],
   controllers: [],
   providers: [
