@@ -32,3 +32,14 @@ export const invitations = pgTable('invitations', {
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
+
+export const inviteLinks = pgTable('invite_links', {
+  id: serial('id').primaryKey(),
+  bookId: integer('book_id')
+    .notNull()
+    .references(() => books.id),
+  token: text('token').notNull(),
+  expiresAt: timestamp('expires_at').notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
