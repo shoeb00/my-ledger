@@ -11,10 +11,12 @@ import { PermissionsService } from '../permissions/permissions.service';
 import { RequestContextService } from '../common/request-context.service';
 import { ClerkService } from '../clerk/clerk.service';
 import { DATABASE_CONNECTION } from '../database/database-connection';
-import { invitations } from './schema';
+import { invitations, inviteLinks } from './schema';
 import { users } from '../user/schema';
+import { Roles } from '../permissions/enum/roles';
+import { PermissionsResponse } from '../permissions/dto/permissions-response';
 
-const schema = { invitations, users };
+const schema = { invitations, users, inviteLinks };
 
 @Injectable()
 export class InvitationsService {
@@ -56,22 +58,27 @@ export class InvitationsService {
     return invitation;
   }
 
-  async inviteUser(body: InviteUserRequestDto) {
+  async inviteUser(
+    body: InviteUserRequestDto,
+  ): Promise<PermissionsResponse | string> {
     const user = await this.db.query.users.findFirst({
       where: eq(schema.users.email, body.email),
     });
-    if (!user) return await this.inviteUnregisteredUser(body);
+    if (!user) {
+      await this.inviteUnregisteredUser(body);
+      return 'Invitation sent';
+    }
     const permission = await this.permissionsService.getPermissions({
       bookId: body.bookId,
       userId: user.id,
     });
-    if (permission) throw new BadRequestException('User already has access');
-    await this.permissionsService.createPermissions({
+    if (permission) return permission;
+    const row = await this.permissionsService.createPermissions({
       bookId: body.bookId,
       role: body.role,
       userId: user.id,
     });
-    return 'Success';
+    return row;
   }
 
   async cancelInvite(id: number) {
@@ -88,5 +95,56 @@ export class InvitationsService {
     await this.db
       .delete(schema.invitations)
       .where(eq(schema.invitations.id, id));
+  }
+
+  async acceptInvite(token: string): Promise<PermissionsResponse> {
+    const invite = await this.db.query.inviteLinks.findFirst({
+      where: eq(schema.inviteLinks.token, token),
+    });
+    if (!invite) throw new BadRequestException('Invalid invite link');
+    if (new Date(invite.expiresAt).getTime() < Date.now())
+      throw new Error('Invite link has expired');
+    const alreadyAdded = await this.permissionsService.getPermissions({
+      bookId: invite.bookId,
+      userId: this.cxt.getUser().id,
+    });
+    if (alreadyAdded) throw new BadRequestException('Invite already accepted');
+    const user = this.cxt.getUser();
+    const result = await this.inviteUser({
+      email: user.email,
+      bookId: invite.bookId,
+      role: Roles.VIEWER,
+    });
+    return result as PermissionsResponse;
+  }
+
+  async createInviteLink(bookId: number) {
+    const existing = await this.db.query.inviteLinks.findFirst({
+      where: eq(schema.inviteLinks.bookId, bookId),
+    });
+    const daysInMs = (days: number) => days * 24 * 60 * 60 * 1000;
+    if (existing) {
+      // TODO: Refine this logic
+      const stillValid = new Date(existing.expiresAt).getTime() > daysInMs(15);
+      if (stillValid) {
+        return {
+          ...existing,
+          link: `${process.env.FRONTEND_ORIGIN}/invite/${existing.token}`,
+        };
+      }
+    }
+    const token = crypto.randomUUID();
+    const days = daysInMs(Number(process.env.INVITE_EXPIRATION_DAYS) || 30);
+    const expiresAt = new Date(Date.now() + days);
+    const [link] = await this.db
+      .insert(schema.inviteLinks)
+      .values({ bookId, token, expiresAt })
+      .returning();
+    if (!link) throw new BadRequestException('Failed to create invite link');
+    const res = {
+      ...link,
+      link: `${process.env.FRONTEND_ORIGIN}/invite/${token}`,
+    };
+    return res;
   }
 }

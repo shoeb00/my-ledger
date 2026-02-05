@@ -32,4 +32,15 @@ export class InvitationsController {
   async cancelInvite(@Param('id', ParseIntPipe) id: number) {
     return await this.invitationsService.cancelInvite(id);
   }
+
+  @Get('accept')
+  async validateInviteToken(@Query('token') token: string) {
+    return await this.invitationsService.acceptInvite(token);
+  }
+
+  @Roles(rolesEnum.AUTHOR)
+  @Post('createLink')
+  async createInviteLink(@Query('bookId', ParseIntPipe) bookId: number) {
+    return await this.invitationsService.createInviteLink(bookId);
+  }
 }
