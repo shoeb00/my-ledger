@@ -1,5 +1,5 @@
 'use client';
-import React, { useMemo, useState, useEffect, useCallback } from 'react';
+import React, { useMemo, useState, useEffect, useCallback, useRef } from 'react';
 import { Card, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,6 +10,8 @@ import { toast } from 'sonner';
 import { BookResponse, getBook } from '../book/actions/get-books';
 import CreateBook from '../book/create-book';
 import { Roles } from '@my-ledger/api/role';
+import { acceptInvite, getUser } from '../invite/[token]/actions/invite';
+import { useClerk } from '@clerk/nextjs';
 
 enum SortOptions {
   Newest = 'newest',
@@ -24,6 +26,41 @@ export default function Home() {
   const [debouncedQuery, setDebouncedQuery] = useState(query);
   const [books, setBooks] = useState<BookResponse[]>([]);
   const [refetchAction, setRefetchAction] = useState(false);
+  const { user } = useClerk();
+  const inviteHandledRef = useRef(false);
+  const [waitingForRegistration, setWaitingForRegistration] = useState(false);
+
+  const pollUntilRegistered = async (userId: string, token: string) => {
+    let attempts = 0;
+    const maxAttempts = 10;
+    while (attempts < maxAttempts) {
+      attempts++;
+      const { err } = await getUser(userId);
+      if (!err) {
+        const { err: inviteErr, data } = await acceptInvite(token);
+        if (inviteErr) {
+          if (!inviteErr.includes("already accepted")) toast.error(inviteErr);
+        } else toast.success(data?.message || "Invitation accepted");
+        window.localStorage.removeItem("inviteToken");
+        setWaitingForRegistration(false);
+        return;
+      }
+      await new Promise(res => setTimeout(res, 1000));
+    }
+
+    setWaitingForRegistration(false);
+    toast.error("We couldn't verify your account. Please refresh.");
+  };
+
+  useEffect(() => {
+    if (!user?.id) return;
+    const inviteToken = window.localStorage.getItem("inviteToken");
+    if (!inviteToken || inviteHandledRef.current) return;
+    inviteHandledRef.current = true;
+    setWaitingForRegistration(true);
+    pollUntilRegistered(user.id, inviteToken);
+  }, [user]);
+
 
   useEffect(() => {
     const t = setTimeout(() => setDebouncedQuery(query), 250);
@@ -114,7 +151,7 @@ export default function Home() {
         </div>
       </header>
 
-      <LoaderCircle loading={loading}>
+      <LoaderCircle loading={loading || waitingForRegistration}>
         <div className="min-h-100">
           <section className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
             {filtered.map(b => (
