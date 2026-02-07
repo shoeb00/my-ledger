@@ -48,7 +48,7 @@ export const callApi = async (
   query?: object,
   body?: object,
   // TODO: add types for the data response
-): Promise<{ err: string | null; data: any }> => {
+): Promise<{ err: string | null; data: any }> => { // eslint-disable-line @typescript-eslint/no-explicit-any
   let err = null;
   let data = null;
 
