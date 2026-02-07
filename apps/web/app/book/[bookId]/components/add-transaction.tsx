@@ -74,7 +74,7 @@ export default function AddTransactionDialog({
   return (
     <Dialog open={open} onOpenChange={o => setOpen(o)}>
       <DialogTrigger asChild>
-        <Button disabled={loading} hidden={canEdit}>
+        <Button disabled={loading} hidden={canEdit} className='w-fit'>
           <Plus className="h-4 w-4" /> Transaction
         </Button>
       </DialogTrigger>
