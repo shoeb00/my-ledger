@@ -23,6 +23,7 @@ import {
 } from '@/components/ui/command';
 import { getEmails } from '../actions/invitations';
 import { UserDetails } from './addOrInviteUser';
+import LoaderCircle from '../../../../components/loader';
 
 export default function TransferBook(body: { bookName: string; refetchAction: () => void }) {
   const router = useRouter();
@@ -82,63 +83,65 @@ export default function TransferBook(body: { bookName: string; refetchAction: ()
         </Button>
       </DialogTrigger>
       <DialogContent>
-        <DialogTitle>Transfer Book Ownership</DialogTitle>
-        <DialogDescription>
-          Your role will be demoted to a Editor and the book will be transferred to the new owner.
-        </DialogDescription>
+        <LoaderCircle loading={loading}>
+          <DialogTitle>Transfer Book Ownership</DialogTitle>
+          <DialogDescription>
+            Your role will be demoted to a Editor and the book will be transferred to the new owner.
+          </DialogDescription>
 
-        <p className="text-sm text-muted-foreground italic">
-          Enter the email of the new book owner
-        </p>
-        <Command className="max-h-60">
-          <CommandInput
-            placeholder="Type an email..."
-            value={email}
-            onValueChange={setEmail}
-          ></CommandInput>
-          {!users.length && (
-            <CommandEmpty>No users found, try adding them as a member first</CommandEmpty>
-          )}
-          <CommandGroup className="overflow-auto">
-            {users.map(({ name, email }) => (
-              <CommandItem
-                value={email}
-                key={email}
-                onSelect={() => {
-                  setEmail(email);
-                }}
-                className="p-2 m-2 rounded-md border bg-card shadow-sm hover:shadow-md transition"
-              >
-                <div className="flex flex-col">
-                  <span className="capitalize text-sm">{name}</span>
-                  <span className="font-semibold">{email}</span>
-                </div>
-              </CommandItem>
-            ))}
-          </CommandGroup>
-        </Command>
-        <Label>
-          <Checkbox checked={agree} onClick={() => setAgree(!agree)} /> I understand and accept the
-          consequences
-        </Label>
-        <DialogFooter>
-          <Button variant="outline" onClick={() => setOpen(false)}>
-            Cancel
-          </Button>
-          <Button
-            disabled={!agree || email !== (users.find(u => u.email === email)?.email || null)}
-            onClick={() =>
-              handleTransfer(users.find(u => u.email === email)?.userId.toString() || '')
-            }
-          >
-            {loading ? 'Transferring...' : 'Transfer'}
-          </Button>
-        </DialogFooter>
+          <p className="text-sm text-muted-foreground italic">
+            Enter the email of the new book owner
+          </p>
+          <Command className="max-h-60">
+            <CommandInput
+              placeholder="Type an email..."
+              value={email}
+              onValueChange={setEmail}
+            ></CommandInput>
+            {!users.length && (
+              <CommandEmpty>No users found, try adding them as a member first</CommandEmpty>
+            )}
+            <CommandGroup className="overflow-auto">
+              {users.map(({ name, email }) => (
+                <CommandItem
+                  value={email}
+                  key={email}
+                  onSelect={() => {
+                    setEmail(email);
+                  }}
+                  className="p-2 m-2 rounded-md border bg-card shadow-sm hover:shadow-md transition"
+                >
+                  <div className="flex flex-col">
+                    <span className="capitalize text-sm">{name}</span>
+                    <span className="font-semibold">{email}</span>
+                  </div>
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </Command>
+          <Label>
+            <Checkbox checked={agree} onClick={() => setAgree(!agree)} /> I understand and accept the
+            consequences
+          </Label>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              disabled={!agree || email !== (users.find(u => u.email === email)?.email || null)}
+              onClick={() =>
+                handleTransfer(users.find(u => u.email === email)?.userId.toString() || '')
+              }
+            >
+              {loading ? 'Transferring...' : 'Transfer'}
+            </Button>
+          </DialogFooter>
 
-        <Label className="text-xs text-muted-foreground">
-          <InfoIcon className="h-4 w-4" /> Not finding the user you are looking for? Try adding them
-          as a member
-        </Label>
+          <Label className="text-xs text-muted-foreground">
+            <InfoIcon className="h-4 w-4" /> Not finding the user you are looking for? Try adding them
+            as a member
+          </Label>
+        </LoaderCircle>
       </DialogContent>
     </Dialog>
   );

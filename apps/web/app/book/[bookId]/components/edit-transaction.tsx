@@ -15,6 +15,7 @@ import { EditRequestPayload } from '../interfaces/edit-request-payload';
 import { toast } from 'sonner';
 import { useHasPermission } from '../../../lib';
 import { Roles } from '@my-ledger/api/role';
+import LoaderCircle from '../../../components/loader';
 
 export default function EditTransactionDialog(query: EditRequestPayload) {
   const canEdit = !useHasPermission(Roles.EDITOR);
@@ -46,18 +47,20 @@ export default function EditTransactionDialog(query: EditRequestPayload) {
           <EditIcon className="h-4 w-4" />
         </Button>
       </DialogTrigger>
-      <DialogContent className="">
-        <DialogTitle className="font-bold text-2xl">Update Transaction</DialogTitle>
-        <Input
-          placeholder="Transaction description"
-          value={description}
-          onChange={e => setDescription(e.target.value)}
-        />
-        <PaymentMethod paymentMethod={paymentMethod} setPaymentMethod={setPaymentMethod} />
-        <DialogFooter>
-          <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
-          <Button onClick={handleUpdate} disabled={loading}>{loading ? 'Updating...' : 'Update'}</Button>
-        </DialogFooter>
+      <DialogContent>
+        <LoaderCircle loading={loading}>
+          <DialogTitle className="font-bold text-2xl">Update Transaction</DialogTitle>
+          <Input
+            placeholder="Transaction description"
+            value={description}
+            onChange={e => setDescription(e.target.value)}
+          />
+          <PaymentMethod paymentMethod={paymentMethod} setPaymentMethod={setPaymentMethod} />
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
+            <Button onClick={handleUpdate} disabled={loading}>{loading ? 'Updating...' : 'Update'}</Button>
+          </DialogFooter>
+        </LoaderCircle>
       </DialogContent>
     </Dialog>
   );

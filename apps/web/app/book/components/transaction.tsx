@@ -6,7 +6,9 @@ import DeleteTransactionDialog from '../[bookId]/components/delete-transaction';
 import EditTransactionDialog from '../[bookId]/components/edit-transaction';
 import { PaymentMethodEnum } from '../../enums/payment-methods';
 import AddTransactionDialog from '../[bookId]/components/add-transaction';
-import { fmtCurrency, fmtDate } from '../../lib';
+import { fmtCurrency, fmtDate, useHasPermission } from '../../lib';
+import UploadTransactionFile from '../[bookId]/components/upload-transaction-file';
+import { Roles } from '@my-ledger/api/role';
 
 export type TransactionRow = {
   name: string,
@@ -75,12 +77,16 @@ export default function TransactionList({
   transactions: TransactionRow[];
   refetchAction: () => void;
 }) {
+  const hasPermission = useHasPermission(Roles.AUTHOR);
   if (!transactions || transactions.length === 0) {
     return (
-      <div className="rounded-md border border-dashed h-85 p-6 text-center text-sm text-muted-foreground">
+      <div className="rounded-md border border-dashed h-full p-6 text-center text-sm text-muted-foreground">
         <div className="mb-2 font-medium">No transactions yet</div>
         <div className="mb-4 text-xs">Create a transaction to see it listed here.</div>
-        <AddTransactionDialog bookId={bookId} refetchAction={refetchAction} />
+        <div className='flex flex-col gap-2 items-center'>
+          <UploadTransactionFile refetchAction={refetchAction} hidden={!hasPermission} showName={true} />
+          <AddTransactionDialog bookId={bookId} refetchAction={refetchAction} />
+        </div>
       </div>
     );
   }

@@ -9,17 +9,20 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { parseCsvFile } from "../helper/parser";
 import { FileUpIcon, UploadIcon } from "lucide-react";
+import LoaderCircle from "../../../components/loader";
 
 type Props = {
-    setLoading: (bool: boolean) => void,
+    refetchAction?: () => void,
     hidden: boolean
+    showName: boolean
 }
 
-export default function UploadTransactionFile({ setLoading, hidden }: Props) {
+export default function UploadTransactionFile({ refetchAction, hidden, showName }: Props) {
     const params = useParams();
     const bookId = params.bookId as string;
     const isOwner = useHasPermission(Roles.AUTHOR);
     const [open, setOpen] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     const handleBulkAddTransactions = async (transactions: AddTransactionRequest[]) => {
         const { err, data } = await bulkAddTransaction({ transactions }, bookId);
@@ -30,6 +33,7 @@ export default function UploadTransactionFile({ setLoading, hidden }: Props) {
         }
         setLoading(false);
         setOpen(false);
+        if (refetchAction) refetchAction();
     }
 
     const handleUpload = async (file: File) => {
@@ -63,23 +67,25 @@ export default function UploadTransactionFile({ setLoading, hidden }: Props) {
         <DialogTrigger hidden={!isOwner || hidden}>
             <Button onClick={() => setOpen(true)}>
                 <UploadIcon />
-                <span className="hidden sm:block">
+                <span className={showName ? '' : "hidden sm:block"}>
                     Add Transactions from File
                 </span>
             </Button>
         </DialogTrigger>
         <DialogContent className="h-[50%] pt-10">
-            <Dropzone {...dropzone}>
-                <DropZoneArea>
-                    <DropzoneTrigger className="h-full w-full flex flex-col items-center justify-center">
-                        <FileUpIcon className=" h-20 w-20 text-muted-foreground" />
-                        <p className="font-semibold">Upload .csv file</p>
-                        <p className="text-sm text-muted-foreground">
-                            Click here or drag and drop to upload
-                        </p>
-                    </DropzoneTrigger>
-                </DropZoneArea>
-            </Dropzone>
+            <LoaderCircle loading={loading}>
+                <Dropzone {...dropzone}>
+                    <DropZoneArea className="h-full">
+                        <DropzoneTrigger className="h-full w-full flex flex-col items-center justify-center">
+                            <FileUpIcon className=" h-20 w-20 text-muted-foreground" />
+                            <p className="font-semibold">Upload .csv file</p>
+                            <p className="text-sm text-muted-foreground">
+                                Click here or drag and drop to upload
+                            </p>
+                        </DropzoneTrigger>
+                    </DropZoneArea>
+                </Dropzone>
+            </LoaderCircle>
         </DialogContent>
     </Dialog>
 }

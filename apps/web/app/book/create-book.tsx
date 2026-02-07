@@ -16,6 +16,7 @@ import { Label } from '@/components/ui/label';
 import { createBook } from './actions/create-book';
 import { toast } from 'sonner';
 import { useRolesContext } from '../context';
+import LoaderCircle from '../components/loader';
 
 export default function CreateBook({
   refetchAction,
@@ -56,40 +57,42 @@ export default function CreateBook({
       </DialogTrigger>
 
       <DialogContent className="sm:max-w-[425px]">
-        <form ref={formRef} onSubmit={handleSubmit} className="no-style">
-          <DialogHeader>
-            <DialogTitle>Create Book</DialogTitle>
-            <DialogDescription>Create a new book.</DialogDescription>
-          </DialogHeader>
+        <LoaderCircle loading={loading}>
+          <form ref={formRef} onSubmit={handleSubmit} className="no-style">
+            <DialogHeader>
+              <DialogTitle>Create Book</DialogTitle>
+              <DialogDescription>Create a new book.</DialogDescription>
+            </DialogHeader>
 
-          <div className="grid gap-4">
-            <div className="grid gap-3">
-              <Label htmlFor="name">Name</Label>
-              <Input id="name" name="name" placeholder="Trip to Goa" required minLength={3} maxLength={50} />
+            <div className="grid gap-4">
+              <div className="grid gap-3">
+                <Label htmlFor="name">Name</Label>
+                <Input id="name" name="name" placeholder="Trip to Goa" required minLength={3} maxLength={50} />
+              </div>
+
+              <div className="grid gap-3">
+                <Label htmlFor="description">Description</Label>
+                <Input
+                  id="description"
+                  name="description"
+                  placeholder="Vacation to Goa"
+                  minLength={3}
+                  maxLength={120}
+                />
+              </div>
             </div>
 
-            <div className="grid gap-3">
-              <Label htmlFor="description">Description</Label>
-              <Input
-                id="description"
-                name="description"
-                placeholder="Vacation to Goa"
-                minLength={3}
-                maxLength={120}
-              />
-            </div>
-          </div>
+            <DialogFooter className="pt-5">
+              <Button variant="outline" type="button" onClick={() => setOpen(false)}>
+                Cancel
+              </Button>
 
-          <DialogFooter className="pt-5">
-            <Button variant="outline" type="button" onClick={() => setOpen(false)}>
-              Cancel
-            </Button>
-
-            <Button type="submit" disabled={loading}>
-              {loading ? 'Saving…' : 'Save'}
-            </Button>
-          </DialogFooter>
-        </form>
+              <Button type="submit" disabled={loading}>
+                {loading ? 'Saving…' : 'Save'}
+              </Button>
+            </DialogFooter>
+          </form>
+        </LoaderCircle>
       </DialogContent>
     </Dialog>
   );

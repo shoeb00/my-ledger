@@ -16,6 +16,7 @@ import { useRouter } from 'next/navigation';
 import { DialogDescription } from '@radix-ui/react-dialog';
 import { Roles } from '@my-ledger/api/role';
 import { useHasPermission } from '../../../../lib';
+import LoaderCircle from '../../../../components/loader';
 
 export default function DeleteBook(body: Omit<UpdateBookRequest, 'description'>) {
   const router = useRouter();
@@ -49,32 +50,34 @@ export default function DeleteBook(body: Omit<UpdateBookRequest, 'description'>)
         </Button>
       </DialogTrigger>
       <DialogContent>
-        <DialogTitle>Delete Book</DialogTitle>
-        <DialogDescription>
-          All transactions in this book will be deleted. The data will be permanently deleted. Do
-          you want to continue?
-        </DialogDescription>
+        <LoaderCircle loading={loading}>
+          <DialogTitle>Delete Book</DialogTitle>
+          <DialogDescription>
+            All transactions in this book will be deleted. The data will be permanently deleted. Do
+            you want to continue?
+          </DialogDescription>
 
-        <p className="text-sm text-muted-foreground italic">
-          Enter the name of the book to confirm deletion
-        </p>
-        <Label htmlFor="name">Name</Label>
-        <Input
-          id="name"
-          name="name"
-          onChange={e => setName(e.target.value)}
-          value={name}
-          placeholder={body.name}
-        />
-        <DialogFooter>
-          <Button variant="outline" onClick={() => setOpen(false)}>
-            Cancel
-          </Button>
-          <Button disabled={name !== body.name || loading} onClick={handleDelete}>
-            {loading ? 'Deleting...' : 'Delete'}
-          </Button>
-        </DialogFooter>
+          <p className="text-sm text-muted-foreground italic">
+            Enter the name of the book to confirm deletion
+          </p>
+          <Label htmlFor="name">Name</Label>
+          <Input
+            id="name"
+            name="name"
+            onChange={e => setName(e.target.value)}
+            value={name}
+            placeholder={body.name}
+          />
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setOpen(false)}>
+              Cancel
+            </Button>
+            <Button disabled={name !== body.name || loading} onClick={handleDelete}>
+              {loading ? 'Deleting...' : 'Delete'}
+            </Button>
+          </DialogFooter>
+        </LoaderCircle>
       </DialogContent>
-    </Dialog>
+    </Dialog >
   );
 }

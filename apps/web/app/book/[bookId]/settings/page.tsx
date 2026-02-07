@@ -51,7 +51,9 @@ export default function BookInfo() {
   const [activeTab, setActiveTab] = useState('members');
 
   const copyLink = async () => {
+    setLoading(true);
     const { err, data } = await createInviteLink(bookId);
+    setLoading(false);
     if (err) {
       toast.error(err);
       return;
@@ -117,8 +119,8 @@ export default function BookInfo() {
             <h4 className="text-xs line-clamp-2">{book?.description || 'No description'}</h4>
           </div>
         </div>
-        <div className="flex flex-row items-center gap-4" hidden={!isOwner}>
-          <UploadTransactionFile hidden={!isOwner} setLoading={setLoading} />
+        <div className="flex flex-row items-center gap-2" hidden={!isOwner}>
+          <UploadTransactionFile hidden={!isOwner} showName={false} />
           <TransferBook
             bookName={book?.name || ''}
             refetchAction={() => setRefetchAction(!refetchAction)}
@@ -143,6 +145,7 @@ export default function BookInfo() {
                   refetchAction={() => setRefetchAction(!refetchAction)}
                   tab={activeTab as 'invites' | 'members'}
                   setActiveTabAction={setActiveTab}
+                  showName={false}
                 />
               </div>
             </div>

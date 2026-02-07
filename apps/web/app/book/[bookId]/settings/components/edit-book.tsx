@@ -16,6 +16,7 @@ import { Edit2Icon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Roles } from '@my-ledger/api/role';
 import { useHasPermission } from '../../../../lib';
+import LoaderCircle from '../../../../components/loader';
 
 interface Props extends UpdateBookRequest {
   refetchAction: () => void;
@@ -60,43 +61,45 @@ export default function EditBook(body: Props) {
         </Button>
       </DialogTrigger>
       <DialogContent>
-        <DialogTitle>Update Book Details</DialogTitle>
-        <div className="grid gap-4">
-          <div className="grid gap-3">
-            <Label htmlFor="name">Name</Label>
-            <Input
-              id="name"
-              name="name"
-              onChange={e => setName(e.target.value)}
-              value={name}
-              placeholder="Book Name"
-              required
-              minLength={3}
-              maxLength={50}
-            />
+        <LoaderCircle loading={loading}>
+          <DialogTitle>Update Book Details</DialogTitle>
+          <div className="grid gap-4">
+            <div className="grid gap-3">
+              <Label htmlFor="name">Name</Label>
+              <Input
+                id="name"
+                name="name"
+                onChange={e => setName(e.target.value)}
+                value={name}
+                placeholder="Book Name"
+                required
+                minLength={3}
+                maxLength={50}
+              />
+            </div>
+            <div className="grid gap-3">
+              <Label htmlFor="description">Description</Label>
+              <Input
+                id="description"
+                name="description"
+                value={desc}
+                onChange={e => setDesc(e.target.value)}
+                placeholder="Book Description"
+                minLength={3}
+                maxLength={120}
+              />
+            </div>
           </div>
-          <div className="grid gap-3">
-            <Label htmlFor="description">Description</Label>
-            <Input
-              id="description"
-              name="description"
-              value={desc}
-              onChange={e => setDesc(e.target.value)}
-              placeholder="Book Description"
-              minLength={3}
-              maxLength={120}
-            />
-          </div>
-        </div>
-        <DialogFooter>
-          <Button variant="outline" onClick={() => setOpen(false)}>
-            Cancel
-          </Button>
-          <Button onClick={handleUpdate} disabled={loading || !name}>
-            {loading ? 'Updating...' : 'Update'}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleUpdate} disabled={loading || !name}>
+              {loading ? 'Updating...' : 'Update'}
+            </Button>
+          </DialogFooter>
+        </LoaderCircle>
+      </DialogContent >
+    </Dialog >
   );
 }

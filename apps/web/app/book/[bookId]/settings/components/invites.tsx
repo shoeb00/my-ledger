@@ -44,7 +44,7 @@ export default function InvitationList({
       <div className="rounded-md border border-dashed h-85 p-6 text-center text-sm text-muted-foreground">
         <div className="my-2 font-medium">No invitations yet</div>
         <div className="mb-4 text-xs">Add a invitation to see them listed here.</div>
-        <AddOrInviteUser tab="invites" refetchAction={refetchAction} userDetails={[]} setActiveTabAction={setActiveTabAction} />
+        <AddOrInviteUser tab="invites" refetchAction={refetchAction} userDetails={[]} setActiveTabAction={setActiveTabAction} showName={true} />
       </div>
     );
   }
