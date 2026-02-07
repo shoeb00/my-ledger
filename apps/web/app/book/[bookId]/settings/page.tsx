@@ -18,6 +18,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import AddOrInviteUser from './components/addOrInviteUser';
 import UploadTransactionFile from '../components/upload-transaction-file';
 import { useHasPermission } from '../../../lib';
+import { Share2Icon } from 'lucide-react'
+import { createInviteLink } from '../../../invite/[token]/actions/invite';
 
 export type Member = {
   userId: number;
@@ -47,6 +49,18 @@ export default function BookInfo() {
   const [members, setMembers] = useState<Member[]>([]);
   const [invites, setInvites] = useState<Invitation[]>([]);
   const [activeTab, setActiveTab] = useState('members');
+
+  const copyLink = async () => {
+    setLoading(true);
+    const { err, data } = await createInviteLink(bookId);
+    setLoading(false);
+    if (err) {
+      toast.error(err);
+      return;
+    }
+    await navigator.clipboard.writeText(data.link);
+    toast.success('Link copied to clipboard');
+  };
 
   const isOwner = useHasPermission(Roles.AUTHOR);
   useEffect(() => {
@@ -105,8 +119,8 @@ export default function BookInfo() {
             <h4 className="text-xs line-clamp-2">{book?.description || 'No description'}</h4>
           </div>
         </div>
-        <div className="flex flex-row items-center gap-4" hidden={!isOwner}>
-          <UploadTransactionFile hidden={!isOwner} setLoading={setLoading} />
+        <div className="flex flex-row items-center gap-2" hidden={!isOwner}>
+          <UploadTransactionFile hidden={!isOwner} showName={false} />
           <TransferBook
             bookName={book?.name || ''}
             refetchAction={() => setRefetchAction(!refetchAction)}
@@ -120,14 +134,20 @@ export default function BookInfo() {
             <div className="flex flex-row w-full justify-between">
               <div>
                 <TabsTrigger value="members">Members</TabsTrigger>
-                <TabsTrigger value="invitations">Invitations</TabsTrigger>
+                {useHasPermission(Roles.EDITOR) && (<TabsTrigger value="invitations" >Invitations</TabsTrigger>)}
               </div>
-              <AddOrInviteUser
-                userDetails={members}
-                refetchAction={() => setRefetchAction(!refetchAction)}
-                tab={activeTab as 'invites' | 'members'}
-                setActiveTabAction={setActiveTab}
-              />
+              <div className='flex gap-2'>
+                <Button onClick={() => copyLink()} hidden={activeTab === 'members'}>
+                  <Share2Icon /> <span className='hidden sm:block'>Copy invite Link</span>
+                </Button>
+                <AddOrInviteUser
+                  userDetails={members}
+                  refetchAction={() => setRefetchAction(!refetchAction)}
+                  tab={activeTab as 'invites' | 'members'}
+                  setActiveTabAction={setActiveTab}
+                  showName={false}
+                />
+              </div>
             </div>
           </TabsList>
           <LoaderCircle loading={loading}>

@@ -1,5 +1,6 @@
 import { createContext, useEffect, useState, useCallback, useContext } from "react";
 import { BookResponse, getBook } from "./book/actions/get-books";
+import { useUser } from "@clerk/nextjs";
 
 type RolesContextValue = {
   roles: BookResponse[];
@@ -12,6 +13,7 @@ const RolesContext = createContext<RolesContextValue | null>(null);
 export default function RolesProvider({ children }: { children: React.ReactNode }) {
   const [roles, setRoles] = useState<BookResponse[]>([]);
   const [loading, setLoading] = useState(true);
+  const { isSignedIn, isLoaded } = useUser();
 
   const fetchRoles = useCallback(async () => {
     setLoading(true);
@@ -23,8 +25,9 @@ export default function RolesProvider({ children }: { children: React.ReactNode 
   }, []);
 
   useEffect(() => {
+    if (!isSignedIn || !isLoaded) return;
     fetchRoles();
-  }, [fetchRoles]);
+  }, [fetchRoles, isSignedIn, isLoaded]);
 
   return (
     <RolesContext.Provider

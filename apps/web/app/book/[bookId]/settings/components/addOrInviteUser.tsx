@@ -24,6 +24,7 @@ import {
 import { useParams } from 'next/navigation';
 import { Roles } from '@my-ledger/api/role';
 import { useHasPermission } from '../../../../lib';
+import LoaderCircle from '../../../../components/loader';
 
 export type UserDetails = {
   name: string;
@@ -36,6 +37,7 @@ type Props = {
   refetchAction: () => void;
   tab: 'members' | 'invites';
   setActiveTabAction?: (tab: 'members' | 'invites') => void;
+  showName: boolean;
 };
 
 // TODO: use zod and add better types
@@ -108,52 +110,56 @@ export default function AddOrInviteUser(body: Props) {
             </>
           ) : (
             <>
-              <MailPlusIcon /> {title}
+              <MailPlusIcon />  <span className={body.showName ? '' : 'hidden sm:block'}>
+                {title}
+              </span>
             </>
           )}
         </Button>
       </DialogTrigger>
       <DialogContent>
-        <DialogTitle>{title}</DialogTitle>
-        <DialogDescription>Email</DialogDescription>
-        <div className="max-h-70 grid gap-3">
-          <Command>
-            <CommandInput
-              placeholder="Type an email..."
-              value={email}
-              onValueChange={setEmail}
-            ></CommandInput>
-            {isMemberTab &&
-              <CommandEmpty>No users found, try inviting</CommandEmpty>}
-            {isMemberTab &&
-              <CommandGroup className="overflow-auto">
-                {users.map(({ name, email }) => (
-                  <CommandItem
-                    value={email}
-                    key={email}
-                    onSelect={() => {
-                      setEmail(email);
-                    }}
-                    className="p-2 m-2 rounded-md border bg-card shadow-sm hover:shadow-md transition"
-                  >
-                    <div className="flex flex-col">
-                      <span className="capitalize text-sm">{name}</span>
-                      <span className="font-semibold">{email}</span>
-                    </div>
-                  </CommandItem>
-                ))}
-              </CommandGroup>
-            }
-          </Command>
-        </div>
-        <DialogFooter>
-          <Button variant="outline" onClick={() => setOpen(false)}>
-            Cancel
-          </Button>
-          <Button onClick={handleUpdate} disabled={loading || buttonCheck}>
-            {loading ? loadingAction : action}
-          </Button>
-        </DialogFooter>
+        <LoaderCircle loading={loading}>
+          <DialogTitle>{title}</DialogTitle>
+          <DialogDescription>Email</DialogDescription>
+          <div className="max-h-70 grid gap-3">
+            <Command>
+              <CommandInput
+                placeholder="Type an email..."
+                value={email}
+                onValueChange={setEmail}
+              ></CommandInput>
+              {isMemberTab &&
+                <CommandEmpty>No users found, try inviting</CommandEmpty>}
+              {isMemberTab &&
+                <CommandGroup className="overflow-auto">
+                  {users.map(({ name, email }) => (
+                    <CommandItem
+                      value={email}
+                      key={email}
+                      onSelect={() => {
+                        setEmail(email);
+                      }}
+                      className="p-2 m-2 rounded-md border bg-card shadow-sm hover:shadow-md transition"
+                    >
+                      <div className="flex flex-col">
+                        <span className="capitalize text-sm">{name}</span>
+                        <span className="font-semibold">{email}</span>
+                      </div>
+                    </CommandItem>
+                  ))}
+                </CommandGroup>
+              }
+            </Command>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleUpdate} disabled={loading || buttonCheck}>
+              {loading ? loadingAction : action}
+            </Button>
+          </DialogFooter>
+        </LoaderCircle>
       </DialogContent>
     </Dialog>
   );

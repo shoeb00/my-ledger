@@ -22,6 +22,7 @@ import { Roles } from '@my-ledger/api/role';
 import { UserCog2Icon } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { useHasPermission } from '../../../../lib';
+import LoaderCircle from '../../../../components/loader';
 
 type Props = {
   member: Member;
@@ -70,23 +71,25 @@ export default function UpdateMemberRole({ member, refetchAction }: Props) {
         </Button>
       </DialogTrigger>
       <DialogContent>
-        <DialogTitle>Change Member Role</DialogTitle>
-        <Label>Role</Label>
-        <Select value={role as string} onValueChange={v => setRole(v as MemberRole)}>
-          <SelectTrigger>
-            <SelectValue placeholder={member.role} />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value={Roles.EDITOR}>Editor</SelectItem>
-            <SelectItem value={Roles.VIEWER}>Viewer</SelectItem>
-          </SelectContent>
-        </Select>
-        <DialogFooter>
-          <Button variant="outline" onClick={() => setOpen(false)}>
-            Cancel
-          </Button>
-          <Button onClick={handleUpdateMember}>{loading ? 'Updating...' : 'Update'}</Button>
-        </DialogFooter>
+        <LoaderCircle loading={loading}>
+          <DialogTitle>Change Member Role</DialogTitle>
+          <Label>Role</Label>
+          <Select value={role as string} onValueChange={v => setRole(v as MemberRole)}>
+            <SelectTrigger>
+              <SelectValue placeholder={member.role} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={Roles.EDITOR}>Editor</SelectItem>
+              <SelectItem value={Roles.VIEWER}>Viewer</SelectItem>
+            </SelectContent>
+          </Select>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleUpdateMember}>{loading ? 'Updating...' : 'Update'}</Button>
+          </DialogFooter>
+        </LoaderCircle>
       </DialogContent>
     </Dialog>
   );

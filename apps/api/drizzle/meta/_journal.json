@@ -64,6 +64,13 @@
       "when": 1769852922483,
       "tag": "0008_fuzzy_gateway",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1770105867938,
+      "tag": "0009_tough_pete_wisdom",
+      "breakpoints": true
     }
   ]
 }

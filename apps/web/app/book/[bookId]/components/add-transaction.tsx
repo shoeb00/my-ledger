@@ -15,6 +15,7 @@ import { Plus, Minus } from 'lucide-react';
 import { toast } from 'sonner';
 import { fmtCurrency, useHasPermission } from '../../../lib';
 import { Roles } from '@my-ledger/api/role';
+import LoaderCircle from '../../../components/loader';
 
 export default function AddTransactionDialog({
   bookId,
@@ -74,48 +75,50 @@ export default function AddTransactionDialog({
   return (
     <Dialog open={open} onOpenChange={o => setOpen(o)}>
       <DialogTrigger asChild>
-        <Button disabled={loading} hidden={canEdit}>
+        <Button disabled={loading} hidden={canEdit} className='w-fit'>
           <Plus className="h-4 w-4" /> Transaction
         </Button>
       </DialogTrigger>
-      <DialogContent className="">
-        <DialogTitle className="font-bold text-2xl">Add Transaction</DialogTitle>
-        <div className="flex gap-4 justify-between">
-          <Button
-            className="flex-1"
-            variant={isPositive ? 'default' : 'outline'}
-            onClick={() => setIsPositive(true)}
-          >
-            <Plus className="h-4 w-4" />
-            Cash-In
-          </Button>
-          <Button
-            className="flex-1"
-            variant={isPositive ? 'outline' : 'default'}
-            onClick={() => setIsPositive(false)}
-          >
-            <Minus className="h-4 w-4" />
-            Cash-Out
-          </Button>
-        </div>
-        <Input
-          placeholder={fmtCurrency('12.99')}
-          value={amountStr}
-          onChange={(e) => handleAmountInput(e.target.value)}
-          maxLength={14}
-        />
-        <Input
-          placeholder="Transaction description"
-          value={description}
-          onChange={e => setDescription(e.target.value)}
-        />
-        <PaymentMethod paymentMethod={paymentMethod} setPaymentMethod={setPaymentMethod} />
-        <DialogFooter>
-          <Button variant="outline" onClick={() => setOpen(false)}>
-            Cancel
-          </Button>
-          <Button onClick={handleAdd} disabled={loading || amountStr === fmtCurrency('')}>{loading ? 'Adding...' : 'Add'}</Button>
-        </DialogFooter>
+      <DialogContent>
+        <LoaderCircle loading={loading}>
+          <DialogTitle className="font-bold text-2xl">Add Transaction</DialogTitle>
+          <div className="flex gap-4 justify-between">
+            <Button
+              className="flex-1"
+              variant={isPositive ? 'default' : 'outline'}
+              onClick={() => setIsPositive(true)}
+            >
+              <Plus className="h-4 w-4" />
+              Cash-In
+            </Button>
+            <Button
+              className="flex-1"
+              variant={isPositive ? 'outline' : 'default'}
+              onClick={() => setIsPositive(false)}
+            >
+              <Minus className="h-4 w-4" />
+              Cash-Out
+            </Button>
+          </div>
+          <Input
+            placeholder={fmtCurrency('12.99')}
+            value={amountStr}
+            onChange={(e) => handleAmountInput(e.target.value)}
+            maxLength={14}
+          />
+          <Input
+            placeholder="Transaction description"
+            value={description}
+            onChange={e => setDescription(e.target.value)}
+          />
+          <PaymentMethod paymentMethod={paymentMethod} setPaymentMethod={setPaymentMethod} />
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleAdd} disabled={loading || amountStr === fmtCurrency('')}>{loading ? 'Adding...' : 'Add'}</Button>
+          </DialogFooter>
+        </LoaderCircle>
       </DialogContent>
     </Dialog>
   );

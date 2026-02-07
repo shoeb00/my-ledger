@@ -8,17 +8,17 @@ export type InviteUserRequest = {
 };
 
 export const inviteUser = async (body: InviteUserRequest) => {
-  const endpoint = `/v1/user/invite`;
+  const endpoint = `/v1/invitations/user`;
   return await callApi(endpoint, 'POST', undefined, { ...body, bookId: Number(body.bookId) });
 };
 
 export const getInvitations = async (bookId: string) => {
-  const endpoint = `/v1/user/invitations`;
+  const endpoint = `/v1/invitations/user`;
   return await callApi(endpoint, 'GET', { bookId });
 };
 
 export const cancelInvitation = async (invitationId: string) => {
-  const endpoint = `/v1/user/cancelInvite/${invitationId}`;
+  const endpoint = `/v1/invitations/revoke/${invitationId}`;
   return await callApi(endpoint, 'DELETE');
 };
 

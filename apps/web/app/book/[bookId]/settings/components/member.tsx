@@ -57,7 +57,7 @@ export default function MemberList({
       <div className="rounded-md border border-dashed h-85 p-6 text-center text-xs sm:text-sm text-muted-foreground">
         <div className="mb-2 font-medium">No members yet</div>
         <div className="mb-4 text-xs">Add a member to see them listed here.</div>
-        <AddOrInviteUser tab="members" refetchAction={refetchAction} userDetails={[]} />
+        <AddOrInviteUser tab="members" refetchAction={refetchAction} userDetails={[]} showName={true} />
       </div>
     );
   }

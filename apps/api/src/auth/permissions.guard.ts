@@ -58,12 +58,21 @@ export class PermissionsGuard implements CanActivate {
       );
     }
 
-    const user = await this.usersService.getUser({
+    let user = await this.usersService.getUser({
       clerkUserId,
     });
+
     if (!user) {
-      throw new UnauthorizedException('User not found');
+      const maxTries = 3;
+      for (let i = 0; i < maxTries; i++) {
+        user = await this.usersService.getUser({
+          clerkUserId,
+        });
+        if (user) break;
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+      }
     }
+    if (!user) throw new UnauthorizedException('User not found');
 
     this.requestContextService.setUser(user);
     if (!requiredRoles || requiredRoles.length === 0) {

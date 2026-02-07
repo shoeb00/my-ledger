@@ -7,6 +7,7 @@ import * as usersSchema from '../user/schema';
 import * as booksSchema from '../book/schema';
 import * as transactionSchema from '../transaction/schema';
 import * as permissionSchema from '../permissions/schema';
+import * as invitationsSchema from '../invitations/schema';
 import { DatabaseHealthService } from './database.health';
 import { DatabaseInitService } from './database.init';
 
@@ -33,6 +34,7 @@ import { DatabaseInitService } from './database.init';
             ...booksSchema,
             ...transactionSchema,
             ...permissionSchema,
+            ...invitationsSchema,
           },
           casing: 'snake_case',
         });

@@ -1,5 +1,5 @@
 import { permissions } from './../permissions/schema';
-import { users, invitations } from './../user/schema';
+import { users } from './../user/schema';
 import {
   Inject,
   Injectable,
@@ -17,6 +17,7 @@ import { RequestContextService } from '../common/request-context.service';
 import { UpdateBookRequestDto } from './dto/update-book-request';
 import { transactions } from '../transaction/schema';
 import { ChangeOwnerBookRequestDto } from './dto/change-owner-book-request';
+import { invitations } from '../invitations/schema';
 
 const schema = { ...bookSchema, permissions, users, invitations, transactions };
 
