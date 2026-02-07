@@ -8,7 +8,7 @@ import { AddTransactionRequest, bulkAddTransaction } from "../actions/add-transa
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { parseCsvFile } from "../helper/parser";
-import { BookUp2Icon, FileUpIcon } from "lucide-react";
+import { FileUpIcon, UploadIcon } from "lucide-react";
 
 type Props = {
     setLoading: (bool: boolean) => void,
@@ -62,7 +62,7 @@ export default function UploadTransactionFile({ setLoading, hidden }: Props) {
     return <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger hidden={!isOwner || hidden}>
             <Button onClick={() => setOpen(true)}>
-                <BookUp2Icon />
+                <UploadIcon />
                 <span className="hidden sm:block">
                     Add Transactions from File
                 </span>
