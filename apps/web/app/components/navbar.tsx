@@ -11,13 +11,11 @@ export default function Navbar({ theme, setThemeAction }: { theme: boolean, setT
     <header className="flex flex-row justify-between items-center p-4 gap-4 h-16">
       <div>
         <Button variant='ghost' onClick={() => router.push('/home')} className='hover:bg-transparent h-25 p-0'>
-          {/* TODO: Handle dark mode for the logo */}
           <Image
-            src="/logo.svg"
+            src={theme ? "/logo-dark.svg" : "/logo.svg"}
             alt="My Ledger Logo"
             width={30}
             height={20}
-            className=''
           />
           <span>My Ledger</span>
         </Button>

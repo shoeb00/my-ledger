@@ -13,8 +13,7 @@ export default function Providers({
 }: {
     children: React.ReactNode;
 }) {
-    const media = window?.matchMedia('(prefers-color-scheme: dark)');
-    const [theme, setTheme] = useState(!media.matches || false);
+    const [theme, setTheme] = useState(false);
     useEffect(() => {
         const html = document.documentElement;
         if (theme) {
