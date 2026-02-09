@@ -6,25 +6,31 @@ import { Toaster } from '@/components/ui/sonner';
 import { shadcn, experimental__simple as simple } from '@clerk/themes';
 import RolesProvider from './context';
 import { SpeedInsights } from '@vercel/speed-insights/next';
+import { useEffect, useState } from 'react';
 
 export default function Providers({
     children,
-    theme,
-    setThemeAction
 }: {
     children: React.ReactNode;
-    theme: boolean;
-    setThemeAction: () => void;
 }) {
+    const [theme, setTheme] = useState(false);
+    useEffect(() => {
+        const html = document.documentElement;
+        if (theme) {
+            html.classList.add('dark');
+        } else {
+            html.classList.remove('dark');
+        }
+    }, [theme]);
 
     return (
         <div>
             <ClerkProvider publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
                 appearance={{ baseTheme: theme ? shadcn : simple }}>
                 <Toaster position="top-right" visibleToasts={5} />
-                <Navbar theme={theme} setThemeAction={setThemeAction} />
+                <Navbar theme={theme} setThemeAction={() => setTheme(!theme)} />
                 <RolesProvider>
-                    <div className="max-w-7xl mx-auto p-2 sm:px-6 lg:px-8 h-[92vh] overflow-auto rounded-md border shadow-md">
+                    <div className={"max-w-7xl mx-auto p-2 sm:px-6 lg:px-8 h-[92vh] overflow-auto rounded-md border shadow-md" + (theme && 'dark')}>
                         {children}
                         <SpeedInsights />
                     </div>
