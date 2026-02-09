@@ -4,11 +4,17 @@ import { NextResponse } from 'next/server';
 const isPublicRoute = createRouteMatcher([
   '/',
   '/about(.*)',
-  '/api/webhooks(.*)',
-  '/_next(.*)',
-  '/static(.*)',
-  '/favicon.ico',
   '/invite(.*)',
+  '/api/webhooks(.*)',
+
+  // assets
+  '/_next(.*)',
+  '/apple-touch-icon.png',
+  '/favicon.ico',
+  '/og-image.png',
+  '/robots.txt',
+  '/sitemap.xml',
+  '/static(.*)',
 ]);
 
 export default clerkMiddleware(async (auth, req) => {
