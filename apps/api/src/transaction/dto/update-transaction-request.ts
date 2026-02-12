@@ -1,6 +1,6 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsNumber, IsString } from 'class-validator';
+import { IsNumber, IsString, IsOptional } from 'class-validator';
 
 export class UpdateTransactionsRequestDto {
   @ApiProperty()
@@ -13,11 +13,20 @@ export class UpdateTransactionsRequestDto {
   @IsNumber()
   transactionId: number;
 
-  @ApiProperty()
-  @IsString()
-  paymentType: string;
+  @ApiPropertyOptional()
+  @Type(() => Number)
+  @IsNumber()
+  @IsOptional()
+  paymentMethodId?: number | null = null;
 
-  @ApiProperty()
+  @ApiPropertyOptional()
   @IsString()
-  description: string;
+  @IsOptional()
+  description?: string | null = null;
+
+  @ApiPropertyOptional()
+  @Type(() => Number)
+  @IsNumber()
+  @IsOptional()
+  categoryId?: number | null = null;
 }

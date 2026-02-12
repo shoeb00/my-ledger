@@ -16,11 +16,17 @@ export class TransactionResponseDto {
   @ApiProperty({ nullable: true, example: 'Gas for the car' })
   description?: string | null;
 
-  @ApiProperty({ nullable: true, example: 'Credit Card' })
-  paymentType: string | null;
+  @ApiPropertyOptional({ nullable: true, example: 1 })
+  paymentMethodId?: number | null;
 
-  @ApiProperty({ nullable: true, example: 'Gas' })
-  category: string | null;
+  @ApiPropertyOptional({ nullable: true, example: 'Credit Card' })
+  paymentMethodName?: string | null;
+
+  @ApiPropertyOptional({ nullable: true, example: 1 })
+  categoryId?: number | null;
+
+  @ApiPropertyOptional({ nullable: true, example: 'Gas' })
+  categoryName?: string | null;
 
   @ApiPropertyOptional({ example: 'John Doe' })
   name?: string;
