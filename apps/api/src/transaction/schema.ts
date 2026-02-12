@@ -8,6 +8,8 @@ import {
 } from 'drizzle-orm/pg-core';
 import { books } from '../book/schema';
 import { users } from '../user/schema';
+import { paymentMethods } from '../payment-method/schema';
+import { categories } from '../category/schema';
 import { InferSelectModel } from 'drizzle-orm';
 
 export const transactions = pgTable('transactions', {
@@ -20,8 +22,10 @@ export const transactions = pgTable('transactions', {
     .references(() => users.id),
   amount: numeric('amount', { precision: 10, scale: 2 }).notNull(),
   description: varchar('description'),
-  paymentType: varchar('payment_type'),
-  category: varchar('category'),
+  paymentMethodId: integer('payment_method_id').references(
+    () => paymentMethods.id,
+  ),
+  categoryId: integer('category_id').references(() => categories.id),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
