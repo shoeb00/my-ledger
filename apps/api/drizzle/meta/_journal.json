@@ -71,6 +71,20 @@
       "when": 1770105867938,
       "tag": "0009_tough_pete_wisdom",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1739293200000,
+      "tag": "0010_organic_lucky",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1739293200000,
+      "tag": "0011_slimy_warpath",
+      "breakpoints": true
     }
   ]
 }
