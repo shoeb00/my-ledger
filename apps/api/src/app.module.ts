@@ -14,6 +14,8 @@ import { RequestContextMiddleware } from './common/request-context.middleware';
 import { HealthModule } from './health/health.module';
 import { ClerkModule } from './clerk/clerk.module';
 import { InvitationsModule } from './invitations/invitations.module';
+import { CategoryModule } from './category/category.module';
+import { PaymentMethodModule } from './payment-method/payment-method.module';
 
 @Module({
   imports: [
@@ -28,6 +30,8 @@ import { InvitationsModule } from './invitations/invitations.module';
     HealthModule,
     ClerkModule,
     InvitationsModule,
+    CategoryModule,
+    PaymentMethodModule,
   ],
   controllers: [],
   providers: [
