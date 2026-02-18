@@ -10,7 +10,7 @@ import { books } from '../book/schema';
 import { users } from '../user/schema';
 import { paymentMethods } from '../payment-method/schema';
 import { categories } from '../category/schema';
-import { InferSelectModel } from 'drizzle-orm';
+import { InferSelectModel, relations } from 'drizzle-orm';
 
 export const transactions = pgTable('transactions', {
   id: serial('id').primaryKey(),
@@ -29,5 +29,17 @@ export const transactions = pgTable('transactions', {
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
+
+export const transactionsRelations = relations(transactions, ({ one }) => ({
+  paymentMethod: one(paymentMethods, {
+    fields: [transactions.paymentMethodId],
+    references: [paymentMethods.id],
+  }),
+  category: one(categories, {
+    fields: [transactions.categoryId],
+    references: [categories.id],
+  }),
+}));
+
 
 export type Transaction = InferSelectModel<typeof transactions>;
