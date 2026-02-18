@@ -7,11 +7,10 @@ import {
 import * as paymentMethodSchema from './schema';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { DATABASE_CONNECTION } from '../database/database-connection';
-import { sql, eq, and } from 'drizzle-orm';
+import { eq, and } from 'drizzle-orm';
 import * as booksSchema from '../book/schema';
 import { CreatePaymentMethodRequestDto } from './dto/payment-method-request';
 import { PaymentMethodResponseDto } from './dto/payment-method-response';
-import { RequestContextService } from '../common/request-context.service';
 
 const schema = { ...paymentMethodSchema, ...booksSchema };
 
@@ -20,7 +19,6 @@ export class PaymentMethodService {
   constructor(
     @Inject(DATABASE_CONNECTION)
     private readonly db: NodePgDatabase<typeof schema>,
-    private readonly cxt: RequestContextService,
   ) {}
 
   async getPaymentMethods(bookId: number): Promise<PaymentMethodResponseDto[]> {
