@@ -12,7 +12,7 @@ export const categories = pgTable('categories', {
   id: serial('id').primaryKey(),
   bookId: integer('book_id')
     .notNull()
-    .references(() => books.id),
+    .references(() => books.id, { onDelete: 'cascade' }),
   name: varchar('name').notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),

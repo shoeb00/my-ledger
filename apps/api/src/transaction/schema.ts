@@ -16,16 +16,17 @@ export const transactions = pgTable('transactions', {
   id: serial('id').primaryKey(),
   bookId: integer('book_id')
     .notNull()
-    .references(() => books.id),
+    .references(() => books.id, { onDelete: 'cascade' }),
   userId: integer('user_id')
     .notNull()
-    .references(() => users.id),
+    .references(() => users.id, { onDelete: 'cascade' }),
   amount: numeric('amount', { precision: 10, scale: 2 }).notNull(),
   description: varchar('description'),
   paymentMethodId: integer('payment_method_id').references(
     () => paymentMethods.id,
+    { onDelete: 'set null' },
   ),
-  categoryId: integer('category_id').references(() => categories.id),
+  categoryId: integer('category_id').references(() => categories.id, { onDelete: 'set null' }),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });

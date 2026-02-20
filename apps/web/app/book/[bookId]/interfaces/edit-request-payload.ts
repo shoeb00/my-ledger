@@ -4,6 +4,7 @@ export interface EditRequestPayload {
   bookId: string;
   transactionId: string;
   description: string;
-  paymentType: PaymentMethodEnum;
+  paymentMethodId: number | null;
+  categoryId: number | null;
   refetchAction: () => void;
 }

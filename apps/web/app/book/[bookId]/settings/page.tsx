@@ -18,8 +18,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import AddOrInviteUser from './components/addOrInviteUser';
 import UploadTransactionFile from '../components/upload-transaction-file';
 import { useHasPermission } from '../../../lib';
-import { Share2Icon } from 'lucide-react'
+import { Share2Icon } from 'lucide-react';
 import { createInviteLink } from '../../../invite/[token]/actions/invite';
+import CategoryManager from './components/category-manager';
+import PaymentMethodManager from './components/payment-method-manager';
 
 export type Member = {
   userId: number;
@@ -78,7 +80,7 @@ export default function BookInfo() {
       if (err) {
         toast.error(err);
       } else {
-        const membersList = [...data as Member[]].sort((a, b) => a.role.localeCompare(b.role));
+        const membersList = [...(data as Member[])].sort((a, b) => a.role.localeCompare(b.role));
         setMembers(membersList);
       }
       setLoading(false);
@@ -106,8 +108,9 @@ export default function BookInfo() {
             <ChevronLeft />
           </Button>
           <div className="flex flex-col">
-            <div className='flex flex-row'>
-              <h1 className="text-lg max-h-6 sm:text-2xl sm:max-h-8 max-w-120 font-bold line-clamp-1">{book?.name}
+            <div className="flex flex-row">
+              <h1 className="text-lg max-h-6 sm:text-2xl sm:max-h-8 max-w-120 font-bold line-clamp-1">
+                {book?.name}
               </h1>
               <EditBook
                 bookId={bookId}
@@ -134,11 +137,16 @@ export default function BookInfo() {
             <div className="flex flex-row w-full justify-between">
               <div>
                 <TabsTrigger value="members">Members</TabsTrigger>
-                {useHasPermission(Roles.EDITOR) && (<TabsTrigger value="invitations" >Invitations</TabsTrigger>)}
+                {useHasPermission(Roles.EDITOR) && (
+                  <>
+                    <TabsTrigger value="invitations">Invitations</TabsTrigger>
+                    <TabsTrigger value="classifications">Classifications</TabsTrigger>
+                  </>
+                )}
               </div>
-              <div className='flex gap-2'>
+              <div className="flex gap-2">
                 <Button onClick={() => copyLink()} hidden={activeTab === 'members'}>
-                  <Share2Icon /> <span className='hidden sm:block'>Copy invite Link</span>
+                  <Share2Icon /> <span className="hidden sm:block">Copy invite Link</span>
                 </Button>
                 <AddOrInviteUser
                   userDetails={members}
@@ -152,7 +160,10 @@ export default function BookInfo() {
           </TabsList>
           <LoaderCircle loading={loading}>
             <TabsContent value="members">
-              <MemberList members={members} refetchAction={() => setRefetchAction(!refetchAction)} />
+              <MemberList
+                members={members}
+                refetchAction={() => setRefetchAction(!refetchAction)}
+              />
             </TabsContent>
             <TabsContent value="invitations">
               <InvitationList
@@ -161,6 +172,18 @@ export default function BookInfo() {
                 loading={loading}
                 setActiveTabAction={setActiveTab}
               />
+            </TabsContent>
+            <TabsContent value="classifications">
+              <div className="flex flex-col gap-8">
+                <div>
+                  <h2 className="text-lg font-semibold mb-4">Categories</h2>
+                  <CategoryManager bookId={Number(bookId)} />
+                </div>
+                <div className="border-t pt-8">
+                  <h2 className="text-lg font-semibold mb-4">Payment Methods</h2>
+                  <PaymentMethodManager bookId={Number(bookId)} />
+                </div>
+              </div>
             </TabsContent>
           </LoaderCircle>
         </Tabs>

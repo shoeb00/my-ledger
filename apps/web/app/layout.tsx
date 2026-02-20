@@ -17,19 +17,21 @@ export const metadata: Metadata = {
     default: 'My Ledger',
     template: '%s | My Ledger',
   },
-  description: 'A simpler, free alternative to cashbook.in',
+  description:
+    'My Ledger is a simple, free alternative to cashbook.in. Easily migrate your existing data and track credits and debits with a clean UI, no ads, and complete privacy.',
   icons: {
     icon: [
       { url: '/favicon.ico' },
       { url: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
       { url: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
     ],
-    apple: '/apple-touch-icon.png',
+    apple: '/apple-touch-icon-v2.png',
   },
   metadataBase: new URL('https://my-ledger.app'),
   openGraph: {
-    title: 'My Ledger',
-    description: 'Move your ledger in minutes. Clean, free, private.',
+    title: 'My Ledger – Simple, free ledger management',
+    description:
+      'Move your ledger from cashbook.in in minutes. Track credits and debits with a clean UI, no ads, no lock-in, and complete privacy.',
     url: 'https://my-ledger.app',
     siteName: 'My Ledger',
     images: [
@@ -45,12 +47,7 @@ export const metadata: Metadata = {
   },
 };
 
-
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
