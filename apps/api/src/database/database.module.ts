@@ -8,6 +8,8 @@ import * as booksSchema from '../book/schema';
 import * as transactionSchema from '../transaction/schema';
 import * as permissionSchema from '../permissions/schema';
 import * as invitationsSchema from '../invitations/schema';
+import * as paymentMethodSchema from '../payment-method/schema';
+import * as categoriesMethodSchema from '../category/schema';
 import { DatabaseHealthService } from './database.health';
 import { DatabaseInitService } from './database.init';
 
@@ -35,6 +37,8 @@ import { DatabaseInitService } from './database.init';
             ...transactionSchema,
             ...permissionSchema,
             ...invitationsSchema,
+            ...paymentMethodSchema,
+            ...categoriesMethodSchema,
           },
           casing: 'snake_case',
         });

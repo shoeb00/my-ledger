@@ -7,7 +7,10 @@ export async function addTransaction(payload: AddRequestPayload, bookId: string)
   return await callApi(endpoint, 'POST', { bookId }, payload);
 }
 
-export type AddTransactionRequest = Omit<Transaction, 'id' | 'updatedAt' | 'userId' | 'bookId'>;
+export type AddTransactionRequest = Omit<Transaction, 'id' | 'updatedAt' | 'userId' | 'bookId'> & {
+  categoryName?: string;
+  paymentMethodName?: string;
+};
 
 export async function bulkAddTransaction(
   payload: { transactions: AddTransactionRequest[] },

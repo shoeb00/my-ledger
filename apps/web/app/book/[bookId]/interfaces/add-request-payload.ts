@@ -1,8 +1,9 @@
-import { PaymentMethodEnum } from '../../../enums/payment-methods';
-
 export interface AddRequestPayload {
   bookId: number;
   description: string;
-  paymentType: PaymentMethodEnum;
+  paymentMethodId: number | null;
+  paymentMethodName?: string | null;
+  categoryId: number | null;
+  categoryName?: string | null;
   amount: string;
 }

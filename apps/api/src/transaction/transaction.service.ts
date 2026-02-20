@@ -9,13 +9,26 @@ import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import * as transactionsSchema from './schema';
 import * as booksSchema from '../book/schema';
 import * as userSchema from '../user/schema';
+import * as paymentMethodsSchema from '../payment-method/schema';
+import * as categoriesSchema from '../category/schema';
 import { DATABASE_CONNECTION } from '../database/database-connection';
 import { GetTransactionsRequestDto } from './dto/get-transaction-request';
 import {
   TransactionListResponseDto,
   TransactionResponseDto,
 } from './dto/transaction-response';
-import { and, asc, desc, eq, gte, like, lte, SQL, sql } from 'drizzle-orm';
+import {
+  and,
+  asc,
+  desc,
+  eq,
+  gte,
+  inArray,
+  like,
+  lte,
+  SQL,
+  sql,
+} from 'drizzle-orm';
 import {
   BulkCreateTransactionRequestDto,
   CreateTransactionsRequestDto,
@@ -24,7 +37,13 @@ import { RequestContextService } from '../common/request-context.service';
 import { UpdateTransactionsRequestDto } from './dto/update-transaction-request';
 import { getTableColumns } from 'drizzle-orm';
 
-const schema = { ...transactionsSchema, ...booksSchema, ...userSchema };
+const schema = {
+  ...transactionsSchema,
+  ...booksSchema,
+  ...userSchema,
+  ...paymentMethodsSchema,
+  ...categoriesSchema,
+};
 
 @Injectable()
 export class TransactionService {
@@ -32,17 +51,25 @@ export class TransactionService {
     @Inject(DATABASE_CONNECTION)
     private readonly db: NodePgDatabase<typeof schema>,
     private readonly cxt: RequestContextService,
-  ) {}
+  ) { }
 
   async get(id: number): Promise<TransactionResponseDto> {
     const record = await this.db.query.transactions.findFirst({
       where: eq(schema.transactions.id, id),
+      with: {
+        paymentMethod: true,
+        category: true,
+      },
     });
 
     if (!record) {
       throw new NotFoundException('Transaction not found');
     }
-    return record;
+    return {
+      ...record,
+      paymentMethodName: record.paymentMethod?.name ?? null,
+      categoryName: record.category?.name ?? null,
+    };
   }
 
   async getAll(
@@ -54,9 +81,10 @@ export class TransactionService {
       if (!value) continue;
       switch (key) {
         case 'bookId':
+          conditions.push(eq(schema.transactions.bookId, Number(value)));
+          break;
         case 'userId':
-        case 'paymentType':
-          conditions.push(eq(schema.transactions[key], value));
+          conditions.push(eq(schema.transactions.userId, Number(value)));
           break;
         case 'minAmount':
           conditions.push(gte(schema.transactions.amount, value.toString()));
@@ -82,23 +110,40 @@ export class TransactionService {
       }
     }
     const orderDirection = order === 'desc' ? desc : asc;
-    const data = await this.db
-      .select({
-        ...getTableColumns(schema.transactions),
-        name: schema.users.name,
-        email: schema.users.email,
-      })
-      .from(schema.transactions)
-      .leftJoin(schema.users, eq(schema.transactions.userId, schema.users.id))
-      .where(and(...conditions))
-      .orderBy(orderDirection(schema.transactions[sort]))
-      .limit(limit)
-      .offset(offset);
-    const count = await this.db.$count(
-      transactionsSchema.transactions,
-      and(...conditions),
-    );
-    return { data: data as TransactionResponseDto[], count };
+
+    try {
+      const data = await this.db
+        .select({
+          ...getTableColumns(schema.transactions),
+          name: schema.users.name,
+          email: schema.users.email,
+          paymentMethodName: schema.paymentMethods.name,
+          categoryName: schema.categories.name,
+        })
+        .from(schema.transactions)
+        .leftJoin(schema.users, eq(schema.transactions.userId, schema.users.id))
+        .leftJoin(
+          schema.paymentMethods,
+          eq(schema.transactions.paymentMethodId, schema.paymentMethods.id),
+        )
+        .leftJoin(
+          schema.categories,
+          eq(schema.transactions.categoryId, schema.categories.id),
+        )
+        .where(and(...conditions))
+        .orderBy(orderDirection(schema.transactions[sort]))
+        .limit(limit)
+        .offset(offset);
+
+      const count = await this.db.$count(
+        transactionsSchema.transactions,
+        and(...conditions),
+      );
+      return { data: data as TransactionResponseDto[], count };
+    } catch (error) {
+      console.error('Error in getAll transactions:', error);
+      throw error;
+    }
   }
 
   async create(
@@ -108,9 +153,33 @@ export class TransactionService {
     const user = this.cxt.getUser();
     if (parseFloat(body.amount) === 0)
       throw new BadRequestException('Amount cannot be 0');
+
+    if (!body.paymentMethodId && body.paymentMethodName) {
+      const [row] = await this.db.insert(schema.paymentMethods).values({
+        name: body.paymentMethodName,
+        bookId,
+      }).returning({ id: schema.paymentMethods.id })
+      if (!row) throw new InternalServerErrorException('Failed to create payment method');
+      body.paymentMethodId = row.id;
+    }
+    if (!body.categoryId && body.categoryName) {
+      const [row] = await this.db.insert(schema.categories).values({
+        name: body.categoryName,
+        bookId,
+      }).returning({ id: schema.categories.id })
+      if (!row) throw new InternalServerErrorException('Failed to create category');
+      body.categoryId = row.id;
+    }
+
     const [row] = await this.db
       .insert(schema.transactions)
-      .values({ ...body, userId: user.id, bookId })
+      .values({
+        ...body,
+        userId: user.id,
+        bookId,
+        paymentMethodId: body.paymentMethodId,
+        categoryId: body.categoryId,
+      })
       .returning();
     const transactionType =
       parseFloat(body.amount) > 0 ? 'credited' : 'debited';
@@ -137,26 +206,59 @@ export class TransactionService {
     let debited = 0;
     type Transaction = Omit<transactionsSchema.Transaction, 'id'>;
     const transactions: Array<Transaction> = [];
+
+    const paymentMethods = new Set(
+      body.transactions
+        .map((t) => t.paymentMethodName)
+        .filter((t) => t != null),
+    );
+    const categories = new Set(
+      body.transactions.map((t) => t.categoryName).filter((t) => t != null),
+    );
+
+    const paymentMethodMap = await this._getOrCreatePaymentMethodOrCategory(
+      bookId,
+      Array.from(paymentMethods),
+      'paymentMethods',
+    );
+    const categoryMap = await this._getOrCreatePaymentMethodOrCategory(
+      bookId,
+      Array.from(categories),
+      'categories',
+    );
+
     for (const transaction of body.transactions) {
-      if (parseFloat(transaction.amount) === 0)
+      const {
+        amount,
+        createdAt,
+        paymentMethodName,
+        categoryName,
+        paymentMethodId,
+        categoryId,
+      } = transaction;
+
+      if (parseFloat(amount) === 0)
         throw new BadRequestException('Amount cannot be 0');
-      balance += parseFloat(transaction.amount);
-      if (parseFloat(transaction.amount) > 0)
-        credited += parseFloat(transaction.amount);
-      if (parseFloat(transaction.amount) < 0)
-        debited += parseFloat(transaction.amount);
-      const createdAt = transaction.createdAt
-        ? new Date(transaction.createdAt)
-        : new Date();
+      balance += parseFloat(amount);
+      if (parseFloat(amount) > 0) credited += parseFloat(amount);
+      if (parseFloat(amount) < 0) debited += parseFloat(amount);
+      const createdAtDate = createdAt ? new Date(createdAt) : new Date();
+
+      const payId =
+        paymentMethodId ||
+        (paymentMethodName ? paymentMethodMap.get(paymentMethodName)! : null);
+      const catId =
+        categoryId || (categoryName ? categoryMap.get(categoryName)! : null);
+
       transactions.push({
         ...transaction,
-        createdAt,
+        createdAt: createdAtDate,
         userId: user.id,
         updatedAt: new Date(),
-        description: transaction.description ?? '',
-        paymentType: transaction.paymentType ?? '',
-        category: transaction.category ?? '',
+        description: transaction.description ?? null,
         bookId,
+        paymentMethodId: payId,
+        categoryId: catId,
       });
     }
     if (transactions.length === 0)
@@ -191,8 +293,9 @@ export class TransactionService {
     const [updatedRow] = await this.db
       .update(schema.transactions)
       .set({
-        paymentType: query.paymentType,
+        paymentMethodId: query.paymentMethodId,
         description: query.description,
+        categoryId: query.categoryId,
         updatedAt: sql`now()`,
       })
       .where(eq(schema.transactions.id, query.transactionId))
@@ -220,5 +323,33 @@ export class TransactionService {
         updatedAt: sql`now()`,
       });
     });
+  }
+
+  private async _getOrCreatePaymentMethodOrCategory(
+    bookId: number,
+    names: string[],
+    type: 'paymentMethods' | 'categories',
+  ): Promise<Map<string, number>> {
+    const table =
+      type === 'paymentMethods' ? schema.paymentMethods : schema.categories;
+
+    const existing = await this.db
+      .select({ id: table.id, name: table.name })
+      .from(table)
+      .where(and(eq(table.bookId, bookId), inArray(table.name, names)));
+
+    const map = new Map(existing.map((r) => [r.name, r.id]));
+
+    const missing = names.filter((name) => !map.has(name));
+    if (!missing.length) return map;
+
+    const inserted = await this.db
+      .insert(table)
+      .values(missing.map((name) => ({ bookId, name })))
+      .returning({ id: table.id, name: table.name });
+
+    inserted.forEach((r) => map.set(r.name, r.id));
+
+    return map;
   }
 }

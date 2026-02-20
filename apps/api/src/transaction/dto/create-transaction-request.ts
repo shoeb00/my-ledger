@@ -23,9 +23,9 @@ export class CreateTransactionsRequestDto {
   amount: string;
 
   @ApiPropertyOptional()
-  @IsString()
+  @IsNumber()
   @IsOptional()
-  paymentType?: string | null = null;
+  paymentMethodId?: number | null = null;
 
   @ApiPropertyOptional()
   @IsString()
@@ -33,9 +33,19 @@ export class CreateTransactionsRequestDto {
   description?: string | null = null;
 
   @ApiPropertyOptional()
+  @IsNumber()
+  @IsOptional()
+  categoryId?: number | null = null;
+
+  @ApiPropertyOptional()
   @IsString()
   @IsOptional()
-  category?: string | null = null;
+  categoryName?: string | null = null;
+
+  @ApiPropertyOptional()
+  @IsString()
+  @IsOptional()
+  paymentMethodName?: string | null = null;
 }
 
 class BulkCreateTransactionRecord extends CreateTransactionsRequestDto {

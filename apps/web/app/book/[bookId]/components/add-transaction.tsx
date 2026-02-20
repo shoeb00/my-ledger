@@ -8,14 +8,14 @@ import {
 } from '@/components/ui/dialog';
 import { useEffect, useState } from 'react';
 import { Input } from '@/components/ui/input';
-import { PaymentMethod } from '../../../components/payment-method';
 import { addTransaction } from '../actions/add-transaction';
-import { PaymentMethodEnum } from '../../../enums/payment-methods';
 import { Plus, Minus } from 'lucide-react';
 import { toast } from 'sonner';
 import { fmtCurrency, useHasPermission } from '../../../lib';
 import { Roles } from '@my-ledger/api/role';
 import LoaderCircle from '../../../components/loader';
+import CategorySelect from '../../../components/category';
+import PaymentMethodSelect from '../../../components/payment-method';
 
 export default function AddTransactionDialog({
   bookId,
@@ -27,13 +27,19 @@ export default function AddTransactionDialog({
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [description, setDescription] = useState('');
-  const [paymentMethod, setPaymentMethod] = useState(PaymentMethodEnum.CASH);
+  const [paymentMethodId, setPaymentMethodId] = useState<number | null>(null);
+  const [paymentMethodName, setPaymentMethodName] = useState<string | null>(null);
+  const [categoryId, setCategoryId] = useState<number | null>(null);
+  const [categoryName, setCategoryName] = useState<string | null>(null);
   const [amountStr, setAmountStr] = useState('');
   const [isPositive, setIsPositive] = useState(true);
 
   function resetForm() {
     setDescription('');
-    setPaymentMethod(PaymentMethodEnum.CASH);
+    setPaymentMethodId(null);
+    setPaymentMethodName(null);
+    setCategoryId(null);
+    setCategoryName(null);
     setAmountStr('');
     setIsPositive(true);
     setLoading(false);
@@ -48,7 +54,10 @@ export default function AddTransactionDialog({
     const finalAmount = isPositive ? amount : -amount;
     const payload = {
       description,
-      paymentType: paymentMethod,
+      paymentMethodId,
+      paymentMethodName,
+      categoryId,
+      categoryName,
       amount: finalAmount?.toFixed(2).toString() || '0',
       bookId: Number(bookId),
     };
@@ -68,14 +77,14 @@ export default function AddTransactionDialog({
     const amtStr = fmtCurrency(val);
     setAmountStr(amtStr);
     return amtStr;
-  }
+  };
 
   const canEdit = !useHasPermission(Roles.EDITOR);
 
   return (
     <Dialog open={open} onOpenChange={o => setOpen(o)}>
       <DialogTrigger asChild>
-        <Button disabled={loading} hidden={canEdit} className='w-fit'>
+        <Button disabled={loading} hidden={canEdit} className="w-fit">
           <Plus className="h-4 w-4" /> Transaction
         </Button>
       </DialogTrigger>
@@ -103,7 +112,7 @@ export default function AddTransactionDialog({
           <Input
             placeholder={fmtCurrency('12.99')}
             value={amountStr}
-            onChange={(e) => handleAmountInput(e.target.value)}
+            onChange={e => handleAmountInput(e.target.value)}
             maxLength={14}
           />
           <Input
@@ -111,12 +120,27 @@ export default function AddTransactionDialog({
             value={description}
             onChange={e => setDescription(e.target.value)}
           />
-          <PaymentMethod paymentMethod={paymentMethod} setPaymentMethod={setPaymentMethod} />
+          <CategorySelect
+            categoryId={categoryId}
+            setCategoryId={setCategoryId}
+            categoryName={categoryName}
+            setCategoryName={setCategoryName}
+            bookId={Number(bookId)}
+          />
+          <PaymentMethodSelect
+            paymentMethodId={paymentMethodId}
+            setPaymentMethodId={setPaymentMethodId}
+            paymentMethodName={paymentMethodName}
+            setPaymentMethodName={setPaymentMethodName}
+            bookId={Number(bookId)}
+          />
           <DialogFooter>
             <Button variant="outline" onClick={() => setOpen(false)}>
               Cancel
             </Button>
-            <Button onClick={handleAdd} disabled={loading || amountStr === fmtCurrency('')}>{loading ? 'Adding...' : 'Add'}</Button>
+            <Button onClick={handleAdd} disabled={loading || amountStr === fmtCurrency('')}>
+              {loading ? 'Adding...' : 'Add'}
+            </Button>
           </DialogFooter>
         </LoaderCircle>
       </DialogContent>

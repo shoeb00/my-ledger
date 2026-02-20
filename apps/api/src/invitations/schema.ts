@@ -21,10 +21,10 @@ export const invitations = pgTable('invitations', {
   id: serial('id').primaryKey(),
   bookId: integer('book_id')
     .notNull()
-    .references(() => books.id),
+    .references(() => books.id, { onDelete: 'cascade' }),
   invitedBy: integer('invited_by')
     .notNull()
-    .references(() => users.id),
+    .references(() => users.id, { onDelete: 'cascade' }),
   email: varchar('email').notNull(),
   role: roleEnum('role').$type<Roles>().notNull(),
   accepted: boolean('accepted').default(false).notNull(),
@@ -37,7 +37,7 @@ export const inviteLinks = pgTable('invite_links', {
   id: serial('id').primaryKey(),
   bookId: integer('book_id')
     .notNull()
-    .references(() => books.id),
+    .references(() => books.id, { onDelete: 'cascade' }),
   token: text('token').notNull(),
   expiresAt: timestamp('expires_at').notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),

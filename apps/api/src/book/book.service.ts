@@ -18,8 +18,10 @@ import { UpdateBookRequestDto } from './dto/update-book-request';
 import { transactions } from '../transaction/schema';
 import { ChangeOwnerBookRequestDto } from './dto/change-owner-book-request';
 import { invitations } from '../invitations/schema';
+import { paymentMethods } from '../payment-method/schema';
+import { categories } from '../category/schema';
 
-const schema = { ...bookSchema, permissions, users, invitations, transactions };
+const schema = { ...bookSchema, permissions, users, invitations, transactions, paymentMethods, categories };
 
 @Injectable()
 export class BookService {
@@ -27,7 +29,7 @@ export class BookService {
     @Inject(DATABASE_CONNECTION)
     private readonly db: NodePgDatabase<typeof schema>,
     private readonly cxt: RequestContextService,
-  ) {}
+  ) { }
 
   async getBooks(query: GetBookRequestDto): Promise<BookResponseDto[]> {
     const { name, bookId } = query;
@@ -68,15 +70,19 @@ export class BookService {
     );
     if (count >= (Number(process.env.BOOKS_LIMIT) || 5))
       throw new InternalServerErrorException('Max books reached');
-    const [row] = await this.db
-      .insert(schema.books)
-      .values({ ...createBook, userId: user.id })
-      .returning();
-    if (!row) throw new InternalServerErrorException('Failed to create');
-    await this.db.insert(permissions).values({
-      bookId: row.id,
-      userId: user.id,
-      role: Roles.AUTHOR,
+    const row = await this.db.transaction(async () => {
+      const [row] = await this.db
+        .insert(schema.books)
+        .values({ ...createBook, userId: user.id })
+        .returning();
+      if (!row) throw new InternalServerErrorException('Failed to create');
+      await this.db.insert(permissions).values({
+        bookId: row.id,
+        userId: user.id,
+        role: Roles.AUTHOR,
+      });
+      await this._createDefaultCategoriesAndPayMethods(row.id);
+      return row;
     });
     return row;
   }
@@ -129,18 +135,35 @@ export class BookService {
   }
 
   async deleteBook(bookId: number) {
+    await this.db.delete(schema.books).where(eq(schema.books.id, bookId));
+    return;
+  }
+
+  private async _createDefaultCategoriesAndPayMethods(bookId: number) {
+    const DEFAULT_CATEGORIES = [
+      'Bills',
+      'Maintenance',
+      'Salary',
+      'Food',
+      'Transport',
+      'Health',
+      'Shopping',
+      'Entertainment',
+      'Education',
+      'Investment',
+    ];
+    const DEFAULT_PAYMENT_METHODS = [
+      'PhonePe',
+      'GooglePay',
+      'Cash',
+      'Credit Card',
+      'Debit Card',
+      'Bank Transfer',
+      'Paytm',
+    ];
     await this.db.transaction(async () => {
-      await this.db
-        .delete(schema.invitations)
-        .where(eq(schema.invitations.bookId, bookId));
-      await this.db
-        .delete(schema.transactions)
-        .where(eq(schema.transactions.bookId, bookId));
-      await this.db
-        .delete(schema.permissions)
-        .where(eq(schema.permissions.bookId, bookId));
-      await this.db.delete(schema.books).where(eq(schema.books.id, bookId));
-      return;
+      await this.db.insert(categories).values(DEFAULT_CATEGORIES.map(name => ({ name, bookId })));
+      await this.db.insert(paymentMethods).values(DEFAULT_PAYMENT_METHODS.map(name => ({ name, bookId })));
     });
   }
 }

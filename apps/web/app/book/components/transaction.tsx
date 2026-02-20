@@ -4,15 +4,18 @@ import React from 'react';
 import type { Transaction as Tx } from '@my-ledger/api/transaction';
 import DeleteTransactionDialog from '../[bookId]/components/delete-transaction';
 import EditTransactionDialog from '../[bookId]/components/edit-transaction';
-import { PaymentMethodEnum } from '../../enums/payment-methods';
 import AddTransactionDialog from '../[bookId]/components/add-transaction';
 import { fmtCurrency, fmtDate, useHasPermission } from '../../lib';
 import UploadTransactionFile from '../[bookId]/components/upload-transaction-file';
 import { Roles } from '@my-ledger/api/role';
+import { Badge } from '@/components/ui/badge';
+import { cn } from '@/lib/utils';
 
 export type TransactionRow = {
-  name: string,
-  email: string
+  name: string;
+  email: string;
+  paymentMethodName?: string | null;
+  categoryName?: string | null;
 } & Tx;
 
 export function TransactionRow({ tx, refetchAction }: { tx: TransactionRow; refetchAction: () => void }) {
@@ -22,21 +25,25 @@ export function TransactionRow({ tx, refetchAction }: { tx: TransactionRow; refe
       aria-label={`Transaction ${tx.id}`}
       className="w-full rounded-lg border bg-card px-4 py-3 shadow-sm hover:shadow-md transition"
     >
-      <div className="grid grid-cols-1 gap-2 sm:grid-cols-[80px_1fr_160px_120px_auto] sm:items-center">
-        <div className={`text-sm font-semibold sm:text-left ${+tx.amount < 0 ? 'text-destructive' : 'text-success'}`} >
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-[80px_1fr_120px_180px_120px_auto] sm:items-center">
+        <div className={`col-start-1 text-sm font-semibold sm:text-left ${+tx.amount < 0 ? 'text-destructive' : 'text-success'}`} >
           {fmtCurrency(tx.amount, true)}
         </div>
 
-        <div className="overflow-hidden">
+        <div className="col-start-2 overflow-hidden">
           <div className="text-sm font-medium truncate">
-            {tx.description ?? '—'}
+            {tx.description}
           </div>
           <div className="text-[10px] font-semibold text-muted-foreground truncate">
-            {tx.paymentType ?? '—'}
+            {tx.paymentMethodName || ''}
           </div>
         </div>
 
-        <div className="flex flex-col text-xs">
+        <Badge className={cn('col-start-3', tx.categoryName ? '' : 'hidden')} variant="secondary">
+          {tx.categoryName}
+        </Badge>
+
+        <div className="col-start-4 flex flex-col text-xs">
           <span className="font-semibold capitalize text-foreground truncate">
             {tx.name}
           </span>
@@ -45,7 +52,7 @@ export function TransactionRow({ tx, refetchAction }: { tx: TransactionRow; refe
           </span>
         </div>
 
-        <div className="text-xs text-muted-foreground">
+        <div className="col-start-5 text-xs text-muted-foreground">
           {fmtDate(tx.createdAt)}
         </div>
 
@@ -54,7 +61,8 @@ export function TransactionRow({ tx, refetchAction }: { tx: TransactionRow; refe
             bookId={tx.bookId.toString()}
             transactionId={tx.id.toString()}
             description={tx.description ?? ''}
-            paymentType={(tx.paymentType as PaymentMethodEnum) ?? PaymentMethodEnum.OTHER}
+            paymentMethodId={tx.paymentMethodId ?? null}
+            categoryId={tx.categoryId ?? null}
             refetchAction={refetchAction}
           />
           <DeleteTransactionDialog

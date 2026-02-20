@@ -13,10 +13,10 @@ export const permissions = pgTable('permissions', {
   id: serial('id').primaryKey(),
   bookId: integer('book_id')
     .notNull()
-    .references(() => books.id),
+    .references(() => books.id, { onDelete: 'cascade' }),
   userId: integer('user_id')
     .notNull()
-    .references(() => users.id),
+    .references(() => users.id, { onDelete: 'cascade' }),
   role: roleEnum('role').$type<Roles>().notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),

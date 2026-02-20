@@ -33,8 +33,10 @@ function buildTransaction(row: InputRow): AddTransactionRequest {
     createdAt,
     amount,
     description,
-    category,
-    paymentType,
+    categoryName: category,
+    paymentMethodName: paymentType,
+    paymentMethodId: null,
+    categoryId: null
   };
 }
 

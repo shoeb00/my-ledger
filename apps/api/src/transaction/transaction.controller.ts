@@ -79,8 +79,8 @@ export class TransactionController {
   @ApiOkResponse({
     type: TransactionResponseDto,
   })
-  async update(@Query() query: UpdateTransactionsRequestDto) {
-    return await this.service.update(query);
+  async update(@Body() body: UpdateTransactionsRequestDto) {
+    return await this.service.update(body);
   }
 
   @Delete('delete/:id')
