@@ -26,7 +26,8 @@ export default function DeleteBook(body: Omit<UpdateBookRequest, 'description'>)
 
   const isOwner = useHasPermission(Roles.AUTHOR);
 
-  const handleDelete = async () => {
+  const handleDelete = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
     if (loading) return;
     setLoading(true);
     const { err } = await deleteBook(body.bookId);
@@ -44,40 +45,43 @@ export default function DeleteBook(body: Omit<UpdateBookRequest, 'description'>)
       <DialogTrigger asChild>
         <Button variant="outline" disabled={loading} hidden={!isOwner}>
           <Trash2Icon />
-          <span className="hidden lg:block">
-            Delete
-          </span>
+          <span className="hidden lg:block">Delete</span>
         </Button>
       </DialogTrigger>
       <DialogContent>
         <LoaderCircle loading={loading}>
-          <DialogTitle>Delete Book</DialogTitle>
-          <DialogDescription>
-            All transactions in this book will be deleted. The data will be permanently deleted. Do
-            you want to continue?
-          </DialogDescription>
+          <form onSubmit={handleDelete} className="no-style">
+            <DialogTitle>Delete Book</DialogTitle>
+            <DialogDescription className="mt-4">
+              All transactions in this book will be deleted. The data will be permanently deleted.
+              Do you want to continue?
+            </DialogDescription>
 
-          <p className="text-sm text-muted-foreground italic">
-            Enter the name of the book to confirm deletion
-          </p>
-          <Label htmlFor="name">Name</Label>
-          <Input
-            id="name"
-            name="name"
-            onChange={e => setName(e.target.value)}
-            value={name}
-            placeholder={body.name}
-          />
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setOpen(false)}>
-              Cancel
-            </Button>
-            <Button disabled={name !== body.name || loading} onClick={handleDelete}>
-              {loading ? 'Deleting...' : 'Delete'}
-            </Button>
-          </DialogFooter>
+            <div className="grid gap-3 mt-4">
+              <p className="text-sm text-muted-foreground italic">
+                Enter the name of the book to confirm deletion
+              </p>
+              <Label htmlFor="name">Name</Label>
+              <Input
+                id="name"
+                name="name"
+                onChange={e => setName(e.target.value)}
+                value={name}
+                placeholder={body.name}
+                required
+              />
+            </div>
+            <DialogFooter className="pt-5">
+              <Button variant="outline" type="button" onClick={() => setOpen(false)}>
+                Cancel
+              </Button>
+              <Button type="submit" disabled={name !== body.name || loading}>
+                {loading ? 'Deleting...' : 'Delete'}
+              </Button>
+            </DialogFooter>
+          </form>
         </LoaderCircle>
       </DialogContent>
-    </Dialog >
+    </Dialog>
   );
 }
