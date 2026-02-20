@@ -37,7 +37,8 @@ export default function EditBook(body: Props) {
     }
   }, [open, body.name, body.description]);
 
-  const handleUpdate = async () => {
+  const handleUpdate = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
     if (loading) return;
     setLoading(true);
     const { refetchAction, ...payload } = body;
@@ -62,44 +63,46 @@ export default function EditBook(body: Props) {
       </DialogTrigger>
       <DialogContent>
         <LoaderCircle loading={loading}>
-          <DialogTitle>Update Book Details</DialogTitle>
-          <div className="grid gap-4">
-            <div className="grid gap-3">
-              <Label htmlFor="name">Name</Label>
-              <Input
-                id="name"
-                name="name"
-                onChange={e => setName(e.target.value)}
-                value={name}
-                placeholder="Book Name"
-                required
-                minLength={3}
-                maxLength={50}
-              />
+          <form onSubmit={handleUpdate} className="no-style">
+            <DialogTitle>Update Book Details</DialogTitle>
+            <div className="grid gap-4 mt-4">
+              <div className="grid gap-3">
+                <Label htmlFor="name">Name</Label>
+                <Input
+                  id="name"
+                  name="name"
+                  onChange={e => setName(e.target.value)}
+                  value={name}
+                  placeholder="Book Name"
+                  required
+                  minLength={3}
+                  maxLength={50}
+                />
+              </div>
+              <div className="grid gap-3">
+                <Label htmlFor="description">Description</Label>
+                <Input
+                  id="description"
+                  name="description"
+                  value={desc}
+                  onChange={e => setDesc(e.target.value)}
+                  placeholder="Book Description"
+                  minLength={3}
+                  maxLength={120}
+                />
+              </div>
             </div>
-            <div className="grid gap-3">
-              <Label htmlFor="description">Description</Label>
-              <Input
-                id="description"
-                name="description"
-                value={desc}
-                onChange={e => setDesc(e.target.value)}
-                placeholder="Book Description"
-                minLength={3}
-                maxLength={120}
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setOpen(false)}>
-              Cancel
-            </Button>
-            <Button onClick={handleUpdate} disabled={loading || !name}>
-              {loading ? 'Updating...' : 'Update'}
-            </Button>
-          </DialogFooter>
+            <DialogFooter className="pt-5">
+              <Button variant="outline" type="button" onClick={() => setOpen(false)}>
+                Cancel
+              </Button>
+              <Button type="submit" disabled={loading || !name}>
+                {loading ? 'Updating...' : 'Update'}
+              </Button>
+            </DialogFooter>
+          </form>
         </LoaderCircle>
-      </DialogContent >
-    </Dialog >
+      </DialogContent>
+    </Dialog>
   );
 }

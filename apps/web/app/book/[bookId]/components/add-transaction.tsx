@@ -49,7 +49,8 @@ export default function AddTransactionDialog({
     if (!open) resetForm();
   }, [open]);
 
-  async function handleAdd() {
+  async function handleAdd(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
     const amount = Number(amountStr.replace(/[^\d.]/g, ''));
     const finalAmount = isPositive ? amount : -amount;
     const payload = {
@@ -90,58 +91,65 @@ export default function AddTransactionDialog({
       </DialogTrigger>
       <DialogContent>
         <LoaderCircle loading={loading}>
-          <DialogTitle className="font-bold text-2xl">Add Transaction</DialogTitle>
-          <div className="flex gap-4 justify-between">
-            <Button
-              className="flex-1"
-              variant={isPositive ? 'default' : 'outline'}
-              onClick={() => setIsPositive(true)}
-            >
-              <Plus className="h-4 w-4" />
-              Cash-In
-            </Button>
-            <Button
-              className="flex-1"
-              variant={isPositive ? 'outline' : 'default'}
-              onClick={() => setIsPositive(false)}
-            >
-              <Minus className="h-4 w-4" />
-              Cash-Out
-            </Button>
-          </div>
-          <Input
-            placeholder={fmtCurrency('12.99')}
-            value={amountStr}
-            onChange={e => handleAmountInput(e.target.value)}
-            maxLength={14}
-          />
-          <Input
-            placeholder="Transaction description"
-            value={description}
-            onChange={e => setDescription(e.target.value)}
-          />
-          <CategorySelect
-            categoryId={categoryId}
-            setCategoryId={setCategoryId}
-            categoryName={categoryName}
-            setCategoryName={setCategoryName}
-            bookId={Number(bookId)}
-          />
-          <PaymentMethodSelect
-            paymentMethodId={paymentMethodId}
-            setPaymentMethodId={setPaymentMethodId}
-            paymentMethodName={paymentMethodName}
-            setPaymentMethodName={setPaymentMethodName}
-            bookId={Number(bookId)}
-          />
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setOpen(false)}>
-              Cancel
-            </Button>
-            <Button onClick={handleAdd} disabled={loading || amountStr === fmtCurrency('')}>
-              {loading ? 'Adding...' : 'Add'}
-            </Button>
-          </DialogFooter>
+          <form onSubmit={handleAdd} className="no-style">
+            <DialogTitle className="font-bold text-2xl">Add Transaction</DialogTitle>
+            <div className="flex gap-4 justify-between mt-4">
+              <Button
+                className="flex-1"
+                type="button"
+                variant={isPositive ? 'default' : 'outline'}
+                onClick={() => setIsPositive(true)}
+              >
+                <Plus className="h-4 w-4" />
+                Cash-In
+              </Button>
+              <Button
+                className="flex-1"
+                type="button"
+                variant={isPositive ? 'outline' : 'default'}
+                onClick={() => setIsPositive(false)}
+              >
+                <Minus className="h-4 w-4" />
+                Cash-Out
+              </Button>
+            </div>
+            <div className="grid gap-4 mt-4">
+              <Input
+                placeholder={fmtCurrency('12.99')}
+                value={amountStr}
+                onChange={e => handleAmountInput(e.target.value)}
+                maxLength={14}
+                required
+              />
+              <Input
+                placeholder="Transaction description"
+                value={description}
+                onChange={e => setDescription(e.target.value)}
+              />
+              <CategorySelect
+                categoryId={categoryId}
+                setCategoryId={setCategoryId}
+                categoryName={categoryName}
+                setCategoryName={setCategoryName}
+                bookId={Number(bookId)}
+              />
+              <PaymentMethodSelect
+                paymentMethodId={paymentMethodId}
+                setPaymentMethodId={setPaymentMethodId}
+                paymentMethodName={paymentMethodName}
+                setPaymentMethodName={setPaymentMethodName}
+                bookId={Number(bookId)}
+              />
+            </div>
+            <DialogFooter className="pt-5">
+              <Button variant="outline" type="button" onClick={() => setOpen(false)}>
+                Cancel
+              </Button>
+              <Button type="submit" disabled={loading || amountStr === fmtCurrency('')}>
+                {loading ? 'Adding...' : 'Add'}
+              </Button>
+            </DialogFooter>
+          </form>
         </LoaderCircle>
       </DialogContent>
     </Dialog>
