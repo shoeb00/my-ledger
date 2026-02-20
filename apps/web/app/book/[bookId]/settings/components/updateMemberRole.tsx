@@ -41,7 +41,8 @@ export default function UpdateMemberRole({ member, refetchAction }: Props) {
 
   const isOwner = useHasPermission(Roles.AUTHOR);
 
-  const handleUpdateMember = async () => {
+  const handleUpdateMember = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
     if (loading) return;
     if (role === member.role) {
       setOpen(false);
@@ -72,23 +73,29 @@ export default function UpdateMemberRole({ member, refetchAction }: Props) {
       </DialogTrigger>
       <DialogContent>
         <LoaderCircle loading={loading}>
-          <DialogTitle>Change Member Role</DialogTitle>
-          <Label>Role</Label>
-          <Select value={role as string} onValueChange={v => setRole(v as MemberRole)}>
-            <SelectTrigger>
-              <SelectValue placeholder={member.role} />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value={Roles.EDITOR}>Editor</SelectItem>
-              <SelectItem value={Roles.VIEWER}>Viewer</SelectItem>
-            </SelectContent>
-          </Select>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setOpen(false)}>
-              Cancel
-            </Button>
-            <Button onClick={handleUpdateMember}>{loading ? 'Updating...' : 'Update'}</Button>
-          </DialogFooter>
+          <form onSubmit={handleUpdateMember} className="no-style">
+            <DialogTitle>Change Member Role</DialogTitle>
+            <div className="grid gap-3 mt-4">
+              <Label>Role</Label>
+              <Select value={role as string} onValueChange={v => setRole(v as MemberRole)}>
+                <SelectTrigger>
+                  <SelectValue placeholder={member.role} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={Roles.EDITOR}>Editor</SelectItem>
+                  <SelectItem value={Roles.VIEWER}>Viewer</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <DialogFooter className="pt-5">
+              <Button variant="outline" type="button" onClick={() => setOpen(false)}>
+                Cancel
+              </Button>
+              <Button type="submit" disabled={loading}>
+                {loading ? 'Updating...' : 'Update'}
+              </Button>
+            </DialogFooter>
+          </form>
         </LoaderCircle>
       </DialogContent>
     </Dialog>

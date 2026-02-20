@@ -48,7 +48,7 @@ export default function AddOrInviteUser(body: Props) {
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState('');
   const [users, setUsers] = useState<UserDetails[]>([]);
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const canEdit = !useHasPermission(Roles.EDITOR);
 
   useEffect(() => {
@@ -70,9 +70,11 @@ export default function AddOrInviteUser(body: Props) {
   const title = isMemberTab ? 'Add User' : 'Send Invitation';
   const action = isMemberTab ? 'Add' : 'Invite';
   const loadingAction = isMemberTab ? 'Adding...' : 'Inviting...';
-  const buttonCheck = (isMemberTab && !users.find(({ email: e }) => e === email)?.email) || !emailRegex.test(email);
+  const buttonCheck =
+    (isMemberTab && !users.find(({ email: e }) => e === email)?.email) || !emailRegex.test(email);
 
-  const handleUpdate = async () => {
+  const handleUpdate = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
     if (loading) return;
     setLoading(true);
     const { refetchAction } = body;
@@ -83,8 +85,7 @@ export default function AddOrInviteUser(body: Props) {
       if (data === null) {
         toast.success('User found, adding as a member');
         if (body.setActiveTabAction) body.setActiveTabAction('members');
-      }
-      else toast.success(`User ${isMemberTab ? 'added' : 'invited'} successfully`);
+      } else toast.success(`User ${isMemberTab ? 'added' : 'invited'} successfully`);
       refetchAction();
     }
     setOpen(false);
@@ -110,55 +111,55 @@ export default function AddOrInviteUser(body: Props) {
             </>
           ) : (
             <>
-              <MailPlusIcon />  <span className={body.showName ? '' : 'hidden sm:block'}>
-                {title}
-              </span>
+              <MailPlusIcon />{' '}
+              <span className={body.showName ? '' : 'hidden sm:block'}>{title}</span>
             </>
           )}
         </Button>
       </DialogTrigger>
       <DialogContent>
         <LoaderCircle loading={loading}>
-          <DialogTitle>{title}</DialogTitle>
-          <DialogDescription>Email</DialogDescription>
-          <div className="max-h-70 grid gap-3">
-            <Command>
-              <CommandInput
-                placeholder="Type an email..."
-                value={email}
-                onValueChange={setEmail}
-              ></CommandInput>
-              {isMemberTab &&
-                <CommandEmpty>No users found, try inviting</CommandEmpty>}
-              {isMemberTab &&
-                <CommandGroup className="overflow-auto">
-                  {users.map(({ name, email }) => (
-                    <CommandItem
-                      value={email}
-                      key={email}
-                      onSelect={() => {
-                        setEmail(email);
-                      }}
-                      className="p-2 m-2 rounded-md border bg-card shadow-sm hover:shadow-md transition"
-                    >
-                      <div className="flex flex-col">
-                        <span className="capitalize text-sm">{name}</span>
-                        <span className="font-semibold">{email}</span>
-                      </div>
-                    </CommandItem>
-                  ))}
-                </CommandGroup>
-              }
-            </Command>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setOpen(false)}>
-              Cancel
-            </Button>
-            <Button onClick={handleUpdate} disabled={loading || buttonCheck}>
-              {loading ? loadingAction : action}
-            </Button>
-          </DialogFooter>
+          <form onSubmit={handleUpdate} className="no-style">
+            <DialogTitle>{title}</DialogTitle>
+            <DialogDescription className="mt-4">Email</DialogDescription>
+            <div className="max-h-70 grid gap-3 mt-4">
+              <Command className="border rounded-md">
+                <CommandInput
+                  placeholder="Type an email..."
+                  value={email}
+                  onValueChange={setEmail}
+                ></CommandInput>
+                {isMemberTab && <CommandEmpty>No users found, try inviting</CommandEmpty>}
+                {isMemberTab && (
+                  <CommandGroup className="overflow-auto">
+                    {users.map(({ name, email: userEmail }) => (
+                      <CommandItem
+                        value={userEmail}
+                        key={userEmail}
+                        onSelect={() => {
+                          setEmail(userEmail);
+                        }}
+                        className="p-2 m-2 rounded-md border bg-card shadow-sm hover:shadow-md transition"
+                      >
+                        <div className="flex flex-col">
+                          <span className="capitalize text-sm">{name}</span>
+                          <span className="font-semibold">{userEmail}</span>
+                        </div>
+                      </CommandItem>
+                    ))}
+                  </CommandGroup>
+                )}
+              </Command>
+            </div>
+            <DialogFooter className="pt-5">
+              <Button variant="outline" type="button" onClick={() => setOpen(false)}>
+                Cancel
+              </Button>
+              <Button type="submit" disabled={loading || buttonCheck}>
+                {loading ? loadingAction : action}
+              </Button>
+            </DialogFooter>
+          </form>
         </LoaderCircle>
       </DialogContent>
     </Dialog>
