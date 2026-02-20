@@ -70,11 +70,7 @@ export default function PaymentMethodManager({ bookId }: PaymentMethodManagerPro
     setLoading(false);
   };
 
-  const customPaymentMethods = paymentMethods.filter(
-    pm => !DEFAULT_PAYMENT_METHODS.includes(pm.name),
-  );
-  const isDuplicate =
-    DEFAULT_PAYMENT_METHODS.includes(newName) || paymentMethods.some(pm => pm.name === newName);
+  const isDuplicate = paymentMethods.some(pm => pm.name === newName);
 
   return (
     <div className="space-y-4">
