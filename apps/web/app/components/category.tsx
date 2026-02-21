@@ -28,7 +28,7 @@ export default function CategorySelect({
       setLoading(true);
       const { data } = await getCategories({ bookId });
       if (data) {
-        setCategories(data);
+        setCategories(data.sort((a, b) => a.name.localeCompare(b.name)));
       }
       setLoading(false);
     };

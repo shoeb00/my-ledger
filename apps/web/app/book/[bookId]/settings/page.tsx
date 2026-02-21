@@ -140,7 +140,7 @@ export default function BookInfo() {
                 {useHasPermission(Roles.EDITOR) && (
                   <>
                     <TabsTrigger value="invitations">Invitations</TabsTrigger>
-                    <TabsTrigger value="classifications">Classifications</TabsTrigger>
+                    <TabsTrigger value="settings">Settings</TabsTrigger>
                   </>
                 )}
               </div>
@@ -173,14 +173,14 @@ export default function BookInfo() {
                 setActiveTabAction={setActiveTab}
               />
             </TabsContent>
-            <TabsContent value="classifications">
+            <TabsContent value="settings">
               <div className="flex flex-col gap-8">
                 <div>
-                  <h2 className="text-lg font-semibold mb-4">Categories</h2>
+                  <h2 className="font-semibold mb-4">Categories</h2>
                   <CategoryManager bookId={Number(bookId)} />
                 </div>
                 <div className="border-t pt-8">
-                  <h2 className="text-lg font-semibold mb-4">Payment Methods</h2>
+                  <h2 className="font-semibold mb-4">Payment Methods</h2>
                   <PaymentMethodManager bookId={Number(bookId)} />
                 </div>
               </div>

@@ -25,7 +25,7 @@ export default function CategoryManager({ bookId }: CategoryManagerProps) {
     if (err) {
       toast.error(err);
     } else {
-      setCategories(data);
+      setCategories(data.sort((a, b) => a.name.localeCompare(b.name)));
     }
     setLoading(false);
   };
@@ -81,25 +81,28 @@ export default function CategoryManager({ bookId }: CategoryManagerProps) {
         </Button>
       </div>
 
-      <div className="flex flex-wrap gap-2">
-        <LoaderCircle loading={loading}>
-          {categories.map(category => (
-            <Badge
-              key={category.id}
-              variant={categories.length === 1 ? 'secondary' : 'outline'}
-              className="px-3 py-1 text-sm font-normal gap-2 pr-1"
-            >
-              {category.name}
-              <div
-                hidden={categories.length === 1}
-                role="button"
-                className="rounded-full hover:bg-destructive/10 p-0.5 transition-colors cursor-pointer text-destructive"
-                onClick={() => handleDelete(category.id)}
+      <div className="flex">
+        <LoaderCircle loading={loading} className={loading ? 'min-h-30' : ''}>
+          <div className="flex flex-row flex-wrap gap-2 sm:max-w-[50%]">
+            {categories.map(category => (
+              <Badge
+                key={category.id}
+                variant={'outline'}
+                hashString={category.name}
+                className="px-3 py-1 text-sm font-normal gap-2 pr-1"
               >
-                <X className="h-3 w-3" />
-              </div>
-            </Badge>
-          ))}
+                {category.name}
+                <div
+                  hidden={categories.length === 1}
+                  role="button"
+                  className="rounded-full hover:bg-destructive/10 p-0.5 transition-colors cursor-pointer text-destructive"
+                  onClick={() => handleDelete(category.id)}
+                >
+                  <X className="h-3 w-3" />
+                </div>
+              </Badge>
+            ))}
+          </div>
         </LoaderCircle>
       </div>
     </div>

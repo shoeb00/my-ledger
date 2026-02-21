@@ -22,7 +22,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
   }, [theme]);
 
   return (
-    <div>
+    <div className="min-h-screen flex flex-col">
       <ClerkProvider
         publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
         appearance={{ baseTheme: theme ? shadcn : simple }}
@@ -30,7 +30,9 @@ export default function Providers({ children }: { children: React.ReactNode }) {
         <Toaster position="top-right" visibleToasts={5} />
         <Navbar theme={theme} setThemeAction={() => setTheme(!theme)} />
         <RolesProvider>
-          <main className={cn('max-w-7xl mx-auto p-4 sm:px-6 lg:px-8', theme && 'dark')}>
+          <main
+            className={cn('flex-1 w-full max-w-7xl mx-auto p-4 sm:px-6 lg:px-8', theme && 'dark')}
+          >
             {children}
             <SpeedInsights />
           </main>

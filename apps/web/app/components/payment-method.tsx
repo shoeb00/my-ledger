@@ -28,7 +28,7 @@ export default function PaymentMethodSelect({
       setLoading(true);
       const { data } = await getPaymentMethods({ bookId });
       if (data) {
-        setPaymentMethods(data);
+        setPaymentMethods(data.sort((a, b) => a.name.localeCompare(b.name)));
       }
       setLoading(false);
     };

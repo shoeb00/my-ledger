@@ -5,9 +5,10 @@ import React, { PropsWithChildren } from 'react';
 export default function LoaderCircle({
   loading,
   children,
-}: PropsWithChildren<{ loading: boolean }>) {
+  className,
+}: PropsWithChildren<{ loading: boolean; className?: string }>) {
   return (
-    <div className="relative w-full">
+    <div className={cn('relative w-full', className)}>
       {loading && (
         <div className="absolute inset-0 z-20 flex items-center justify-center">
           <div className="absolute inset-0 bg-background/50 backdrop-blur-sm" />
@@ -15,7 +16,10 @@ export default function LoaderCircle({
         </div>
       )}
       <div
-        className={cn("relative w-full h-full flex flex-col gap-4", loading && "pointer-events-none")}
+        className={cn(
+          'relative w-full h-full flex flex-col gap-4',
+          loading && 'pointer-events-none',
+        )}
         aria-busy={loading}
       >
         {children}
@@ -23,4 +27,3 @@ export default function LoaderCircle({
     </div>
   );
 }
-

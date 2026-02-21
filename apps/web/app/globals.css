@@ -1,5 +1,5 @@
-@import 'tailwindcss';
-@import 'tw-animate-css';
+@import "tailwindcss";
+@import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -8,6 +8,7 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --font-brand: var(--font-brand);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -25,6 +26,7 @@
   --color-input: var(--input);
   --color-border: var(--border);
   --color-destructive: var(--destructive);
+  --color-success: oklch(0.6 0.2 140);
   --color-accent-foreground: var(--accent-foreground);
   --color-accent: var(--accent);
   --color-muted-foreground: var(--muted-foreground);
@@ -37,6 +39,11 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
+  --color-role-author: var(--role-author);
+  --color-role-editor: var(--role-editor);
+  --color-role-viewer: var(--role-viewer);
+  --color-badge-category: var(--badge-category);
+  --color-badge-payment: var(--badge-payment);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -62,6 +69,7 @@
   --accent: oklch(0.97 0 0);
   --accent-foreground: oklch(0.205 0 0);
   --destructive: oklch(0.577 0.245 27.325);
+  --success: oklch(0.6 0.2 140);
   --border: oklch(0.922 0 0);
   --input: oklch(0.922 0 0);
   --ring: oklch(0.708 0 0);
@@ -79,6 +87,10 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+
+  --role-viewer: oklch(65.7% 0.21647 141.416);
+  --role-editor: oklch(70.2% 0.2 60);
+  --role-author: oklch(66.024% 0.18785 250.198);
 }
 
 .dark {
@@ -113,6 +125,10 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
+  
+  --role-viewer: oklch(65.7% 0.21647 141.416);
+  --role-editor: oklch(70.2% 0.2 60);
+  --role-author: oklch(66.024% 0.18785 250.198);
 }
 @layer base {
   * {
@@ -123,7 +139,7 @@
   }
 
   button:not([disabled]),
-  [role='button']:not([disabled]) {
+  [role="button"]:not([disabled]) {
     cursor: pointer;
   }
 }

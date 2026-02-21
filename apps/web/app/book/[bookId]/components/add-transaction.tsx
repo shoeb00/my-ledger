@@ -97,7 +97,7 @@ export default function AddTransactionDialog({
               <Button
                 className="flex-1"
                 type="button"
-                variant={isPositive ? 'default' : 'outline'}
+                variant={isPositive ? 'success' : 'outline'}
                 onClick={() => setIsPositive(true)}
               >
                 <Plus className="h-4 w-4" />
@@ -106,7 +106,7 @@ export default function AddTransactionDialog({
               <Button
                 className="flex-1"
                 type="button"
-                variant={isPositive ? 'outline' : 'default'}
+                variant={!isPositive ? 'destructive' : 'outline'}
                 onClick={() => setIsPositive(false)}
               >
                 <Minus className="h-4 w-4" />
