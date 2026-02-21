@@ -44,7 +44,7 @@ export default function AboutPage() {
             This project is proudly open source. You can view the code, contribute, or connect with
             the creator below:
           </p>
-          <div className="flex gap-4">
+          <div className="flex flex-col sm:flex-row gap-4">
             <a
               href="https://github.com/shoeb00/my-ledger"
               target="_blank"
