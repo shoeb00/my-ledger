@@ -21,7 +21,11 @@ import { ChevronLeft, EllipsisVerticalIcon, SettingsIcon, XCircleIcon } from "lu
 import AddTransactionDialog from "./components/add-transaction";
 import LoaderCircle from "../../components/loader";
 import { toast } from "sonner";
-import { fmtCurrency } from "../../lib";
+import { fmtCurrency, fmtDate } from "../../lib";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { CalendarIcon } from "lucide-react";
+import { DateRange } from "react-day-picker";
 
 type paymentType = "all" | "debit" | "credit";
 type order = "asc" | "desc";
@@ -50,8 +54,10 @@ export default function PageClient() {
   // TODO: use useReducer and handle refresh
   const [query, setQuery] = useState("");
   const [paymentType, setPaymentType] = useState<paymentType>("all");
-  const [createdAfter, setCreatedAfter] = useState<string | undefined>(undefined);
-  const [createdBefore, setCreatedBefore] = useState<string | undefined>(undefined);
+  const [dateRange, setDateRange] = useState<DateRange | undefined>({
+    from: undefined,
+    to: undefined,
+  });
   const [minAmount, setMinAmount] = useState<string | undefined>(undefined);
   const [maxAmount, setMaxAmount] = useState<string | undefined>(undefined);
   const [limit, setLimit] = useState<number>(10);
@@ -82,8 +88,8 @@ export default function PageClient() {
       order,
     };
     if (debouncedQuery) p.description = debouncedQuery;
-    if (createdAfter) p.createdAfter = createdAfter;
-    if (createdBefore) p.createdBefore = createdBefore;
+    if (dateRange?.from) p.createdAfter = dateRange.from.toISOString();
+    if (dateRange?.to) p.createdBefore = dateRange.to.toISOString();
     if (minAmount) p.minAmount = minAmount;
     if (maxAmount) p.maxAmount = maxAmount;
     if (paymentType && paymentType !== "all") {
@@ -99,8 +105,7 @@ export default function PageClient() {
     order,
     debouncedQuery,
     paymentType,
-    createdAfter,
-    createdBefore,
+    dateRange,
     minAmount,
     maxAmount,
   ]);
@@ -193,8 +198,7 @@ export default function PageClient() {
               onClick={() => {
                 setQuery("");
                 setPaymentType("all");
-                setCreatedAfter(undefined);
-                setCreatedBefore(undefined);
+                setDateRange({ from: undefined, to: undefined });
                 setMinAmount(undefined);
                 setMaxAmount(undefined);
                 setOrder("desc");
@@ -242,29 +246,47 @@ export default function PageClient() {
         </div>
       </section>
 
-      {/* TODO: use shadcn datepicker */}
       <section className="grid grid-cols-1 md:grid-cols-4 gap-3" hidden={!advanceSearch}>
-        <div>
-          <label className="text-xs text-muted-foreground">Created After</label>
-          <Input
-            type="date"
-            value={createdAfter ?? ""}
-            onChange={e => {
-              setCreatedAfter(e.target.value || undefined);
-              setOffset(0);
-            }}
-          />
-        </div>
-        <div>
-          <label className="text-xs text-muted-foreground">Created Before</label>
-          <Input
-            type="date"
-            value={createdBefore ?? ""}
-            onChange={e => {
-              setCreatedBefore(e.target.value || undefined);
-              setOffset(0);
-            }}
-          />
+        <div className="md:col-span-2">
+          <label className="text-xs text-muted-foreground">Date Range</label>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant={"outline"}
+                className={cn(
+                  "w-full justify-start text-left font-normal",
+                  !dateRange && "text-muted-foreground"
+                )}
+              >
+                <CalendarIcon className="mr-2 h-4 w-4" />
+                {dateRange?.from ? (
+                  dateRange.to ? (
+                    <>
+                      {fmtDate(dateRange.from, false)} -{" "}
+                      {fmtDate(dateRange.to, false)}
+                    </>
+                  ) : (
+                    fmtDate(dateRange.from, false)
+                  )
+                ) : (
+                  <span>Pick a date range</span>
+                )}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar
+                autoFocus
+                mode="range"
+                defaultMonth={dateRange?.from}
+                selected={dateRange}
+                onSelect={(range) => {
+                  setDateRange(range);
+                  setOffset(0);
+                }}
+                numberOfMonths={2}
+              />
+            </PopoverContent>
+          </Popover>
         </div>
         <div>
           <label className="text-xs text-muted-foreground">Min amount</label>

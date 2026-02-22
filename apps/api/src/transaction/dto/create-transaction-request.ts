@@ -46,17 +46,17 @@ export class CreateTransactionsRequestDto {
   @IsString()
   @IsOptional()
   paymentMethodName?: string | null = null;
+
+  @ApiPropertyOptional()
+  @IsString()
+  @IsOptional()
+  createdAt?: string | null = null;
 }
 
-class BulkCreateTransactionRecord extends CreateTransactionsRequestDto {
-  @ApiProperty()
-  @IsString()
-  createdAt: string;
-}
 export class BulkCreateTransactionRequestDto {
   @ApiProperty()
   @IsArray()
   @ArrayMinSize(1)
   @ArrayMaxSize(500)
-  transactions: Array<BulkCreateTransactionRecord>;
+  transactions: Array<CreateTransactionsRequestDto>;
 }

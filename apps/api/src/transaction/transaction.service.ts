@@ -179,6 +179,7 @@ export class TransactionService {
         bookId,
         paymentMethodId: body.paymentMethodId,
         categoryId: body.categoryId,
+        createdAt: body.createdAt ? new Date(body.createdAt) : new Date(),
       })
       .returning();
     const transactionType =
