@@ -61,23 +61,21 @@ export default function CategorySelect({
       }}
       value={categoryId ? categoryId.toString() : categoryName ? `default-${categoryName}` : ''}
     >
-      <SelectTrigger aria-label="Category" className="w-40">
+      <SelectTrigger aria-label="Category" className="flex-1">
         <div className="flex items-center gap-2">
           {loading ? <Loader className="h-4 w-4 animate-spin" /> : null}
           <span className="text-sm">{selectedCategory}</span>
         </div>
       </SelectTrigger>
       <SelectContent>
-        {DEFAULT_CATEGORIES.map(cat => (
-          <SelectItem key={cat} value={`default-${cat}`}>
-            {cat}
-          </SelectItem>
-        ))}
-        {customCategories.map(cat => (
-          <SelectItem key={cat.id} value={cat.id.toString()}>
-            {cat.name}
-          </SelectItem>
-        ))}
+        {[...customCategories, DEFAULT_CATEGORIES].map((cat) => {
+          const category = typeof cat === 'string' ? `default-${cat}` : (cat as Category).name;
+          return (
+            <SelectItem key={category} value={category}>
+              {category}
+            </SelectItem>
+          );
+        })}
       </SelectContent>
     </Select>
   );

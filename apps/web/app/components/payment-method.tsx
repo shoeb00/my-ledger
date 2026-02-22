@@ -69,23 +69,21 @@ export default function PaymentMethodSelect({
             : ''
       }
     >
-      <SelectTrigger aria-label="Payment Type" className="w-40">
+      <SelectTrigger aria-label="Payment Type" className="flex-1">
         <div className="flex items-center gap-2">
           {loading ? <Loader className="h-4 w-4 animate-spin" /> : null}
           <span className="text-sm">{selectedPaymentMethod}</span>
         </div>
       </SelectTrigger>
       <SelectContent>
-        {DEFAULT_PAYMENT_METHODS.map(pm => (
-          <SelectItem key={pm} value={`default-${pm}`}>
-            {pm}
-          </SelectItem>
-        ))}
-        {customPaymentMethods.map(pm => (
-          <SelectItem key={pm.id} value={pm.id.toString()}>
-            {pm.name}
-          </SelectItem>
-        ))}
+        {[...customPaymentMethods, DEFAULT_PAYMENT_METHODS].map((pm) => {
+          const paymentMethod = typeof pm === 'string' ? `default-${pm}` : (pm as PaymentMethod).name;
+          return (
+            <SelectItem key={paymentMethod} value={paymentMethod}>
+              {paymentMethod}
+            </SelectItem>
+          );
+        })}
       </SelectContent>
     </Select>
   );

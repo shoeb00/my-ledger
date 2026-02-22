@@ -1,22 +1,22 @@
 export const DEFAULT_CATEGORIES = [
     'Bills',
+    'Education',
+    'Entertainment',
+    'Food',
+    'Health',
+    'Investment',
     'Maintenance',
     'Salary',
-    'Food',
-    'Transport',
-    'Health',
     'Shopping',
-    'Entertainment',
-    'Education',
-    'Investment',
+    'Transport',
 ];
 
 export const DEFAULT_PAYMENT_METHODS = [
-    'PhonePe',
-    'GooglePay',
+    'Bank Transfer',
     'Cash',
     'Credit Card',
     'Debit Card',
-    'Bank Transfer',
+    'GooglePay',
     'Paytm',
+    'PhonePe',
 ];
