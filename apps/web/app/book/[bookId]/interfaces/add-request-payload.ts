@@ -6,4 +6,5 @@ export interface AddRequestPayload {
   categoryId: number | null;
   categoryName?: string | null;
   amount: string;
+  createdAt?: string;
 }
