@@ -1,22 +1,36 @@
-'use client';
+"use client";
 
-import React, { useCallback, useEffect, useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { getTransaction } from './actions/get-transaction';
-import TransactionList, { TransactionRow } from '../components/transaction';
-import { getBook } from '../actions/get-books';
-import { Book } from '@my-ledger/api/book';
-import { ChevronLeft, EllipsisVerticalIcon, SettingsIcon, XCircleIcon } from 'lucide-react';
-import AddTransactionDialog from './components/add-transaction';
-import LoaderCircle from '../../components/loader';
-import { toast } from 'sonner';
-import { fmtCurrency } from '../../lib';
+import React, { useCallback, useEffect, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { getTransaction } from "./actions/get-transaction";
+import TransactionList, { TransactionRow } from "../components/transaction";
+import { getBook } from "../actions/get-books";
+import { Book } from "@my-ledger/api/book";
+import { ChevronLeft, EllipsisVerticalIcon, SettingsIcon, XCircleIcon } from "lucide-react";
+import AddTransactionDialog from "./components/add-transaction";
+import LoaderCircle from "../../components/loader";
+import { toast } from "sonner";
+import { fmtCurrency, fmtDate } from "../../lib";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { CalendarIcon } from "lucide-react";
+import { DateRange } from "react-day-picker";
+import CategorySelect from "../../components/category";
+import PaymentMethodSelect from "../../components/payment-method";
 
-type paymentType = 'all' | 'debit' | 'credit';
-type order = 'asc' | 'desc';
+type paymentType = "all" | "debit" | "credit";
+type order = "asc" | "desc";
 
 export type FetchParams = {
   bookId: string;
@@ -29,6 +43,8 @@ export type FetchParams = {
   description?: string;
   minAmount?: string;
   maxAmount?: string;
+  categoryId?: number;
+  paymentMethodId?: number;
 };
 
 export default function PageClient() {
@@ -40,25 +56,29 @@ export default function PageClient() {
   const [loading, setLoading] = useState(true);
 
   // TODO: use useReducer and handle refresh
-  const [query, setQuery] = useState('');
-  const [paymentType, setPaymentType] = useState<paymentType>('all');
-  const [createdAfter, setCreatedAfter] = useState<string | undefined>(undefined);
-  const [createdBefore, setCreatedBefore] = useState<string | undefined>(undefined);
+  const [query, setQuery] = useState("");
+  const [paymentType, setPaymentType] = useState<paymentType>("all");
+  const [dateRange, setDateRange] = useState<DateRange | undefined>({
+    from: undefined,
+    to: undefined,
+  });
   const [minAmount, setMinAmount] = useState<string | undefined>(undefined);
   const [maxAmount, setMaxAmount] = useState<string | undefined>(undefined);
   const [limit, setLimit] = useState<number>(10);
   const [offset, setOffset] = useState<number>(0);
-  const [sort, setSort] = useState<string>('createdAt');
-  const [order, setOrder] = useState<order>('desc');
+  const [sort, setSort] = useState<string>("createdAt");
+  const [order, setOrder] = useState<order>("desc");
   const [totalCount, setTotalCount] = useState<number>(0);
   const [debouncedQuery, setDebouncedQuery] = useState(query);
-  const [balance, setBalance] = useState('0');
-  const [debited, setDebited] = useState('0');
-  const [credited, setCredited] = useState('0');
-  const [bookName, setBookName] = useState('');
+  const [balance, setBalance] = useState("0");
+  const [debited, setDebited] = useState("0");
+  const [credited, setCredited] = useState("0");
+  const [bookName, setBookName] = useState("");
   const [refetchTransactions, setRefetchTransactions] = useState(false);
   const [refetchBookDetails, setRefetchBookDetails] = useState(false);
   const [advanceSearch, setAdvanceSearch] = useState(false);
+  const [categoryFilter, setCategoryFilter] = useState<number | null>(null);
+  const [paymentMethodFilter, setPaymentMethodFilter] = useState<number | null>(null);
 
   useEffect(() => {
     const t = setTimeout(() => setDebouncedQuery(query), 250);
@@ -74,13 +94,15 @@ export default function PageClient() {
       order,
     };
     if (debouncedQuery) p.description = debouncedQuery;
-    if (createdAfter) p.createdAfter = createdAfter;
-    if (createdBefore) p.createdBefore = createdBefore;
+    if (dateRange?.from) p.createdAfter = dateRange.from.toISOString();
+    if (dateRange?.to) p.createdBefore = dateRange.to.toISOString();
     if (minAmount) p.minAmount = minAmount;
     if (maxAmount) p.maxAmount = maxAmount;
-    if (paymentType && paymentType !== 'all') {
-      if (paymentType === 'debit') p.maxAmount = '0';
-      if (paymentType === 'credit') p.minAmount = '0';
+    if (categoryFilter != null) p.categoryId = categoryFilter;
+    if (paymentMethodFilter != null) p.paymentMethodId = paymentMethodFilter;
+    if (paymentType && paymentType !== "all") {
+      if (paymentType === "debit") p.maxAmount = "0";
+      if (paymentType === "credit") p.minAmount = "0";
     }
     return p;
   }, [
@@ -91,10 +113,11 @@ export default function PageClient() {
     order,
     debouncedQuery,
     paymentType,
-    createdAfter,
-    createdBefore,
+    dateRange,
     minAmount,
     maxAmount,
+    categoryFilter,
+    paymentMethodFilter,
   ]);
 
   const fetchTransactions = useCallback(async () => {
@@ -122,8 +145,8 @@ export default function PageClient() {
       } else {
         const data = res[0] as Book;
         setBalance(data.balance);
-        setDebited(data.debited || '0');
-        setCredited(data.credited || '0');
+        setDebited(data.debited || "0");
+        setCredited(data.credited || "0");
         setBookName(data.name);
       }
     })();
@@ -140,44 +163,58 @@ export default function PageClient() {
   const prevPage = () => setOffset(prev => Math.max(0, prev - limit));
 
   return (
-    <div className="sm:space-y-2 md:space-y-6 w-full">
+    <div className="sm:space-y-2 md:space-y-6 w-full flex flex-col min-h-[calc(100vh-140px)]">
       <section className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="grid gap-2">
           <div className="flex flex-row items-center gap-2">
-            <Button variant={'outline'} onClick={() => router.push('/home')}>
+            <Button variant={"outline"} onClick={() => router.push("/home")}>
               <ChevronLeft />
             </Button>
             <h2 className="text-xl truncate font-semibold">{bookName}</h2>
           </div>
           <div className="flex gap-4 items-center text-sm text-muted-foreground">
             <span>
-              Balance: <strong className='whitespace-nowrap'>{fmtCurrency(balance, true)}</strong>
+              Balance:{" "}
+              <strong
+                className={cn(
+                  "whitespace-nowrap",
+                  Number(balance) > 0
+                    ? "text-green-600"
+                    : Number(balance) < 0
+                      ? "text-destructive"
+                      : "",
+                )}
+              >
+                {fmtCurrency(balance, true)}
+              </strong>
             </span>
             <span>
-              Credited: <strong>{fmtCurrency(credited)}</strong>
+              Credited: <strong className="text-blue-600">{fmtCurrency(credited)}</strong>
             </span>
             <span>
-              Debited: <strong className='text-destructive'>{fmtCurrency(debited)}</strong>
+              Debited: <strong className="text-destructive">{fmtCurrency(debited)}</strong>
             </span>
           </div>
         </div>
         <div className="flex flex-col items-center gap-2 w-full">
-          <div className='flex flex-row-reverse gap-2 w-full'>
-            <Button variant={advanceSearch ? 'destructive' : 'outline'} onClick={() => setAdvanceSearch(!advanceSearch)}>
-              {!advanceSearch ?
-                <EllipsisVerticalIcon /> : <XCircleIcon />
-              }
+          <div className="flex flex-row-reverse gap-2 w-full">
+            <Button
+              variant={advanceSearch ? "destructive" : "outline"}
+              onClick={() => setAdvanceSearch(!advanceSearch)}
+            >
+              {!advanceSearch ? <EllipsisVerticalIcon /> : <XCircleIcon />}
             </Button>
             <Button
               onClick={() => {
-                setQuery('');
-                setPaymentType('all');
-                setCreatedAfter(undefined);
-                setCreatedBefore(undefined);
+                setQuery("");
+                setPaymentType("all");
+                setDateRange({ from: undefined, to: undefined });
                 setMinAmount(undefined);
                 setMaxAmount(undefined);
-                setOrder('desc');
-                setSort('createdAt');
+                setOrder("desc");
+                setSort("createdAt");
+                setCategoryFilter(null);
+                setPaymentMethodFilter(null);
               }}
               hidden={!advanceSearch}
             >
@@ -190,7 +227,7 @@ export default function PageClient() {
               }}
             >
               <SelectTrigger aria-label="Payment Type" className="min-w-25 w-fit">
-                <SelectValue placeholder='Transaction type' />
+                <SelectValue placeholder="Transaction type" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All</SelectItem>
@@ -205,11 +242,15 @@ export default function PageClient() {
                 setQuery(e.target.value);
                 setOffset(0);
               }}
-              className='min-w-10 w-fit'
+              className="min-w-10 w-fit"
             />
           </div>
           <div className="flex flex-row-reverse gap-2 w-full mb-2">
-            <Button variant="outline" disabled={loading} onClick={() => router.push(`/book/${bookId}/settings`)}>
+            <Button
+              variant="outline"
+              disabled={loading}
+              onClick={() => router.push(`/book/${bookId}/settings`)}
+            >
               <SettingsIcon className="w-4 h-4"></SettingsIcon>
             </Button>
             <AddTransactionDialog bookId={bookId} refetchAction={refetch} />
@@ -217,35 +258,56 @@ export default function PageClient() {
         </div>
       </section>
 
-      {/* TODO: use shadcn datepicker */}
-      <section className="grid grid-cols-1 md:grid-cols-4 gap-3" hidden={!advanceSearch}>
-        <div>
-          <label className="text-xs text-muted-foreground">Created After</label>
-          <Input
-            type="date"
-            value={createdAfter ?? ''}
-            onChange={e => {
-              setCreatedAfter(e.target.value || undefined);
-              setOffset(0);
-            }}
-          />
-        </div>
-        <div>
-          <label className="text-xs text-muted-foreground">Created Before</label>
-          <Input
-            type="date"
-            value={createdBefore ?? ''}
-            onChange={e => {
-              setCreatedBefore(e.target.value || undefined);
-              setOffset(0);
-            }}
-          />
+      <section className="grid grid-cols-3 md:grid-cols-4 gap-3" hidden={!advanceSearch}>
+        <div className="md:col-span-2">
+          <label className="text-xs text-muted-foreground">Date Range</label>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant={"outline"}
+                className={cn(
+                  "w-full justify-start text-left font-normal",
+                  !dateRange && "text-muted-foreground"
+                )}
+              >
+                <CalendarIcon className="mr-2 h-4 w-4" />
+                {dateRange?.from ? (
+                  dateRange.to ? (
+                    <>
+                      {fmtDate(dateRange.from, false)} -{" "}
+                      {fmtDate(dateRange.to, false)}
+                    </>
+                  ) : (
+                    fmtDate(dateRange.from, false)
+                  )
+                ) : (
+                  <>
+                    <span className="hidden sm:block">Pick a date range</span>
+                    <span className="sm:hidden">Date</span>
+                  </>
+                )}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar
+                autoFocus
+                mode="range"
+                defaultMonth={dateRange?.from}
+                selected={dateRange}
+                onSelect={(range) => {
+                  setDateRange(range);
+                  setOffset(0);
+                }}
+                numberOfMonths={2}
+              />
+            </PopoverContent>
+          </Popover>
         </div>
         <div>
           <label className="text-xs text-muted-foreground">Min amount</label>
           <Input
             type="number"
-            value={minAmount ?? ''}
+            value={minAmount ?? ""}
             onChange={e => {
               setMinAmount(e.target.value || undefined);
               setOffset(0);
@@ -257,7 +319,7 @@ export default function PageClient() {
           <label className="text-xs text-muted-foreground">Max amount</label>
           <Input
             type="number"
-            value={maxAmount ?? ''}
+            value={maxAmount ?? ""}
             onChange={e => {
               setMaxAmount(e.target.value || undefined);
               setOffset(0);
@@ -267,69 +329,90 @@ export default function PageClient() {
         </div>
       </section>
 
-      <section className="flex items-center gap-4" hidden={!advanceSearch}>
-        <div className="flex items-center gap-2 my-2">
-          <Select
-            onValueChange={v => {
-              setSort(v);
-              setOffset(0);
-            }}
-            defaultValue='createdAt'
-          >
-            <SelectTrigger aria-label="Sort field" className="min-w-20">
-              <SelectValue placeholder='Sorting fields' />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectGroup>
-                <SelectItem value="createdAt">Created At</SelectItem>
-                <SelectItem value="amount">Amount</SelectItem>
-              </SelectGroup>
-            </SelectContent>
-          </Select>
-          <Select
-            onValueChange={v => {
-              setOrder(v as order);
-              setOffset(0);
-            }}
-            defaultValue='desc'
-          >
-            <SelectTrigger aria-label="Order" className="min-w-10">
-              <SelectValue placeholder='Order' />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="desc">Desc</SelectItem>
-              <SelectItem value="asc">Asc</SelectItem>
-            </SelectContent>
-          </Select>
+      <section className="flex items-center gap-4 w-full" hidden={!advanceSearch}>
+        <div className="flex flex-col sm:flex-row justify-between gap-2 my-2 w-full">
+          <div className="flex flex-row gap-2">
+            <PaymentMethodSelect
+              paymentMethodId={paymentMethodFilter}
+              setPaymentMethodId={v => { setPaymentMethodFilter(v); setOffset(0); }}
+              bookId={Number(bookId)}
+              allowNone
+              onlyExisting
+            />
+            <CategorySelect
+              categoryId={categoryFilter}
+              setCategoryId={v => { setCategoryFilter(v); setOffset(0); }}
+              bookId={Number(bookId)}
+              allowNone
+              onlyExisting
+            />
+          </div>
+          <div className="flex flex-row gap-2 w-full">
+            <div className="flex justify-between gap-2 w-full">
+              <Select
+                onValueChange={v => {
+                  setSort(v);
+                  setOffset(0);
+                }}
+                defaultValue="createdAt"
+              >
+                <SelectTrigger aria-label="Sort field" className="min-w-20">
+                  <SelectValue placeholder="Sorting fields" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectItem value="createdAt">Created At</SelectItem>
+                    <SelectItem value="amount">Amount</SelectItem>
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+              <Select
+                onValueChange={v => {
+                  setOrder(v as order);
+                  setOffset(0);
+                }}
+                defaultValue="desc"
+              >
+                <SelectTrigger aria-label="Order" className="min-w-10">
+                  <SelectValue placeholder="Order" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="desc">Desc</SelectItem>
+                  <SelectItem value="asc">Asc</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <div className="flex items-center gap-2 ml-auto">
+                <label className="text-[11px] sm:text-sm">Per page</label>
+                <Select
+                  onValueChange={v => {
+                    setLimit(Number(v));
+                    setOffset(0);
+                  }}
+                >
+                  <SelectTrigger aria-label="Per page" className="w-20">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm">{limit}</span>
+                    </div>
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="10">10</SelectItem>
+                    <SelectItem value="25">25</SelectItem>
+                    <SelectItem value="50">50</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </div>
         </div>
 
-        <div className="flex items-center gap-2 ml-auto">
-          <label className="text-[11px] sm:text-sm">Per page</label>
-          <Select
-            onValueChange={v => {
-              setLimit(Number(v));
-              setOffset(0);
-            }}
-          >
-            <SelectTrigger aria-label="Per page" className="w-20">
-              <div className="flex items-center gap-2">
-                <span className="text-sm">{limit}</span>
-              </div>
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="10">10</SelectItem>
-              <SelectItem value="25">25</SelectItem>
-              <SelectItem value="50">50</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
       </section>
 
       <LoaderCircle loading={loading}>
         <TransactionList bookId={bookId} transactions={transactions} refetchAction={refetch} />
       </LoaderCircle>
 
-      <section className="flex items-center justify-between mt-4">
+      <section className="flex items-center justify-between mt-auto pt-4 border-t">
         <div className="flex items-center gap-2">
           <Button onClick={prevPage} disabled={offset === 0 || loading}>
             Prev
@@ -341,7 +424,7 @@ export default function PageClient() {
         </div>
 
         <div className="text-sm text-muted-foreground">
-          Showing {totalCount} {totalCount === 1 ? 'item' : 'items'}
+          Showing {totalCount} {totalCount === 1 ? "item" : "items"}
         </div>
       </section>
     </div>

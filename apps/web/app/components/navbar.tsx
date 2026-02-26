@@ -19,15 +19,16 @@ export default function Navbar({
         <Button
           variant="ghost"
           onClick={() => router.push('/home')}
-          className="hover:bg-transparent h-25 p-0"
+          className="hover:bg-transparent h-auto p-0 flex items-center gap-2"
         >
           <Image
             src={theme ? '/logo-dark.svg' : '/logo.svg'}
             alt="My Ledger Logo"
-            width={30}
-            height={20}
+            width={40}
+            height={40}
+            className="w-8 h-8 sm:w-10 sm:h-10 object-contain"
           />
-          <span>My Ledger</span>
+          <h1 className="font-[family-name:var(--font-tangerine)] font-black text-4xl">my-ledger</h1>
         </Button>
       </div>
       <div className="flex flex-row items-center gap-4">

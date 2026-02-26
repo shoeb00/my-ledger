@@ -24,6 +24,7 @@ import {
   eq,
   gte,
   inArray,
+  isNull,
   like,
   lte,
   SQL,
@@ -107,6 +108,20 @@ export class TransactionService {
             like(schema.transactions[key], `%${value as string}%`),
           );
           break;
+        case 'categoryId':
+          if (Number(value) === 0) {
+            conditions.push(isNull(schema.transactions.categoryId));
+          } else {
+            conditions.push(eq(schema.transactions.categoryId, Number(value)));
+          }
+          break;
+        case 'paymentMethodId':
+          if (Number(value) === 0) {
+            conditions.push(isNull(schema.transactions.paymentMethodId));
+          } else {
+            conditions.push(eq(schema.transactions.paymentMethodId, Number(value)));
+          }
+          break;
       }
     }
     const orderDirection = order === 'desc' ? desc : asc;
@@ -171,29 +186,32 @@ export class TransactionService {
       body.categoryId = row.id;
     }
 
-    const [row] = await this.db
-      .insert(schema.transactions)
-      .values({
-        ...body,
-        userId: user.id,
-        bookId,
-        paymentMethodId: body.paymentMethodId,
-        categoryId: body.categoryId,
-      })
-      .returning();
-    const transactionType =
-      parseFloat(body.amount) > 0 ? 'credited' : 'debited';
-    const amount = Math.abs(parseFloat(body.amount));
-    await this.db
-      .update(schema.books)
-      .set({
-        [transactionType]: sql`${booksSchema.books[transactionType]} + ${amount} `,
-        balance: sql`${booksSchema.books.balance} + ${body.amount}::numeric`,
-        updatedAt: sql`now()`,
-      })
-      .where(eq(schema.books.id, bookId));
-    if (!row) throw new InternalServerErrorException('Failed to create');
-    return row;
+    return await this.db.transaction(async (tx) => {
+      const [row] = await tx
+        .insert(schema.transactions)
+        .values({
+          ...body,
+          userId: user.id,
+          bookId,
+          paymentMethodId: body.paymentMethodId,
+          categoryId: body.categoryId,
+          createdAt: body.createdAt ? new Date(body.createdAt) : new Date(),
+        })
+        .returning();
+      const transactionType =
+        parseFloat(body.amount) > 0 ? 'credited' : 'debited';
+      const amount = Math.abs(parseFloat(body.amount));
+      await tx
+        .update(schema.books)
+        .set({
+          [transactionType]: sql`${booksSchema.books[transactionType]} + ${amount} `,
+          balance: sql`${booksSchema.books.balance} + ${body.amount}::numeric`,
+          updatedAt: sql`now()`,
+        })
+        .where(eq(schema.books.id, bookId));
+      if (!row) throw new InternalServerErrorException('Failed to create');
+      return row;
+    })
   }
 
   async createBulk(

@@ -16,6 +16,11 @@ import { Roles } from '@my-ledger/api/role';
 import LoaderCircle from '../../../components/loader';
 import CategorySelect from '../../../components/category';
 import PaymentMethodSelect from '../../../components/payment-method';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Calendar } from '@/components/ui/calendar';
+import { CalendarIcon } from 'lucide-react';
+import { fmtDate } from '../../../lib';
+import { cn } from '@/lib/utils';
 
 export default function AddTransactionDialog({
   bookId,
@@ -33,6 +38,7 @@ export default function AddTransactionDialog({
   const [categoryName, setCategoryName] = useState<string | null>(null);
   const [amountStr, setAmountStr] = useState('');
   const [isPositive, setIsPositive] = useState(true);
+  const [date, setDate] = useState<Date | undefined>(new Date());
 
   function resetForm() {
     setDescription('');
@@ -42,6 +48,7 @@ export default function AddTransactionDialog({
     setCategoryName(null);
     setAmountStr('');
     setIsPositive(true);
+    setDate(new Date());
     setLoading(false);
   }
 
@@ -61,6 +68,7 @@ export default function AddTransactionDialog({
       categoryName,
       amount: finalAmount?.toFixed(2).toString() || '0',
       bookId: Number(bookId),
+      createdAt: date?.toISOString(),
     };
     setLoading(true);
     const { err } = await addTransaction(payload, bookId);
@@ -97,7 +105,7 @@ export default function AddTransactionDialog({
               <Button
                 className="flex-1"
                 type="button"
-                variant={isPositive ? 'default' : 'outline'}
+                variant={isPositive ? 'success' : 'outline'}
                 onClick={() => setIsPositive(true)}
               >
                 <Plus className="h-4 w-4" />
@@ -106,7 +114,7 @@ export default function AddTransactionDialog({
               <Button
                 className="flex-1"
                 type="button"
-                variant={isPositive ? 'outline' : 'default'}
+                variant={!isPositive ? 'destructive' : 'outline'}
                 onClick={() => setIsPositive(false)}
               >
                 <Minus className="h-4 w-4" />
@@ -126,20 +134,44 @@ export default function AddTransactionDialog({
                 value={description}
                 onChange={e => setDescription(e.target.value)}
               />
-              <CategorySelect
-                categoryId={categoryId}
-                setCategoryId={setCategoryId}
-                categoryName={categoryName}
-                setCategoryName={setCategoryName}
-                bookId={Number(bookId)}
-              />
-              <PaymentMethodSelect
-                paymentMethodId={paymentMethodId}
-                setPaymentMethodId={setPaymentMethodId}
-                paymentMethodName={paymentMethodName}
-                setPaymentMethodName={setPaymentMethodName}
-                bookId={Number(bookId)}
-              />
+              <div className="flex flex-row gap-4">
+                <PaymentMethodSelect
+                  paymentMethodId={paymentMethodId}
+                  setPaymentMethodId={setPaymentMethodId}
+                  paymentMethodName={paymentMethodName}
+                  setPaymentMethodName={setPaymentMethodName}
+                  bookId={Number(bookId)}
+                />
+                <CategorySelect
+                  categoryId={categoryId}
+                  setCategoryId={setCategoryId}
+                  categoryName={categoryName}
+                  setCategoryName={setCategoryName}
+                  bookId={Number(bookId)}
+                />
+              </div>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant={"outline"}
+                    className={cn(
+                      'w-full justify-start text-left font-normal',
+                      !date && 'text-muted-foreground'
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {date ? fmtDate(date, false) : <span>Pick a date</span>}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={date}
+                    onSelect={setDate}
+                    autoFocus
+                  />
+                </PopoverContent>
+              </Popover>
             </div>
             <DialogFooter className="pt-5">
               <Button variant="outline" type="button" onClick={() => setOpen(false)}>

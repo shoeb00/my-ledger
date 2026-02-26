@@ -7,6 +7,7 @@ import {
   IsOptional,
   IsEnum,
   IsIn,
+  Min,
 } from 'class-validator';
 import { TransactionSortableFields } from '../enums/transactions-sort-fields';
 
@@ -66,4 +67,18 @@ export class GetTransactionsRequestDto {
   @IsString()
   @IsOptional()
   maxAmount?: string;
+
+  @ApiPropertyOptional({ description: 'Filter by category ID. Pass 0 to filter transactions with no category.' })
+  @IsNumber()
+  @Min(0)
+  @Type(() => Number)
+  @IsOptional()
+  categoryId?: number;
+
+  @ApiPropertyOptional({ description: 'Filter by payment method ID. Pass 0 to filter transactions with no payment method.' })
+  @IsNumber()
+  @Min(0)
+  @Type(() => Number)
+  @IsOptional()
+  paymentMethodId?: number;
 }
