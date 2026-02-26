@@ -108,27 +108,14 @@ export default function BookInfo() {
             <ChevronLeft />
           </Button>
           <div className="flex flex-col">
-            <div className="flex flex-row">
-              <h1 className="text-lg max-h-6 sm:text-2xl sm:max-h-8 max-w-120 font-bold line-clamp-1">
-                {book?.name}
-              </h1>
-              <EditBook
-                bookId={bookId}
-                name={book?.name || ''}
-                refetchAction={() => setRefetchAction(!refetchAction)}
-                description={book?.description || ''}
-              />
-            </div>
+            <h1 className="text-lg max-h-6 sm:text-2xl sm:max-h-8 max-w-120 font-bold line-clamp-1">
+              {book?.name}
+            </h1>
             <h4 className="text-xs line-clamp-2">{book?.description || 'No description'}</h4>
           </div>
         </div>
         <div className="flex flex-row items-center gap-2" hidden={!isOwner}>
           <UploadTransactionFile hidden={!isOwner} showName={false} />
-          <TransferBook
-            bookName={book?.name || ''}
-            refetchAction={() => setRefetchAction(!refetchAction)}
-          />
-          <DeleteBook bookId={bookId} name={book?.name || ''} />
         </div>
       </div>
       <div className="flex flex-col gap-4 mt-4">
@@ -176,12 +163,41 @@ export default function BookInfo() {
             <TabsContent value="settings">
               <div className="flex flex-col gap-8">
                 <div>
-                  <h2 className="font-semibold mb-4">Categories</h2>
+                  <h2 className="font-semibold mb-1">Book Details</h2>
+                  <p className="text-sm text-muted-foreground mb-4">Update the name and description of your book.</p>
+                  <EditBook
+                    bookId={bookId}
+                    name={book?.name || ''}
+                    refetchAction={() => setRefetchAction(!refetchAction)}
+                    description={book?.description || ''}
+                  />
+                </div>
+
+                <div className="border-t pt-8">
+                  <h2 className="font-semibold mb-1">Payment Methods</h2>
+                  <p className="text-sm text-muted-foreground mb-4">Manage the payment methods available for transactions.</p>
+                  <PaymentMethodManager bookId={Number(bookId)} />
+                </div>
+
+                <div className="border-t pt-8">
+                  <h2 className="font-semibold mb-1">Categories</h2>
+                  <p className="text-sm text-muted-foreground mb-4">Manage the categories available for transactions.</p>
                   <CategoryManager bookId={Number(bookId)} />
                 </div>
-                <div className="border-t pt-8">
-                  <h2 className="font-semibold mb-4">Payment Methods</h2>
-                  <PaymentMethodManager bookId={Number(bookId)} />
+
+                <div className="border-t pt-8" hidden={!isOwner}>
+                  <h2 className="font-semibold mb-1">Transfer Ownership</h2>
+                  <p className="text-sm text-muted-foreground mb-4">Transfer this book to another member. Your role will be demoted to Editor.</p>
+                  <TransferBook
+                    bookName={book?.name || ''}
+                    refetchAction={() => setRefetchAction(!refetchAction)}
+                  />
+                </div>
+
+                <div className="border-t border-destructive/40 pt-8 pb-4" hidden={!isOwner}>
+                  <h2 className="font-semibold text-destructive mb-1">Danger Zone</h2>
+                  <p className="text-sm text-muted-foreground mb-4">Permanently delete this book and all its transactions. This cannot be undone.</p>
+                  <DeleteBook bookId={bookId} name={book?.name || ''} />
                 </div>
               </div>
             </TabsContent>

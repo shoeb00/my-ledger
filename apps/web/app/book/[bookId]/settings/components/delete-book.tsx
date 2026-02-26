@@ -1,28 +1,19 @@
+'use client';
+
 import { useState } from 'react';
 import { deleteBook, type UpdateBookRequest } from '../actions/book';
-import {
-  Dialog,
-  DialogContent,
-  DialogTrigger,
-  DialogFooter,
-  DialogTitle,
-} from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
-import { Trash2Icon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
-import { DialogDescription } from '@radix-ui/react-dialog';
 import { Roles } from '@my-ledger/api/role';
 import { useHasPermission } from '../../../../lib';
-import LoaderCircle from '../../../../components/loader';
 
 export default function DeleteBook(body: Omit<UpdateBookRequest, 'description'>) {
   const router = useRouter();
-  const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [name, setName] = useState(body.name);
+  const [nameInput, setNameInput] = useState('');
 
   const isOwner = useHasPermission(Roles.AUTHOR);
 
@@ -33,55 +24,35 @@ export default function DeleteBook(body: Omit<UpdateBookRequest, 'description'>)
     const { err } = await deleteBook(body.bookId);
     if (err) {
       toast.error(err);
+      setLoading(false);
     } else {
       toast.success(`Book '${body.name}' deleted successfully`);
       router.push('/home');
     }
-    setOpen(false);
-    setLoading(false);
   };
-  return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant="outline" disabled={loading} hidden={!isOwner}>
-          <Trash2Icon />
-          <span className="hidden lg:block">Delete</span>
-        </Button>
-      </DialogTrigger>
-      <DialogContent>
-        <LoaderCircle loading={loading}>
-          <form onSubmit={handleDelete} className="no-style">
-            <DialogTitle>Delete Book</DialogTitle>
-            <DialogDescription className="mt-4">
-              All transactions in this book will be deleted. The data will be permanently deleted.
-              Do you want to continue?
-            </DialogDescription>
 
-            <div className="grid gap-3 mt-4">
-              <p className="text-sm text-muted-foreground italic">
-                Enter the name of the book to confirm deletion
-              </p>
-              <Label htmlFor="name">Name</Label>
-              <Input
-                id="name"
-                name="name"
-                onChange={e => setName(e.target.value)}
-                value={name}
-                placeholder={body.name}
-                required
-              />
-            </div>
-            <DialogFooter className="pt-5">
-              <Button variant="outline" type="button" onClick={() => setOpen(false)}>
-                Cancel
-              </Button>
-              <Button type="submit" disabled={name !== body.name || loading}>
-                {loading ? 'Deleting...' : 'Delete'}
-              </Button>
-            </DialogFooter>
-          </form>
-        </LoaderCircle>
-      </DialogContent>
-    </Dialog>
+  if (!isOwner) return null;
+
+  return (
+    <form onSubmit={handleDelete} className="no-style space-y-4">
+      <p className="text-sm text-muted-foreground">
+        All transactions in this book will be permanently deleted. This action cannot be undone.
+      </p>
+      <div className="grid gap-3 sm:max-w-[50%]">
+        <Label htmlFor="delete-confirm">
+          Type <span className="font-semibold text-foreground">{body.name}</span> to confirm
+        </Label>
+        <Input
+          id="delete-confirm"
+          onChange={e => setNameInput(e.target.value)}
+          value={nameInput}
+          placeholder={body.name}
+          required
+        />
+      </div>
+      <Button variant="destructive" type="submit" disabled={nameInput !== body.name || loading}>
+        {loading ? 'Deleting...' : 'Delete Book'}
+      </Button>
+    </form>
   );
 }

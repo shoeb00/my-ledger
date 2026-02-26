@@ -135,18 +135,18 @@ export default function AddTransactionDialog({
                 onChange={e => setDescription(e.target.value)}
               />
               <div className="flex flex-row gap-4">
-                <CategorySelect
-                  categoryId={categoryId}
-                  setCategoryId={setCategoryId}
-                  categoryName={categoryName}
-                  setCategoryName={setCategoryName}
-                  bookId={Number(bookId)}
-                />
                 <PaymentMethodSelect
                   paymentMethodId={paymentMethodId}
                   setPaymentMethodId={setPaymentMethodId}
                   paymentMethodName={paymentMethodName}
                   setPaymentMethodName={setPaymentMethodName}
+                  bookId={Number(bookId)}
+                />
+                <CategorySelect
+                  categoryId={categoryId}
+                  setCategoryId={setCategoryId}
+                  categoryName={categoryName}
+                  setCategoryName={setCategoryName}
                   bookId={Number(bookId)}
                 />
               </div>

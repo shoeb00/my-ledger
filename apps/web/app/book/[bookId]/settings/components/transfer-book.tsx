@@ -1,16 +1,10 @@
+'use client';
+
 import { useEffect, useState } from 'react';
 import { changeOwnership } from '../actions/book';
-import {
-  Dialog,
-  DialogContent,
-  DialogTrigger,
-  DialogFooter,
-  DialogTitle,
-  DialogDescription,
-} from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
-import { ArrowLeftRight, InfoIcon } from 'lucide-react';
+import { InfoIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useParams, useRouter } from 'next/navigation';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -24,16 +18,19 @@ import {
 import { getEmails } from '../actions/invitations';
 import { UserDetails } from './addOrInviteUser';
 import LoaderCircle from '../../../../components/loader';
+import { Roles } from '@my-ledger/api/role';
+import { useHasPermission } from '../../../../lib';
 
 export default function TransferBook(body: { bookName: string; refetchAction: () => void }) {
   const router = useRouter();
   const params = useParams();
   const bookId = params.bookId as string;
-  const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [agree, setAgree] = useState(false);
   const [users, setUsers] = useState<UserDetails[]>([]);
   const [email, setEmail] = useState('');
+
+  const isOwner = useHasPermission(Roles.AUTHOR);
 
   const handleTransfer = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -45,13 +42,12 @@ export default function TransferBook(body: { bookName: string; refetchAction: ()
       toast.error(err);
     } else {
       toast.success(`Book '${body.bookName}' transferred successfully`);
-      // FIXME: Debug why refresh isn't working
       router.refresh();
       body.refetchAction();
     }
-    setOpen(false);
     setLoading(false);
     setAgree(false);
+    setEmail('');
   };
 
   useEffect(() => {
@@ -60,95 +56,65 @@ export default function TransferBook(body: { bookName: string; refetchAction: ()
       const result = await getEmails();
       const data = result.data as UserDetails[];
       setUsers(data);
-      if (result.err) {
-        toast.error(result.err);
-      }
+      if (result.err) toast.error(result.err);
       setLoading(false);
     })();
-  }, [open]);
+  }, []);
+
+  if (!isOwner) return null;
 
   return (
-    <Dialog
-      open={open}
-      onOpenChange={() => {
-        setOpen(!open);
-        setEmail('');
-        setAgree(false);
-      }}
-    >
-      <DialogTrigger asChild>
-        <Button>
-          <ArrowLeftRight />
-          <span className="hidden lg:block">Transfer Ownership</span>
+    <form onSubmit={handleTransfer} className="no-style space-y-4">
+      <p className="text-sm text-muted-foreground italic">
+        Enter the email of the new book owner. Your role will be demoted to Editor.
+      </p>
+      <LoaderCircle loading={loading} className={loading ? 'min-h-20' : ''}>
+        <div className="space-y-3 sm:max-w-[50%]">
+          <Command className="max-h-60 border rounded-md">
+            <CommandInput
+              placeholder="Type an email..."
+              value={email}
+              onValueChange={setEmail}
+            />
+            {!users.length && (
+              <CommandEmpty>No users found. Try adding them as a member first.</CommandEmpty>
+            )}
+            <CommandGroup className="overflow-auto">
+              {users.map(({ name, email: userEmail }) => (
+                <CommandItem
+                  value={userEmail}
+                  key={userEmail}
+                  onSelect={() => setEmail(userEmail)}
+                  className="p-2 m-2 rounded-md border bg-card shadow-sm hover:shadow-md transition"
+                >
+                  <div className="flex flex-col">
+                    <span className="capitalize text-sm">{name}</span>
+                    <span className="font-semibold">{userEmail}</span>
+                  </div>
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </Command>
+          <Label className="flex items-center gap-2">
+            <Checkbox
+              checked={agree}
+              onCheckedChange={checked => setAgree(checked as boolean)}
+            />
+            I understand and accept the consequences
+          </Label>
+        </div>
+      </LoaderCircle>
+      <div className="flex items-center gap-4">
+        <Button
+          type="submit"
+          disabled={!agree || email !== (users.find(u => u.email === email)?.email || null)}
+        >
+          {loading ? 'Transferring...' : 'Transfer Ownership'}
         </Button>
-      </DialogTrigger>
-      <DialogContent>
-        <LoaderCircle loading={loading}>
-          <form onSubmit={handleTransfer} className="no-style">
-            <DialogTitle>Transfer Book Ownership</DialogTitle>
-            <DialogDescription className="mt-4">
-              Your role will be demoted to a Editor and the book will be transferred to the new
-              owner.
-            </DialogDescription>
-
-            <div className="grid gap-3 mt-4">
-              <p className="text-sm text-muted-foreground italic">
-                Enter the email of the new book owner
-              </p>
-              <Command className="max-h-60 border rounded-md">
-                <CommandInput
-                  placeholder="Type an email..."
-                  value={email}
-                  onValueChange={setEmail}
-                ></CommandInput>
-                {!users.length && (
-                  <CommandEmpty>No users found, try adding them as a member first</CommandEmpty>
-                )}
-                <CommandGroup className="overflow-auto">
-                  {users.map(({ name, email: userEmail }) => (
-                    <CommandItem
-                      value={userEmail}
-                      key={userEmail}
-                      onSelect={() => {
-                        setEmail(userEmail);
-                      }}
-                      className="p-2 m-2 rounded-md border bg-card shadow-sm hover:shadow-md transition"
-                    >
-                      <div className="flex flex-col">
-                        <span className="capitalize text-sm">{name}</span>
-                        <span className="font-semibold">{userEmail}</span>
-                      </div>
-                    </CommandItem>
-                  ))}
-                </CommandGroup>
-              </Command>
-              <Label className="flex items-center gap-2 mt-2">
-                <Checkbox
-                  checked={agree}
-                  onCheckedChange={checked => setAgree(checked as boolean)}
-                />{' '}
-                I understand and accept the consequences
-              </Label>
-            </div>
-            <DialogFooter className="pt-5 pb-2">
-              <Button variant="outline" type="button" onClick={() => setOpen(false)}>
-                Cancel
-              </Button>
-              <Button
-                type="submit"
-                disabled={!agree || email !== (users.find(u => u.email === email)?.email || null)}
-              >
-                {loading ? 'Transferring...' : 'Transfer'}
-              </Button>
-            </DialogFooter>
-
-            <Label className="text-xs text-muted-foreground flex gap-1 items-center">
-              <InfoIcon className="h-4 w-4" /> Not finding the user you are looking for? Try adding
-              them as a member
-            </Label>
-          </form>
-        </LoaderCircle>
-      </DialogContent>
-    </Dialog>
+        <Label className="text-xs text-muted-foreground flex gap-1 items-center">
+          <InfoIcon className="h-4 w-4" /> Not finding the user? Add them as a member first.
+        </Label>
+      </div>
+    </form>
   );
 }
