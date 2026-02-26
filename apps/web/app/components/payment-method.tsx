@@ -1,11 +1,8 @@
 'use client';
 
-import { Select, SelectContent, SelectItem, SelectTrigger } from '@/components/ui/select';
-import { useEffect, useState } from 'react';
 import { getPaymentMethods } from '../book/actions/payment-method';
-import { PaymentMethod } from '../types/payment-method';
-import { Loader } from 'lucide-react';
 import { DEFAULT_PAYMENT_METHODS } from '../lib/constants';
+import ClassificationSelect from './classification-select';
 
 export default function PaymentMethodSelect({
   paymentMethodId,
@@ -13,78 +10,32 @@ export default function PaymentMethodSelect({
   bookId,
   paymentMethodName,
   setPaymentMethodName,
+  allowNone,
+  onlyExisting
 }: {
   paymentMethodId: number | null;
   setPaymentMethodId: (v: number | null) => void;
   bookId: number;
   paymentMethodName?: string | null;
   setPaymentMethodName?: (v: string | null) => void;
+  allowNone?: boolean;
+  onlyExisting?: boolean;
 }) {
-  const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchPaymentMethods = async () => {
-      setLoading(true);
-      const { data } = await getPaymentMethods({ bookId });
-      if (data) {
-        setPaymentMethods(data.sort((a, b) => a.name.localeCompare(b.name)));
-      }
-      setLoading(false);
-    };
-    fetchPaymentMethods();
-
-    window.addEventListener('payment-methods-updated', fetchPaymentMethods);
-    return () => {
-      window.removeEventListener('payment-methods-updated', fetchPaymentMethods);
-    };
-  }, [bookId]);
-
-  const selectedPaymentMethod = paymentMethodId
-    ? paymentMethods.find(pm => pm.id === paymentMethodId)?.name
-    : paymentMethodName
-      ? paymentMethodName
-      : 'Payment Type';
-
-  const customPaymentMethods = paymentMethods.filter(
-    pm => !DEFAULT_PAYMENT_METHODS.includes(pm.name),
-  );
-
   return (
-    <Select
-      onValueChange={value => {
-        if (value.startsWith('default-')) {
-          setPaymentMethodId(null);
-          if (setPaymentMethodName) setPaymentMethodName(value.replace('default-', ''));
-        } else {
-          if (setPaymentMethodName) setPaymentMethodName(null);
-          setPaymentMethodId(Number(value));
-        }
-      }}
-      value={
-        paymentMethodId
-          ? paymentMethodId.toString()
-          : paymentMethodName
-            ? `default-${paymentMethodName}`
-            : ''
-      }
-    >
-      <SelectTrigger aria-label="Payment Type" className="flex-1">
-        <div className="flex items-center gap-2">
-          {loading ? <Loader className="h-4 w-4 animate-spin" /> : null}
-          <span className="text-sm">{selectedPaymentMethod}</span>
-        </div>
-      </SelectTrigger>
-      <SelectContent>
-        {[...customPaymentMethods, DEFAULT_PAYMENT_METHODS].map((pm) => {
-          const paymentMethod = typeof pm === 'string' ? `default-${pm}` : (pm as PaymentMethod).name;
-          return (
-            <SelectItem key={paymentMethod} value={paymentMethod}>
-              {paymentMethod}
-            </SelectItem>
-          );
-        })}
-      </SelectContent>
-    </Select>
+    <ClassificationSelect
+      bookId={bookId}
+      fetchData={getPaymentMethods}
+      defaultValues={DEFAULT_PAYMENT_METHODS}
+      id={paymentMethodId}
+      setId={setPaymentMethodId}
+      name={paymentMethodName}
+      setName={setPaymentMethodName}
+      updateEvent="payment-methods-updated"
+      placeholder="Payment Type"
+      ariaLabel="Payment Type"
+      triggerClassName="flex-1"
+      allowNone={allowNone}
+      onlyExisting={onlyExisting}
+    />
   );
 }

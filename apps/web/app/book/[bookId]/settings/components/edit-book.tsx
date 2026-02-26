@@ -2,40 +2,28 @@
 
 import { useEffect, useState } from 'react';
 import { updateBook, type UpdateBookRequest } from '../actions/book';
-import {
-  Dialog,
-  DialogContent,
-  DialogTrigger,
-  DialogFooter,
-  DialogTitle,
-} from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
-import { Edit2Icon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Roles } from '@my-ledger/api/role';
 import { useHasPermission } from '../../../../lib';
-import LoaderCircle from '../../../../components/loader';
 
 interface Props extends UpdateBookRequest {
   refetchAction: () => void;
 }
 
 export default function EditBook(body: Props) {
-  const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [name, setName] = useState('');
-  const [desc, setDesc] = useState('');
+  const [name, setName] = useState(body.name ?? '');
+  const [desc, setDesc] = useState(body.description ?? '');
 
   const isOwner = useHasPermission(Roles.AUTHOR);
 
   useEffect(() => {
-    if (open) {
-      setName(body.name ?? '');
-      setDesc(body.description ?? '');
-    }
-  }, [open, body.name, body.description]);
+    setName(body.name ?? '');
+    setDesc(body.description ?? '');
+  }, [body.name, body.description]);
 
   const handleUpdate = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -51,58 +39,40 @@ export default function EditBook(body: Props) {
       toast.success('Book updated successfully');
       refetchAction();
     }
-    setOpen(false);
     setLoading(false);
   };
+
+  if (!isOwner) return null;
+
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant="ghost" hidden={!isOwner}>
-          <Edit2Icon />
-        </Button>
-      </DialogTrigger>
-      <DialogContent>
-        <LoaderCircle loading={loading}>
-          <form onSubmit={handleUpdate} className="no-style">
-            <DialogTitle>Update Book Details</DialogTitle>
-            <div className="grid gap-4 mt-4">
-              <div className="grid gap-3">
-                <Label htmlFor="name">Name</Label>
-                <Input
-                  id="name"
-                  name="name"
-                  onChange={e => setName(e.target.value)}
-                  value={name}
-                  placeholder="Book Name"
-                  required
-                  minLength={3}
-                  maxLength={50}
-                />
-              </div>
-              <div className="grid gap-3">
-                <Label htmlFor="description">Description</Label>
-                <Input
-                  id="description"
-                  name="description"
-                  value={desc}
-                  onChange={e => setDesc(e.target.value)}
-                  placeholder="Book Description"
-                  minLength={3}
-                  maxLength={120}
-                />
-              </div>
-            </div>
-            <DialogFooter className="pt-5">
-              <Button variant="outline" type="button" onClick={() => setOpen(false)}>
-                Cancel
-              </Button>
-              <Button type="submit" disabled={loading || !name}>
-                {loading ? 'Updating...' : 'Update'}
-              </Button>
-            </DialogFooter>
-          </form>
-        </LoaderCircle>
-      </DialogContent>
-    </Dialog>
+    <form onSubmit={handleUpdate} className="no-style space-y-4">
+      <div className="grid gap-3 sm:max-w-[50%]">
+        <Label htmlFor="book-name">Name</Label>
+        <Input
+          id="book-name"
+          name="name"
+          onChange={e => setName(e.target.value)}
+          value={name}
+          placeholder="Book Name"
+          required
+          minLength={3}
+          maxLength={50}
+        />
+      </div>
+      <div className="grid gap-3 sm:max-w-[50%]">
+        <Label htmlFor="book-description">Description</Label>
+        <Input
+          id="book-description"
+          name="description"
+          value={desc}
+          onChange={e => setDesc(e.target.value)}
+          placeholder="Book Description"
+          maxLength={120}
+        />
+      </div>
+      <Button type="submit" disabled={loading || !name}>
+        {loading ? 'Saving...' : 'Save Changes'}
+      </Button>
+    </form>
   );
 }

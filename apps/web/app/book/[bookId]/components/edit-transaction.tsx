@@ -26,6 +26,8 @@ export default function EditTransactionDialog(query: EditRequestPayload) {
   const [description, setDescription] = useState(query.description);
   const [paymentMethodId, setPaymentMethodId] = useState<number | null>(query.paymentMethodId);
   const [categoryId, setCategoryId] = useState<number | null>(query.categoryId);
+  const [paymentMethodName, setPaymentMethodName] = useState<string | null>(null);
+  const [categoryName, setCategoryName] = useState<string | null>(null);
 
   async function handleUpdate(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -70,11 +72,15 @@ export default function EditTransactionDialog(query: EditRequestPayload) {
                   paymentMethodId={paymentMethodId}
                   setPaymentMethodId={setPaymentMethodId}
                   bookId={Number(query.bookId)}
+                  paymentMethodName={paymentMethodName}
+                  setPaymentMethodName={setPaymentMethodName}
                 />
                 <CategorySelect
                   categoryId={categoryId}
                   setCategoryId={setCategoryId}
                   bookId={Number(query.bookId)}
+                  categoryName={categoryName}
+                  setCategoryName={setCategoryName}
                 />
               </div>
             </div>

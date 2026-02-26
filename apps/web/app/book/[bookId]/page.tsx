@@ -26,6 +26,8 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Calendar } from "@/components/ui/calendar";
 import { CalendarIcon } from "lucide-react";
 import { DateRange } from "react-day-picker";
+import CategorySelect from "../../components/category";
+import PaymentMethodSelect from "../../components/payment-method";
 
 type paymentType = "all" | "debit" | "credit";
 type order = "asc" | "desc";
@@ -41,6 +43,8 @@ export type FetchParams = {
   description?: string;
   minAmount?: string;
   maxAmount?: string;
+  categoryId?: number;
+  paymentMethodId?: number;
 };
 
 export default function PageClient() {
@@ -73,6 +77,8 @@ export default function PageClient() {
   const [refetchTransactions, setRefetchTransactions] = useState(false);
   const [refetchBookDetails, setRefetchBookDetails] = useState(false);
   const [advanceSearch, setAdvanceSearch] = useState(false);
+  const [categoryFilter, setCategoryFilter] = useState<number | null>(null);
+  const [paymentMethodFilter, setPaymentMethodFilter] = useState<number | null>(null);
 
   useEffect(() => {
     const t = setTimeout(() => setDebouncedQuery(query), 250);
@@ -92,6 +98,8 @@ export default function PageClient() {
     if (dateRange?.to) p.createdBefore = dateRange.to.toISOString();
     if (minAmount) p.minAmount = minAmount;
     if (maxAmount) p.maxAmount = maxAmount;
+    if (categoryFilter != null) p.categoryId = categoryFilter;
+    if (paymentMethodFilter != null) p.paymentMethodId = paymentMethodFilter;
     if (paymentType && paymentType !== "all") {
       if (paymentType === "debit") p.maxAmount = "0";
       if (paymentType === "credit") p.minAmount = "0";
@@ -108,6 +116,8 @@ export default function PageClient() {
     dateRange,
     minAmount,
     maxAmount,
+    categoryFilter,
+    paymentMethodFilter,
   ]);
 
   const fetchTransactions = useCallback(async () => {
@@ -203,6 +213,8 @@ export default function PageClient() {
                 setMaxAmount(undefined);
                 setOrder("desc");
                 setSort("createdAt");
+                setCategoryFilter(null);
+                setPaymentMethodFilter(null);
               }}
               hidden={!advanceSearch}
             >
@@ -246,7 +258,7 @@ export default function PageClient() {
         </div>
       </section>
 
-      <section className="grid grid-cols-1 md:grid-cols-4 gap-3" hidden={!advanceSearch}>
+      <section className="grid grid-cols-3 md:grid-cols-4 gap-3" hidden={!advanceSearch}>
         <div className="md:col-span-2">
           <label className="text-xs text-muted-foreground">Date Range</label>
           <Popover>
@@ -269,7 +281,10 @@ export default function PageClient() {
                     fmtDate(dateRange.from, false)
                   )
                 ) : (
-                  <span>Pick a date range</span>
+                  <>
+                    <span className="hidden sm:block">Pick a date range</span>
+                    <span className="sm:hidden">Date</span>
+                  </>
                 )}
               </Button>
             </PopoverTrigger>
@@ -314,62 +329,83 @@ export default function PageClient() {
         </div>
       </section>
 
-      <section className="flex items-center gap-4" hidden={!advanceSearch}>
-        <div className="flex items-center gap-2 my-2">
-          <Select
-            onValueChange={v => {
-              setSort(v);
-              setOffset(0);
-            }}
-            defaultValue="createdAt"
-          >
-            <SelectTrigger aria-label="Sort field" className="min-w-20">
-              <SelectValue placeholder="Sorting fields" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectGroup>
-                <SelectItem value="createdAt">Created At</SelectItem>
-                <SelectItem value="amount">Amount</SelectItem>
-              </SelectGroup>
-            </SelectContent>
-          </Select>
-          <Select
-            onValueChange={v => {
-              setOrder(v as order);
-              setOffset(0);
-            }}
-            defaultValue="desc"
-          >
-            <SelectTrigger aria-label="Order" className="min-w-10">
-              <SelectValue placeholder="Order" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="desc">Desc</SelectItem>
-              <SelectItem value="asc">Asc</SelectItem>
-            </SelectContent>
-          </Select>
+      <section className="flex items-center gap-4 w-full" hidden={!advanceSearch}>
+        <div className="flex flex-col sm:flex-row justify-between gap-2 my-2 w-full">
+          <div className="flex flex-row gap-2">
+            <PaymentMethodSelect
+              paymentMethodId={paymentMethodFilter}
+              setPaymentMethodId={v => { setPaymentMethodFilter(v); setOffset(0); }}
+              bookId={Number(bookId)}
+              allowNone
+              onlyExisting
+            />
+            <CategorySelect
+              categoryId={categoryFilter}
+              setCategoryId={v => { setCategoryFilter(v); setOffset(0); }}
+              bookId={Number(bookId)}
+              allowNone
+              onlyExisting
+            />
+          </div>
+          <div className="flex flex-row gap-2 w-full">
+            <div className="flex justify-between gap-2 w-full">
+              <Select
+                onValueChange={v => {
+                  setSort(v);
+                  setOffset(0);
+                }}
+                defaultValue="createdAt"
+              >
+                <SelectTrigger aria-label="Sort field" className="min-w-20">
+                  <SelectValue placeholder="Sorting fields" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectItem value="createdAt">Created At</SelectItem>
+                    <SelectItem value="amount">Amount</SelectItem>
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+              <Select
+                onValueChange={v => {
+                  setOrder(v as order);
+                  setOffset(0);
+                }}
+                defaultValue="desc"
+              >
+                <SelectTrigger aria-label="Order" className="min-w-10">
+                  <SelectValue placeholder="Order" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="desc">Desc</SelectItem>
+                  <SelectItem value="asc">Asc</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <div className="flex items-center gap-2 ml-auto">
+                <label className="text-[11px] sm:text-sm">Per page</label>
+                <Select
+                  onValueChange={v => {
+                    setLimit(Number(v));
+                    setOffset(0);
+                  }}
+                >
+                  <SelectTrigger aria-label="Per page" className="w-20">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm">{limit}</span>
+                    </div>
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="10">10</SelectItem>
+                    <SelectItem value="25">25</SelectItem>
+                    <SelectItem value="50">50</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </div>
         </div>
 
-        <div className="flex items-center gap-2 ml-auto">
-          <label className="text-[11px] sm:text-sm">Per page</label>
-          <Select
-            onValueChange={v => {
-              setLimit(Number(v));
-              setOffset(0);
-            }}
-          >
-            <SelectTrigger aria-label="Per page" className="w-20">
-              <div className="flex items-center gap-2">
-                <span className="text-sm">{limit}</span>
-              </div>
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="10">10</SelectItem>
-              <SelectItem value="25">25</SelectItem>
-              <SelectItem value="50">50</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
       </section>
 
       <LoaderCircle loading={loading}>
