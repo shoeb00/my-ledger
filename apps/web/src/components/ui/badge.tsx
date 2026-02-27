@@ -16,7 +16,7 @@ const badgeVariants = cva(
           "border-transparent bg-destructive text-white [a&]:hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
         outline: "text-foreground [a&]:hover:bg-accent [a&]:hover:text-accent-foreground",
         author: "border-transparent bg-[var(--role-author)] text-white [a&]:hover:bg-[var(--role-author)/90]",
-        editor: "border-transparent bg-[var(--role-editor)] text-black [a&]:hover:bg-[var(--role-editor)/90]",
+        editor: "border-transparent bg-[var(--role-editor)] text-white [a&]:hover:bg-[var(--role-editor)/90]",
         viewer: "border-transparent bg-[var(--role-viewer)] text-white [a&]:hover:bg-[var(--role-viewer)/90]",
       },
     },
