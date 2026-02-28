@@ -21,7 +21,7 @@ export class ClerkService {
     try {
       const invite = await this.client.invitations.createInvitation({
         emailAddress,
-        redirectUrl: process.env.NEXT_PUBLIC_WEB_URL,
+        redirectUrl: process.env.WEB_URL,
         expiresInDays: 30,
         ignoreExisting: true,
       });
