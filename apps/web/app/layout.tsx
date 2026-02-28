@@ -19,6 +19,10 @@ const tangerine = Tangerine({
   display: 'swap',
 });
 
+if(!process.env.NEXT_PUBLIC_WEB_URL){
+  throw new Error('NEXT_PUBLIC_WEB_URL is not defined');
+}
+
 export const metadata: Metadata = {
   title: {
     default: 'My Ledger',
@@ -34,16 +38,16 @@ export const metadata: Metadata = {
     ],
     apple: '/apple-touch-icon.png',
   },
-  metadataBase: new URL(process.env.WEB_URL!),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_WEB_URL!),
   openGraph: {
     title: 'My Ledger – Simple, free ledger management',
     description:
       'Move your ledger from cashbook.in in minutes. Track credits and debits with a clean UI, no ads, no lock-in, and complete privacy.',
-    url: process.env.WEB_URL!,
+    url: process.env.NEXT_PUBLIC_WEB_URL!,
     siteName: 'My Ledger',
     images: [
       {
-        url: `${process.env.WEB_URL}/og-image.png`,
+        url: `${process.env.NEXT_PUBLIC_WEB_URL}/og-image.png`,
         width: 1200,
         height: 630,
         alt: 'My Ledger',

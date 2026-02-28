@@ -129,7 +129,7 @@ export class InvitationsService {
       if (stillValid) {
         return {
           ...existing,
-          link: `${process.env.WEB_URL}/invite/${existing.token}`,
+          link: `${process.env.NEXT_PUBLIC_WEB_URL}/invite/${existing.token}`,
         };
       }
     }
@@ -143,7 +143,7 @@ export class InvitationsService {
     if (!link) throw new BadRequestException('Failed to create invite link');
     const res = {
       ...link,
-      link: `${process.env.WEB_URL}/invite/${token}`,
+      link: `${process.env.NEXT_PUBLIC_WEB_URL}/invite/${token}`,
     };
     return res;
   }

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export async function generateMetadata({ params }: { params: { token: string } }): Promise<Metadata> {
-    const baseUrl = process.env.WEB_URL!;
+    const baseUrl = process.env.NEXT_PUBLIC_WEB_URL!;
     const { token } = params;
 
     return {
