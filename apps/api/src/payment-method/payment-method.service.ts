@@ -55,15 +55,23 @@ export class PaymentMethodService {
     return PaymentMethodResponseDto.from(row);
   }
 
-  async deletePaymentMethod(id: number): Promise<void> {
+  async deletePaymentMethod(id: number, bookId: number): Promise<void> {
     const paymentMethod = await this.db.query.paymentMethods.findFirst({
-      where: eq(schema.paymentMethods.id, id),
+      where: and(
+        eq(schema.paymentMethods.id, id),
+        eq(schema.paymentMethods.bookId, bookId),
+      ),
     });
     if (!paymentMethod)
       throw new BadRequestException('Payment method not found');
 
     await this.db
       .delete(schema.paymentMethods)
-      .where(eq(schema.paymentMethods.id, id));
+      .where(
+        and(
+          eq(schema.paymentMethods.id, id),
+          eq(schema.paymentMethods.bookId, bookId),
+        ),
+      );
   }
 }

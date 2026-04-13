@@ -37,9 +37,11 @@ export class PaymentMethodController {
   @Delete('delete')
   @ApiOperation({ summary: 'Delete a payment method' })
   @ApiQuery({ name: 'id', type: Number })
+  @ApiQuery({ name: 'bookId', type: Number })
   async deletePaymentMethod(
     @Query('id', ParseIntPipe) id: number,
+    @Query('bookId', ParseIntPipe) bookId: number,
   ): Promise<void> {
-    return await this.paymentMethodService.deletePaymentMethod(id);
+    return await this.paymentMethodService.deletePaymentMethod(id, bookId);
   }
 }

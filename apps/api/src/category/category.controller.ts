@@ -37,7 +37,11 @@ export class CategoryController {
   @Delete('delete')
   @ApiOperation({ summary: 'Delete a category' })
   @ApiQuery({ name: 'id', type: Number })
-  async deleteCategory(@Query('id', ParseIntPipe) id: number): Promise<void> {
-    return await this.categoryService.deleteCategory(id);
+  @ApiQuery({ name: 'bookId', type: Number })
+  async deleteCategory(
+    @Query('id', ParseIntPipe) id: number,
+    @Query('bookId', ParseIntPipe) bookId: number,
+  ): Promise<void> {
+    return await this.categoryService.deleteCategory(id, bookId);
   }
 }
