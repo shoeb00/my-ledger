@@ -258,8 +258,8 @@ export class TransactionService {
       if (parseFloat(amount) === 0)
         throw new BadRequestException('Amount cannot be 0');
       balance += parseFloat(amount);
-      if (parseFloat(amount) > 0) credited += parseFloat(amount);
-      if (parseFloat(amount) < 0) debited += parseFloat(amount);
+      if (parseFloat(amount) > 0) credited += Math.abs(parseFloat(amount));
+      if (parseFloat(amount) < 0) debited += Math.abs(parseFloat(amount));
       const createdAtDate = createdAt ? new Date(createdAt) : new Date();
 
       const payId =
@@ -316,17 +316,27 @@ export class TransactionService {
         categoryId: query.categoryId,
         updatedAt: sql`now()`,
       })
-      .where(eq(schema.transactions.id, query.transactionId))
+      .where(
+        and(
+          eq(schema.transactions.id, query.transactionId),
+          eq(schema.transactions.bookId, query.bookId),
+        ),
+      )
       .returning();
     if (!updatedRow) throw new InternalServerErrorException('Failed to update');
     return updatedRow;
   }
 
-  async delete(id: number): Promise<void> {
+  async delete(id: number, bookId: number): Promise<void> {
     await this.db.transaction(async (tx) => {
       const [record] = await tx
         .delete(schema.transactions)
-        .where(eq(schema.transactions.id, id))
+        .where(
+          and(
+            eq(schema.transactions.id, id),
+            eq(schema.transactions.bookId, bookId),
+          ),
+        )
         .returning({
           amount: schema.transactions.amount,
         });
@@ -339,7 +349,7 @@ export class TransactionService {
         balance: sql`${schema.books.balance} - ${record.amount}::numeric`,
         [key]: sql`${schema.books[key]} - ABS(${record.amount}::numeric)`,
         updatedAt: sql`now()`,
-      });
+      }).where(eq(schema.books.id, bookId));
     });
   }
 

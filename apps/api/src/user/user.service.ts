@@ -46,28 +46,37 @@ export class UserService {
   }
 
   async registerUser(body: CreateUserRequestDto): Promise<UserResponseDto> {
-    const [user] = await this.db.insert(schema.users).values(body).returning();
-    const invitations = await this.db
-      .selectDistinctOn([schema.invitations.bookId])
-      .from(schema.invitations)
-      .where(eq(schema.invitations.email, body.email));
-    if (!user) throw new InternalServerErrorException('Failed to create');
-    const permissions = invitations.map(({ bookId, role }) => ({
-      bookId,
-      role,
-      userId: user.id,
-    }));
-    const bookIds = invitations.map(({ bookId }) => bookId);
-    await this.db.insert(schema.permissions).values(permissions);
-    await this.db
-      .update(schema.books)
-      .set({ members: sql`members + 1` })
-      .where(inArray(schema.books.id, bookIds));
-    await this.db
-      .update(schema.invitations)
-      .set({ accepted: true, updatedAt: sql`now()` })
-      .where(eq(schema.invitations.email, body.email));
-    return user;
+    return await this.db.transaction(async (tx) => {
+      const [user] = await tx.insert(schema.users).values(body).returning();
+      if (!user) throw new InternalServerErrorException('Failed to create');
+
+      const invitationsRes = await tx
+        .selectDistinctOn([schema.invitations.bookId])
+        .from(schema.invitations)
+        .where(eq(schema.invitations.email, body.email));
+
+      if (invitationsRes.length > 0) {
+        const permissions = invitationsRes.map(({ bookId, role }) => ({
+          bookId,
+          role,
+          userId: user.id,
+        }));
+        const bookIds = invitationsRes.map(({ bookId }) => bookId);
+        
+        await tx.insert(schema.permissions).values(permissions);
+        await tx
+          .update(schema.books)
+          .set({ members: sql`members + 1` })
+          .where(inArray(schema.books.id, bookIds));
+      }
+
+      await tx
+        .update(schema.invitations)
+        .set({ accepted: true, updatedAt: sql`now()` })
+        .where(eq(schema.invitations.email, body.email));
+
+      return user;
+    });
   }
 
   async updateClerkUserId(userId: number, clerkUserId: string): Promise<void> {

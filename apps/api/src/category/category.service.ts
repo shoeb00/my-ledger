@@ -55,12 +55,17 @@ export class CategoryService {
     return CategoryResponseDto.from(row);
   }
 
-  async deleteCategory(id: number): Promise<void> {
+  async deleteCategory(id: number, bookId: number): Promise<void> {
     const category = await this.db.query.categories.findFirst({
-      where: eq(schema.categories.id, id),
+      where: and(
+        eq(schema.categories.id, id),
+        eq(schema.categories.bookId, bookId),
+      ),
     });
     if (!category) throw new BadRequestException('Category not found');
 
-    await this.db.delete(schema.categories).where(eq(schema.categories.id, id));
+    await this.db
+      .delete(schema.categories)
+      .where(and(eq(schema.categories.id, id), eq(schema.categories.bookId, bookId)));
   }
 }
