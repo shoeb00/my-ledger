@@ -87,9 +87,8 @@ export class TransactionController {
   @Roles(rolEnum.AUTHOR)
   async delete(
     @Param('id', ParseIntPipe) id: number,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    @Query('bookId', ParseIntPipe) _bookId: number,
+    @Query('bookId', ParseIntPipe) bookId: number,
   ) {
-    return await this.service.delete(id);
+    return await this.service.delete(id, bookId);
   }
 }
