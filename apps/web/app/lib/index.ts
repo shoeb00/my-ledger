@@ -24,6 +24,7 @@ export const fmtDate = (
   tz = 'Asia/Kolkata',
 ): string => {
   const dt = typeof d === 'string' ? new Date(d) : d;
+  if (!dt || isNaN(dt.getTime())) return '';
   const options: Intl.DateTimeFormatOptions = {
     year: 'numeric',
     month: 'short',
