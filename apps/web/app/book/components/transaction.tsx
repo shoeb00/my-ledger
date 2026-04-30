@@ -72,6 +72,7 @@ export function TransactionRow({
             description={tx.description ?? ''}
             paymentMethodId={tx.paymentMethodId ?? null}
             categoryId={tx.categoryId ?? null}
+            createdAt={new Date(tx.createdAt)}
             refetchAction={refetchAction}
           />
           <DeleteTransactionDialog

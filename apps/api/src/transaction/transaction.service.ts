@@ -305,7 +305,10 @@ export class TransactionService {
     query: UpdateTransactionsRequestDto,
   ): Promise<TransactionResponseDto> {
     const record = await this.db.query.transactions.findFirst({
-      where: eq(schema.transactions.id, query.transactionId),
+      where: and(
+        eq(schema.transactions.id, query.transactionId),
+        eq(schema.transactions.bookId, query.bookId),
+      ),
     });
     if (!record) throw new NotFoundException('Transaction not found');
     const [updatedRow] = await this.db
@@ -315,6 +318,7 @@ export class TransactionService {
         description: query.description,
         categoryId: query.categoryId,
         updatedAt: sql`now()`,
+        ...(query.createdAt && { createdAt: new Date(query.createdAt) }),
       })
       .where(
         and(

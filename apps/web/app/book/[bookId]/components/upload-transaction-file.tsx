@@ -64,8 +64,8 @@ export default function UploadTransactionFile({ refetchAction, hidden, showName 
     });
 
     return <Dialog open={open} onOpenChange={setOpen}>
-        <DialogTrigger hidden={!isOwner || hidden}>
-            <Button onClick={() => setOpen(true)}>
+        <DialogTrigger asChild hidden={!isOwner || hidden}>
+            <Button>
                 <UploadIcon />
                 <span className={showName ? '' : "hidden sm:block"}>
                     Add Transactions from File
