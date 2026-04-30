@@ -157,6 +157,12 @@ importers:
       '@clerk/themes':
         specifier: 2.4.46
         version: 2.4.46(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+      '@date-fns/tz':
+        specifier: 1.4.1
+        version: 1.4.1
+      '@date-fns/utc':
+        specifier: 2.1.1
+        version: 2.1.1
       '@my-ledger/api':
         specifier: workspace:*
         version: link:../api
@@ -585,6 +591,9 @@ packages:
 
   '@date-fns/tz@1.4.1':
     resolution: {integrity: sha512-P5LUNhtbj6YfI3iJjw5EL9eUAG6OitD0W3fWQcpQjDRc/QIsL0tRNuO1PcDvPccWL1fSTXXdE1ds+l95DV/OFA==}
+
+  '@date-fns/utc@2.1.1':
+    resolution: {integrity: sha512-SlJDfG6RPeEX8wEVv6ZB3kak4MmbtyiI2qX/5zuKdordbrhB/iaJ58GVMZgJ6P1sJaM1gMgENFYYeg1JWrCFrA==}
 
   '@dotenvx/dotenvx@1.51.2':
     resolution: {integrity: sha512-+693mNflujDZxudSEqSNGpn92QgFhJlBn9q2mDQ9yGWyHuz3hZ8B5g3EXCwdAz4DMJAI+OFCIbfEFZS+YRdrEA==}
@@ -6169,6 +6178,8 @@ snapshots:
       '@jridgewell/trace-mapping': 0.3.9
 
   '@date-fns/tz@1.4.1': {}
+
+  '@date-fns/utc@2.1.1': {}
 
   '@dotenvx/dotenvx@1.51.2':
     dependencies:
