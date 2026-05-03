@@ -2,7 +2,7 @@ import ConfirmationDialog from '../../components/confirmation-dialog';
 import { cancelInvitation } from '../actions/invitations';
 import { toast } from 'sonner';
 import { useHasPermission } from '../../../../lib';
-import { Roles } from '@my-ledger/api/role';
+import { Roles } from '@my-ledger/db/schema';
 
 export default function CancelInvitation({
   inviteId,

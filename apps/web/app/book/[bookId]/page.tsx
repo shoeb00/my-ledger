@@ -16,7 +16,7 @@ import {
 import { getTransaction } from "./actions/get-transaction";
 import TransactionList, { TransactionRow } from "../components/transaction";
 import { getBook } from "../actions/get-books";
-import { Book } from "@my-ledger/api/book";
+import { Book } from "@my-ledger/db/schema";
 import { ChevronLeft, EllipsisVerticalIcon, SettingsIcon, XCircleIcon } from "lucide-react";
 import AddTransactionDialog from "./components/add-transaction";
 import LoaderCircle from "../../components/loader";

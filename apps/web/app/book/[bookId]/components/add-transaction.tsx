@@ -12,7 +12,7 @@ import { addTransaction } from '../actions/add-transaction';
 import { Plus, Minus } from 'lucide-react';
 import { toast } from 'sonner';
 import { fmtCurrency, useHasPermission, zonedTime } from '../../../lib';
-import { Roles } from '@my-ledger/api/role';
+import { Roles } from '@my-ledger/db/schema';
 import LoaderCircle from '../../../components/loader';
 import CategorySelect from '../../../components/category';
 import PaymentMethodSelect from '../../../components/payment-method';
