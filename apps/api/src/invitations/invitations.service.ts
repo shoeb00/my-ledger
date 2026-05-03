@@ -1,32 +1,29 @@
+import { schema, and, eq } from '@my-ledger/db';
+import type { DB } from '@my-ledger/db/connection';
 import {
   BadRequestException,
   Inject,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
-import { and, eq } from 'drizzle-orm';
 import { InviteUserRequestDto } from './dto/invite-user';
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { PermissionsService } from '../permissions/permissions.service';
 import { RequestContextService } from '../common/request-context.service';
 import { ClerkService } from '../clerk/clerk.service';
 import { DATABASE_CONNECTION } from '../database/database-connection';
-import { invitations, inviteLinks } from './schema';
-import { users } from '../user/schema';
 import { Roles } from '../permissions/enum/roles';
 import { PermissionsResponse } from '../permissions/dto/permissions-response';
 
-const schema = { invitations, users, inviteLinks };
 
 @Injectable()
 export class InvitationsService {
   constructor(
     @Inject(DATABASE_CONNECTION)
-    private readonly db: NodePgDatabase<typeof schema>,
+    private readonly db: DB,
     private readonly permissionsService: PermissionsService,
     private readonly cxt: RequestContextService,
     private readonly clerkService: ClerkService,
-  ) {}
+  ) { }
   async getInvitations(bookId: number) {
     const user = this.cxt.getUser();
     return await this.db.query.invitations.findMany({

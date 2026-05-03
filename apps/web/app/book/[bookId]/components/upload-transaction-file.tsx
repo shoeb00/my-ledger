@@ -1,6 +1,6 @@
 import { useParams } from "next/navigation";
 import { useHasPermission } from "../../../lib";
-import { Roles } from "@my-ledger/api/role";
+import { Roles } from "@my-ledger/db/schema";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { useState } from "react";
 import { Dropzone, DropZoneArea, DropzoneTrigger, useDropzone } from "@/components/ui/dropzone";

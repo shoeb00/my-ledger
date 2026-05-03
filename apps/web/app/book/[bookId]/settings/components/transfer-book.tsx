@@ -18,7 +18,7 @@ import {
 import { getEmails } from '../actions/invitations';
 import { UserDetails } from './addOrInviteUser';
 import LoaderCircle from '../../../../components/loader';
-import { Roles } from '@my-ledger/api/role';
+import { Roles } from '@my-ledger/db/schema';
 import { useHasPermission } from '../../../../lib';
 
 export default function TransferBook(body: { bookName: string; refetchAction: () => void }) {

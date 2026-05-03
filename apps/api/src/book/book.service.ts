@@ -1,33 +1,20 @@
-import { permissions } from './../permissions/schema';
-import { users } from './../user/schema';
-import {
-  Inject,
-  Injectable,
-  InternalServerErrorException,
-} from '@nestjs/common';
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import * as bookSchema from './schema';
+import { Inject, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { DATABASE_CONNECTION } from '../database/database-connection';
 import { CreateBookRequestDto } from './dto/create-book-request';
 import { BookResponseDto } from './dto/book-response';
 import { GetBookRequestDto } from './dto/get-book-request';
-import { and, eq, sql } from 'drizzle-orm';
+import { and, desc, eq, sql, schema } from '@my-ledger/db';
+import type { DB } from '@my-ledger/db/connection';
 import { Roles } from '../permissions/enum/roles';
 import { RequestContextService } from '../common/request-context.service';
 import { UpdateBookRequestDto } from './dto/update-book-request';
-import { transactions } from '../transaction/schema';
 import { ChangeOwnerBookRequestDto } from './dto/change-owner-book-request';
-import { invitations } from '../invitations/schema';
-import { paymentMethods } from '../payment-method/schema';
-import { categories } from '../category/schema';
-
-const schema = { ...bookSchema, permissions, users, invitations, transactions, paymentMethods, categories };
 
 @Injectable()
 export class BookService {
   constructor(
     @Inject(DATABASE_CONNECTION)
-    private readonly db: NodePgDatabase<typeof schema>,
+    private readonly db: DB,
     private readonly cxt: RequestContextService,
   ) { }
 
@@ -38,7 +25,7 @@ export class BookService {
       .select({
         book: schema.books,
         role: schema.permissions.role,
-        lastTransaction: sql`max(${schema.transactions.createdAt})`,
+        lastTransaction: sql<Date>`max(${schema.transactions.createdAt})`.as('lastTransaction'),
       })
       .from(schema.permissions)
       .leftJoin(schema.books, eq(schema.books.id, schema.permissions.bookId))
@@ -47,7 +34,8 @@ export class BookService {
         eq(schema.books.id, schema.transactions.bookId),
       )
       .where(eq(schema.permissions.userId, user.id))
-      .groupBy(schema.books.id, schema.permissions.role);
+      .groupBy(schema.books.id, schema.permissions.role)
+      .orderBy(desc(schema.books.updatedAt));
     if (rows.length === 0) return [];
     const books: BookResponseDto[] = [];
     for (const row of rows) {
@@ -76,7 +64,7 @@ export class BookService {
         .values({ ...createBook, userId: user.id })
         .returning();
       if (!row) throw new InternalServerErrorException('Failed to create');
-      await this.db.insert(permissions).values({
+      await this.db.insert(schema.permissions).values({
         bookId: row.id,
         userId: user.id,
         role: Roles.AUTHOR,
@@ -95,7 +83,7 @@ export class BookService {
         email: schema.users.email,
         role: schema.permissions.role,
       })
-      .from(permissions)
+      .from(schema.permissions)
       .leftJoin(schema.users, eq(schema.users.id, schema.permissions.userId))
       .where(eq(schema.permissions.bookId, id));
   }
@@ -162,8 +150,8 @@ export class BookService {
       'Paytm',
     ];
     await this.db.transaction(async () => {
-      await this.db.insert(categories).values(DEFAULT_CATEGORIES.map(name => ({ name, bookId })));
-      await this.db.insert(paymentMethods).values(DEFAULT_PAYMENT_METHODS.map(name => ({ name, bookId })));
+      await this.db.insert(schema.categories).values(DEFAULT_CATEGORIES.map(name => ({ name, bookId })));
+      await this.db.insert(schema.paymentMethods).values(DEFAULT_PAYMENT_METHODS.map(name => ({ name, bookId })));
     });
   }
 }

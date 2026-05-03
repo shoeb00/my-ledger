@@ -1,0 +1,46 @@
+import {
+    serial,
+    timestamp,
+    pgTable,
+    numeric,
+    varchar,
+    integer,
+} from 'drizzle-orm/pg-core';
+import { InferSelectModel, relations } from 'drizzle-orm';
+import { books } from './books.js';
+import { users } from './users.js';
+import { paymentMethods } from './payment-methods.js';
+import { categories } from './categories.js';
+
+export const transactions = pgTable('transactions', {
+    id: serial('id').primaryKey(),
+    bookId: integer('book_id')
+        .notNull()
+        .references(() => books.id, { onDelete: 'cascade' }),
+    userId: integer('user_id')
+        .notNull()
+        .references(() => users.id, { onDelete: 'cascade' }),
+    amount: numeric('amount', { precision: 10, scale: 2 }).notNull(),
+    description: varchar('description'),
+    paymentMethodId: integer('payment_method_id').references(
+        () => paymentMethods.id,
+        { onDelete: 'set null' },
+    ),
+    categoryId: integer('category_id').references(() => categories.id, { onDelete: 'set null' }),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+export const transactionsRelations = relations(transactions, ({ one }) => ({
+    paymentMethod: one(paymentMethods, {
+        fields: [transactions.paymentMethodId],
+        references: [paymentMethods.id],
+    }),
+    category: one(categories, {
+        fields: [transactions.categoryId],
+        references: [categories.id],
+    }),
+}));
+
+
+export type Transaction = InferSelectModel<typeof transactions>;

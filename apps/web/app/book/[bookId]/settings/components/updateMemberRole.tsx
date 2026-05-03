@@ -18,7 +18,7 @@ import { Button } from '@/components/ui/button';
 import { updateBookMembers } from '../actions/members';
 import { useParams } from 'next/navigation';
 import { toast } from 'sonner';
-import { Roles } from '@my-ledger/api/role';
+import { Roles } from '@my-ledger/db/schema';
 import { UserCog2Icon } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { useHasPermission } from '../../../../lib';

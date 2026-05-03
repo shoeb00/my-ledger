@@ -2,7 +2,7 @@ import { toast } from 'sonner';
 import ConfirmationDialog from '../../components/confirmation-dialog';
 import { removeBookMembers } from '../actions/members';
 import { useParams } from 'next/navigation';
-import { Roles } from '@my-ledger/api/role';
+import { Roles } from '@my-ledger/db/schema';
 import { useBookRole } from '../../../../context';
 
 type Props = {

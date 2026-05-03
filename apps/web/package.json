@@ -16,6 +16,7 @@
     "@date-fns/tz": "1.4.1",
     "@date-fns/utc": "2.1.1",
     "@my-ledger/api": "workspace:*",
+    "@my-ledger/db": "workspace:*",
     "@radix-ui/react-avatar": "1.1.11",
     "@radix-ui/react-checkbox": "1.3.3",
     "@radix-ui/react-dialog": "1.1.15",

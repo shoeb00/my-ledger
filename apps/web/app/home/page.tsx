@@ -9,7 +9,7 @@ import LoaderCircle from '../components/loader';
 import { toast } from 'sonner';
 import { BookResponse, getBook } from '../book/actions/get-books';
 import CreateBook from '../book/create-book';
-import { Roles } from '@my-ledger/api/role';
+import { Roles } from '@my-ledger/db/schema';
 import { acceptInvite, getUser } from '../invite/[token]/actions/invite';
 import { useClerk } from '@clerk/nextjs';
 

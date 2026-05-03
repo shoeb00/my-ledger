@@ -15,7 +15,7 @@ import { updateTransaction } from '../actions/update-transaction';
 import { EditRequestPayload } from '../interfaces/edit-request-payload';
 import { toast } from 'sonner';
 import { useHasPermission, zonedTime } from '../../../lib';
-import { Roles } from '@my-ledger/api/role';
+import { Roles } from '@my-ledger/db/schema';
 import LoaderCircle from '../../../components/loader';
 import { DatePicker } from '../../components/date-picker';
 

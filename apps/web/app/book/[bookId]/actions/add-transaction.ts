@@ -1,5 +1,5 @@
 import { callApi } from '../../../lib/api';
-import { Transaction } from '@my-ledger/api/transaction';
+import { Transaction } from '@my-ledger/db/schema';
 import { AddRequestPayload } from '../interfaces/add-request-payload';
 
 export async function addTransaction(payload: AddRequestPayload, bookId: string) {

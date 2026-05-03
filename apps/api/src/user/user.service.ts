@@ -1,4 +1,5 @@
-import { permissions } from './../permissions/schema';
+import { schema, and, eq, inArray, ne, sql } from '@my-ledger/db';
+import type { DB } from '@my-ledger/db/connection';
 import {
   BadRequestException,
   Inject,
@@ -6,27 +7,17 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common';
 import { DATABASE_CONNECTION } from '../database/database-connection';
-import { users } from './schema';
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { UserResponseDto } from './dto/user-response';
 import { CreateUserRequestDto } from './dto/create-user-request';
-import { and, eq, inArray, ne, sql } from 'drizzle-orm';
-import { PermissionsService } from '../permissions/permissions.service';
-import { books } from '../book/schema';
 import { RequestContextService } from '../common/request-context.service';
-import { ClerkService } from '../clerk/clerk.service';
-import { invitations } from '../invitations/schema';
 
-const schema = { users, permissions, books, invitations };
 
 @Injectable()
 export class UserService {
   constructor(
     @Inject(DATABASE_CONNECTION)
-    private readonly db: NodePgDatabase<typeof schema>,
-    private readonly permissionsService: PermissionsService,
+    private readonly db: DB,
     private readonly cxt: RequestContextService,
-    private readonly clerkService: ClerkService,
   ) {}
 
   async getUser({
