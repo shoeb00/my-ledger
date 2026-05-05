@@ -5,8 +5,19 @@
     "build": {
       "dependsOn": ["^build"],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
-      "outputs": [".next/**", "!.next/cache/**"],
-      "env": ["API_URL", "BOOKS_LIMIT"]
+      "outputs": ["dist/**", ".next/**", "!.next/cache/**"],
+      "env": [
+        "DATABASE_URL",
+        "CLERK_SECRET_KEY",
+        "CLERK_PUBLISHABLE_KEY",
+        "CLERK_WEBHOOK_SECRET",
+        "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY",
+        "NEXT_PUBLIC_API_URL",
+        "NEXT_PUBLIC_WEB_URL",
+        "FRONTEND_ORIGIN",
+        "WEB_URL",
+        "BOOKS_LIMIT"
+      ]
     },
     "lint": {
       "dependsOn": ["^lint"]
