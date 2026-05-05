@@ -1,7 +1,23 @@
 import { ROLE_RANK, Roles } from '@my-ledger/api/role';
 import { useParams } from 'next/navigation';
 import { useBookRole } from '../context';
+import { TZDateMini } from '@date-fns/tz';
+import { format } from 'date-fns'
+import { UTCDate } from '@date-fns/utc'
 
+const getUserTz = () => {
+  // TODO: get from user profile
+  return 'Asia/Kolkata';
+}
+const DATE_TIME_FORMAT = "EEE, d MMM, yyyy, h:mm a";
+const DATE_FORMAT = "EEE, d MMM, yyyy";
+const TIME_FORMAT = "HH:mm";
+
+const zoned = new TZDateMini(new Date(), getUserTz())
+const formatted = format(zoned, DATE_TIME_FORMAT);
+console.log(format(zoned, DATE_FORMAT));
+
+console.log(new UTCDate(formatted).toISOString(), new Date().toISOString())
 const getCurrencySymbol = (locale = 'en-IN') => (locale === 'en-US' ? '$' : '₹');
 
 export const fmtCurrency = (value: string, allowNegative = false, locale = 'en-IN') => {
@@ -20,24 +36,19 @@ export const fmtCurrency = (value: string, allowNegative = false, locale = 'en-I
 export const fmtDate = (
   d: string | Date,
   fullDate = true,
-  locale = 'en-IN',
-  tz = 'Asia/Kolkata',
-): string => {
+) => {
   const dt = typeof d === 'string' ? new Date(d) : d;
-  const options: Intl.DateTimeFormatOptions = {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-    timeZone: tz,
-  };
-  if (fullDate) {
-    options.weekday = 'short';
-    options.hour = 'numeric';
-    options.minute = 'numeric';
-  }
-  return dt.toLocaleDateString(locale, options);
+  if (!dt || isNaN(dt.getTime())) return '';
+  const zoned = new TZDateMini(dt, getUserTz())
+  const formatted = format(zoned, fullDate ? DATE_TIME_FORMAT : DATE_FORMAT);
+  return formatted;
 };
 
+export const zonedTime = (d: Date) => {
+  const time = new TZDateMini(d, getUserTz());
+  const str = format(time, TIME_FORMAT);
+  return str;
+}
 export const useHasPermission = (requiredPermission: Roles) => {
   const params = useParams();
   const bookId = params.bookId as string;

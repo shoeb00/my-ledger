@@ -1,23 +1,5 @@
 import {
-  BadRequestException,
-  Inject,
-  Injectable,
-  InternalServerErrorException,
-  NotFoundException,
-} from '@nestjs/common';
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import * as transactionsSchema from './schema';
-import * as booksSchema from '../book/schema';
-import * as userSchema from '../user/schema';
-import * as paymentMethodsSchema from '../payment-method/schema';
-import * as categoriesSchema from '../category/schema';
-import { DATABASE_CONNECTION } from '../database/database-connection';
-import { GetTransactionsRequestDto } from './dto/get-transaction-request';
-import {
-  TransactionListResponseDto,
-  TransactionResponseDto,
-} from './dto/transaction-response';
-import {
+  schema,
   and,
   asc,
   desc,
@@ -29,28 +11,34 @@ import {
   lte,
   SQL,
   sql,
-} from 'drizzle-orm';
+  getTableColumns,
+} from '@my-ledger/db';
+import type { DB } from '@my-ledger/db/connection';
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
+import { DATABASE_CONNECTION } from '../database/database-connection';
+import { GetTransactionsRequestDto } from './dto/get-transaction-request';
+import {
+  TransactionListResponseDto,
+  TransactionResponseDto,
+} from './dto/transaction-response';
 import {
   BulkCreateTransactionRequestDto,
   CreateTransactionsRequestDto,
 } from './dto/create-transaction-request';
 import { RequestContextService } from '../common/request-context.service';
 import { UpdateTransactionsRequestDto } from './dto/update-transaction-request';
-import { getTableColumns } from 'drizzle-orm';
-
-const schema = {
-  ...transactionsSchema,
-  ...booksSchema,
-  ...userSchema,
-  ...paymentMethodsSchema,
-  ...categoriesSchema,
-};
 
 @Injectable()
 export class TransactionService {
   constructor(
     @Inject(DATABASE_CONNECTION)
-    private readonly db: NodePgDatabase<typeof schema>,
+    private readonly db: DB,
     private readonly cxt: RequestContextService,
   ) { }
 
@@ -119,7 +107,9 @@ export class TransactionService {
           if (Number(value) === 0) {
             conditions.push(isNull(schema.transactions.paymentMethodId));
           } else {
-            conditions.push(eq(schema.transactions.paymentMethodId, Number(value)));
+            conditions.push(
+              eq(schema.transactions.paymentMethodId, Number(value)),
+            );
           }
           break;
       }
@@ -151,7 +141,7 @@ export class TransactionService {
         .offset(offset);
 
       const count = await this.db.$count(
-        transactionsSchema.transactions,
+        schema.transactions,
         and(...conditions),
       );
       return { data: data as TransactionResponseDto[], count };
@@ -170,19 +160,29 @@ export class TransactionService {
       throw new BadRequestException('Amount cannot be 0');
 
     if (!body.paymentMethodId && body.paymentMethodName) {
-      const [row] = await this.db.insert(schema.paymentMethods).values({
-        name: body.paymentMethodName,
-        bookId,
-      }).returning({ id: schema.paymentMethods.id })
-      if (!row) throw new InternalServerErrorException('Failed to create payment method');
+      const [row] = await this.db
+        .insert(schema.paymentMethods)
+        .values({
+          name: body.paymentMethodName,
+          bookId,
+        })
+        .returning({ id: schema.paymentMethods.id });
+      if (!row)
+        throw new InternalServerErrorException(
+          'Failed to create payment method',
+        );
       body.paymentMethodId = row.id;
     }
     if (!body.categoryId && body.categoryName) {
-      const [row] = await this.db.insert(schema.categories).values({
-        name: body.categoryName,
-        bookId,
-      }).returning({ id: schema.categories.id })
-      if (!row) throw new InternalServerErrorException('Failed to create category');
+      const [row] = await this.db
+        .insert(schema.categories)
+        .values({
+          name: body.categoryName,
+          bookId,
+        })
+        .returning({ id: schema.categories.id });
+      if (!row)
+        throw new InternalServerErrorException('Failed to create category');
       body.categoryId = row.id;
     }
 
@@ -204,14 +204,14 @@ export class TransactionService {
       await tx
         .update(schema.books)
         .set({
-          [transactionType]: sql`${booksSchema.books[transactionType]} + ${amount} `,
-          balance: sql`${booksSchema.books.balance} + ${body.amount}::numeric`,
+          [transactionType]: sql`${schema.books[transactionType]} + ${amount} `,
+          balance: sql`${schema.books.balance} + ${body.amount}::numeric`,
           updatedAt: sql`now()`,
         })
         .where(eq(schema.books.id, bookId));
       if (!row) throw new InternalServerErrorException('Failed to create');
       return row;
-    })
+    });
   }
 
   async createBulk(
@@ -222,7 +222,7 @@ export class TransactionService {
     let balance = 0;
     let credited = 0;
     let debited = 0;
-    type Transaction = Omit<transactionsSchema.Transaction, 'id'>;
+    type Transaction = Omit<schema.Transaction, 'id'>;
     const transactions: Array<Transaction> = [];
 
     const paymentMethods = new Set(
@@ -289,9 +289,9 @@ export class TransactionService {
       await tx
         .update(schema.books)
         .set({
-          balance: sql`${booksSchema.books.balance} + ${balance}::numeric`,
-          credited: sql`${booksSchema.books.credited} + ${credited}::numeric`,
-          debited: sql`${booksSchema.books.debited} + ${debited}::numeric`,
+          balance: sql`${schema.books.balance} + ${balance}::numeric`,
+          credited: sql`${schema.books.credited} + ${credited}::numeric`,
+          debited: sql`${schema.books.debited} + ${debited}::numeric`,
           updatedAt: sql`now()`,
         })
         .where(eq(schema.books.id, bookId));
@@ -305,7 +305,10 @@ export class TransactionService {
     query: UpdateTransactionsRequestDto,
   ): Promise<TransactionResponseDto> {
     const record = await this.db.query.transactions.findFirst({
-      where: eq(schema.transactions.id, query.transactionId),
+      where: and(
+        eq(schema.transactions.id, query.transactionId),
+        eq(schema.transactions.bookId, query.bookId),
+      ),
     });
     if (!record) throw new NotFoundException('Transaction not found');
     const [updatedRow] = await this.db
@@ -315,6 +318,7 @@ export class TransactionService {
         description: query.description,
         categoryId: query.categoryId,
         updatedAt: sql`now()`,
+        ...(query.createdAt && { createdAt: new Date(query.createdAt) }),
       })
       .where(
         and(
@@ -345,11 +349,14 @@ export class TransactionService {
 
       const key = Number(record.amount) > 0 ? 'credited' : 'debited';
 
-      await tx.update(schema.books).set({
-        balance: sql`${schema.books.balance} - ${record.amount}::numeric`,
-        [key]: sql`${schema.books[key]} - ABS(${record.amount}::numeric)`,
-        updatedAt: sql`now()`,
-      }).where(eq(schema.books.id, bookId));
+      await tx
+        .update(schema.books)
+        .set({
+          balance: sql`${schema.books.balance} - ${record.amount}::numeric`,
+          [key]: sql`${schema.books[key]} - ABS(${record.amount}::numeric)`,
+          updatedAt: sql`now()`,
+        })
+        .where(eq(schema.books.id, bookId));
     });
   }
 

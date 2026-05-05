@@ -1,5 +1,5 @@
+import { schema } from '@my-ledger/db';
 import { ApiProperty } from '@nestjs/swagger';
-import { Category } from '../schema';
 
 export class CategoryResponseDto {
   @ApiProperty()
@@ -17,7 +17,7 @@ export class CategoryResponseDto {
   @ApiProperty()
   updatedAt: Date;
 
-  static from(category: Category): CategoryResponseDto {
+  static from(category: schema.Category): CategoryResponseDto {
     return {
       id: category.id,
       bookId: category.bookId,

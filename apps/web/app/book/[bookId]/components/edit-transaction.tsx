@@ -7,16 +7,17 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { EditIcon } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Input } from '@/components/ui/input';
 import PaymentMethodSelect from '../../../components/payment-method';
 import CategorySelect from '../../../components/category';
 import { updateTransaction } from '../actions/update-transaction';
 import { EditRequestPayload } from '../interfaces/edit-request-payload';
 import { toast } from 'sonner';
-import { useHasPermission } from '../../../lib';
-import { Roles } from '@my-ledger/api/role';
+import { useHasPermission, zonedTime } from '../../../lib';
+import { Roles } from '@my-ledger/db/schema';
 import LoaderCircle from '../../../components/loader';
+import { DatePicker } from '../../components/date-picker';
 
 export default function EditTransactionDialog(query: EditRequestPayload) {
   const canEdit = !useHasPermission(Roles.EDITOR);
@@ -28,6 +29,8 @@ export default function EditTransactionDialog(query: EditRequestPayload) {
   const [categoryId, setCategoryId] = useState<number | null>(query.categoryId);
   const [paymentMethodName, setPaymentMethodName] = useState<string | null>(null);
   const [categoryName, setCategoryName] = useState<string | null>(null);
+  const [date, setDate] = useState<Date | undefined>(query.createdAt);
+  const [time, setTime] = useState<string>(zonedTime(date!));
 
   async function handleUpdate(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -39,6 +42,7 @@ export default function EditTransactionDialog(query: EditRequestPayload) {
       description,
       paymentMethodId,
       categoryId,
+      createdAt: date!,
     });
     if (err) {
       toast.error(err);
@@ -49,6 +53,12 @@ export default function EditTransactionDialog(query: EditRequestPayload) {
     setLoading(false);
     setOpen(false);
   }
+
+  useEffect(() => {
+    const [hour, min] = time.split(':')
+    date?.setHours(Number(hour), Number(min), 0, 0)
+    setDate(date)
+  }, [time])
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -83,6 +93,7 @@ export default function EditTransactionDialog(query: EditRequestPayload) {
                   setCategoryName={setCategoryName}
                 />
               </div>
+              <DatePicker date={date} setDate={setDate} time={time} setTime={setTime} />
             </div>
             <DialogFooter className="pt-5">
               <Button variant="outline" type="button" onClick={() => setOpen(false)}>
@@ -95,6 +106,6 @@ export default function EditTransactionDialog(query: EditRequestPayload) {
           </form>
         </LoaderCircle>
       </DialogContent>
-    </Dialog>
+    </Dialog >
   );
 }

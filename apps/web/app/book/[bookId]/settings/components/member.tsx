@@ -2,7 +2,7 @@
 
 import { Badge } from '@/components/ui/badge';
 import type { Member } from '../page';
-import { Roles } from '@my-ledger/api/role';
+import { Roles } from '@my-ledger/db/schema';
 import RemoveMember from './removeMember';
 import UpdateMemberRole from './updateMemberRole';
 import AddOrInviteUser from './addOrInviteUser';

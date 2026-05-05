@@ -11,16 +11,12 @@ import { Input } from '@/components/ui/input';
 import { addTransaction } from '../actions/add-transaction';
 import { Plus, Minus } from 'lucide-react';
 import { toast } from 'sonner';
-import { fmtCurrency, useHasPermission } from '../../../lib';
-import { Roles } from '@my-ledger/api/role';
+import { fmtCurrency, useHasPermission, zonedTime } from '../../../lib';
+import { Roles } from '@my-ledger/db/schema';
 import LoaderCircle from '../../../components/loader';
 import CategorySelect from '../../../components/category';
 import PaymentMethodSelect from '../../../components/payment-method';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Calendar } from '@/components/ui/calendar';
-import { CalendarIcon } from 'lucide-react';
-import { fmtDate } from '../../../lib';
-import { cn } from '@/lib/utils';
+import { DatePicker } from '../../components/date-picker';
 
 export default function AddTransactionDialog({
   bookId,
@@ -39,6 +35,7 @@ export default function AddTransactionDialog({
   const [amountStr, setAmountStr] = useState('');
   const [isPositive, setIsPositive] = useState(true);
   const [date, setDate] = useState<Date | undefined>(new Date());
+  const [time, setTime] = useState<string>(zonedTime(date!));
 
   function resetForm() {
     setDescription('');
@@ -50,11 +47,18 @@ export default function AddTransactionDialog({
     setIsPositive(true);
     setDate(new Date());
     setLoading(false);
+    setTime(zonedTime(date!))
   }
 
   useEffect(() => {
     if (!open) resetForm();
   }, [open]);
+
+  useEffect(() => {
+    const [hour, min] = time.split(':')
+    date?.setHours(Number(hour), Number(min), 0, 0)
+    setDate(date)
+  }, [time])
 
   async function handleAdd(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -68,13 +72,14 @@ export default function AddTransactionDialog({
       categoryName,
       amount: finalAmount?.toFixed(2).toString() || '0',
       bookId: Number(bookId),
-      createdAt: date?.toISOString(),
+      createdAt: date!.toISOString(),
     };
     setLoading(true);
     const { err } = await addTransaction(payload, bookId);
     if (err) {
       toast.error(err);
     } else {
+      resetForm();
       refetchAction();
       toast.success('Transaction added successfully');
     }
@@ -150,28 +155,7 @@ export default function AddTransactionDialog({
                   bookId={Number(bookId)}
                 />
               </div>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant={"outline"}
-                    className={cn(
-                      'w-full justify-start text-left font-normal',
-                      !date && 'text-muted-foreground'
-                    )}
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {date ? fmtDate(date, false) : <span>Pick a date</span>}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={date}
-                    onSelect={setDate}
-                    autoFocus
-                  />
-                </PopoverContent>
-              </Popover>
+              <DatePicker date={date} setDate={setDate} time={time} setTime={setTime} />
             </div>
             <DialogFooter className="pt-5">
               <Button variant="outline" type="button" onClick={() => setOpen(false)}>

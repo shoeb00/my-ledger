@@ -22,7 +22,7 @@ import {
   CommandItem,
 } from '@/components/ui/command';
 import { useParams } from 'next/navigation';
-import { Roles } from '@my-ledger/api/role';
+import { Roles } from '@my-ledger/db/schema';
 import { useHasPermission } from '../../../../lib';
 import LoaderCircle from '../../../../components/loader';
 

@@ -1,17 +1,10 @@
 import { Module } from '@nestjs/common';
 import { DATABASE_CONNECTION, DATABASE_POOL } from './database-connection';
 import { ConfigService } from '@nestjs/config';
-import { drizzle } from 'drizzle-orm/node-postgres';
 import { Pool } from 'pg';
-import * as usersSchema from '../user/schema';
-import * as booksSchema from '../book/schema';
-import * as transactionSchema from '../transaction/schema';
-import * as permissionSchema from '../permissions/schema';
-import * as invitationsSchema from '../invitations/schema';
-import * as paymentMethodSchema from '../payment-method/schema';
-import * as categoriesMethodSchema from '../category/schema';
 import { DatabaseHealthService } from './database.health';
 import { DatabaseInitService } from './database.init';
+import { createDb } from '@my-ledger/db/connection';
 
 @Module({
   providers: [
@@ -30,18 +23,7 @@ import { DatabaseInitService } from './database.init';
     {
       provide: DATABASE_CONNECTION,
       useFactory: (pool: Pool) => {
-        return drizzle(pool, {
-          schema: {
-            ...usersSchema,
-            ...booksSchema,
-            ...transactionSchema,
-            ...permissionSchema,
-            ...invitationsSchema,
-            ...paymentMethodSchema,
-            ...categoriesMethodSchema,
-          },
-          casing: 'snake_case',
-        });
+        return createDb(pool);
       },
       inject: [DATABASE_POOL],
     },
@@ -50,4 +32,4 @@ import { DatabaseInitService } from './database.init';
   ],
   exports: [DATABASE_CONNECTION, DATABASE_POOL, DatabaseHealthService],
 })
-export class DatabaseModule {}
+export class DatabaseModule { }

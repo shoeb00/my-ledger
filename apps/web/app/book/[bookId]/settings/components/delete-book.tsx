@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
-import { Roles } from '@my-ledger/api/role';
+import { Roles } from '@my-ledger/db/schema';
 import { useHasPermission } from '../../../../lib';
 
 export default function DeleteBook(body: Omit<UpdateBookRequest, 'description'>) {

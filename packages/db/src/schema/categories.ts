@@ -5,10 +5,10 @@ import {
   integer,
   varchar,
 } from 'drizzle-orm/pg-core';
-import { books } from '../book/schema';
 import { InferSelectModel } from 'drizzle-orm';
+import { books } from './books.js';
 
-export const paymentMethods = pgTable('payment_methods', {
+export const categories = pgTable('categories', {
   id: serial('id').primaryKey(),
   bookId: integer('book_id')
     .notNull()
@@ -18,4 +18,4 @@ export const paymentMethods = pgTable('payment_methods', {
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
 
-export type PaymentMethod = InferSelectModel<typeof paymentMethods>;
+export type Category = InferSelectModel<typeof categories>;

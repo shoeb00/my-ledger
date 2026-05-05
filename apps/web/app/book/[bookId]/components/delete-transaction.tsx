@@ -1,7 +1,7 @@
 import { deleteTransaction } from '../actions/delete-transaction';
 import { toast } from 'sonner';
 import ConfirmationDialog from './confirmation-dialog';
-import { Roles } from '@my-ledger/api/role';
+import { Roles } from '@my-ledger/db/schema';
 import { useHasPermission } from '../../../lib';
 
 export default function DeleteTransactionDialog({

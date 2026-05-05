@@ -1,30 +1,27 @@
+import { schema, eq, and } from '@my-ledger/db';
+import type { DB } from '@my-ledger/db/connection';
 import {
   BadRequestException,
   Inject,
   Injectable,
   InternalServerErrorException,
 } from '@nestjs/common';
-import * as paymentMethodSchema from './schema';
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { DATABASE_CONNECTION } from '../database/database-connection';
-import { eq, and } from 'drizzle-orm';
-import * as booksSchema from '../book/schema';
 import { CreatePaymentMethodRequestDto } from './dto/payment-method-request';
 import { PaymentMethodResponseDto } from './dto/payment-method-response';
 
-const schema = { ...paymentMethodSchema, ...booksSchema };
 
 @Injectable()
 export class PaymentMethodService {
   constructor(
     @Inject(DATABASE_CONNECTION)
-    private readonly db: NodePgDatabase<typeof schema>,
-  ) {}
+    private readonly db: DB,
+  ) { }
 
   async getPaymentMethods(bookId: number): Promise<PaymentMethodResponseDto[]> {
     const paymentMethods = await this.db.query.paymentMethods.findMany({
       where: eq(schema.paymentMethods.bookId, bookId),
-      orderBy: (paymentMethods, { asc }) => [asc(paymentMethods.name)],
+      orderBy: (pm, { asc }) => [asc(pm.name)],
     });
     return paymentMethods.map((pm) => PaymentMethodResponseDto.from(pm));
   }

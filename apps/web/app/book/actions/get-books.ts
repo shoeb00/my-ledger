@@ -1,6 +1,5 @@
-import { Book } from '@my-ledger/api/book';
+import { Book, Roles } from '@my-ledger/db/schema';
 import { callApi } from '../../lib/api';
-import { Roles } from '@my-ledger/api/role';
 
 export interface BookResponse extends Book {
   lastTransaction: string;

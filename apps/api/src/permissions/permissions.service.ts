@@ -1,30 +1,26 @@
+import { schema, and, eq, sql } from '@my-ledger/db';
+import type { DB } from '@my-ledger/db/connection';
 import {
   BadRequestException,
   Inject,
   Injectable,
   InternalServerErrorException,
 } from '@nestjs/common';
-import * as permissionsSchema from './schema';
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { DATABASE_CONNECTION } from '../database/database-connection';
 import { SavePermissionsRequestDto } from './dto/update-permissions-request';
 import { PermissionsResponse } from './dto/permissions-response';
 import { GetPermissionsRequestDto } from './dto/get-permissions-request';
-import { and, eq, sql } from 'drizzle-orm';
-import * as booksSchema from '../book/schema';
 import { DeletePermissionRequestDto } from './dto/delete-permission-request';
 import { RequestContextService } from '../common/request-context.service';
-import * as usersSchema from '../user/schema';
 import { Roles } from './enum/roles';
 import { UpdatePermissionsRequestDto } from './dto/create-permissions-request';
 
-const schema = { ...permissionsSchema, ...booksSchema, ...usersSchema };
 
 @Injectable()
 export class PermissionsService {
   constructor(
     @Inject(DATABASE_CONNECTION)
-    private readonly db: NodePgDatabase<typeof schema>,
+    private readonly db: DB,
     private readonly cxt: RequestContextService,
   ) {}
 

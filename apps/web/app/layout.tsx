@@ -56,6 +56,12 @@ export const metadata: Metadata = {
     locale: 'en_US',
     type: 'website',
   },
+  alternates: {
+    canonical: '/',
+  },
+  verification: {
+    google: 's54EiluPZCtFOr7ngHyceqjeeX7v6-VnOZaERk2PI4A',
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

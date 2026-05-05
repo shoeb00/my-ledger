@@ -1,6 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsNumber, IsString, IsOptional } from 'class-validator';
+import { IsNumber, IsString, IsOptional, IsDate } from 'class-validator';
 
 export class UpdateTransactionsRequestDto {
   @ApiProperty()
@@ -29,4 +29,10 @@ export class UpdateTransactionsRequestDto {
   @IsNumber()
   @IsOptional()
   categoryId?: number | null = null;
+
+  @ApiPropertyOptional()
+  @Type(() => Date)
+  @IsDate()
+  @IsOptional()
+  createdAt?: Date | null = null;
 }

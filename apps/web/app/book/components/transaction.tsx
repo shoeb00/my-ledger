@@ -1,13 +1,12 @@
 'use client';
 
 import React from 'react';
-import type { Transaction as Tx } from '@my-ledger/api/transaction';
+import { Transaction, Roles } from '@my-ledger/db/schema';
 import DeleteTransactionDialog from '../[bookId]/components/delete-transaction';
 import EditTransactionDialog from '../[bookId]/components/edit-transaction';
 import AddTransactionDialog from '../[bookId]/components/add-transaction';
 import { fmtCurrency, fmtDate, useHasPermission } from '../../lib';
 import UploadTransactionFile from '../[bookId]/components/upload-transaction-file';
-import { Roles } from '@my-ledger/api/role';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 
@@ -16,7 +15,7 @@ export type TransactionRow = {
   email: string;
   paymentMethodName?: string | null;
   categoryName?: string | null;
-} & Tx;
+} & Transaction;
 
 export function TransactionRow({
   tx,
@@ -72,6 +71,7 @@ export function TransactionRow({
             description={tx.description ?? ''}
             paymentMethodId={tx.paymentMethodId ?? null}
             categoryId={tx.categoryId ?? null}
+            createdAt={new Date(tx.createdAt)}
             refetchAction={refetchAction}
           />
           <DeleteTransactionDialog

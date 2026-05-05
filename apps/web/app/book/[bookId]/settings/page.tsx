@@ -5,7 +5,7 @@ import { BookResponse, getBook } from '../../actions/get-books';
 import { getBookMembers } from './actions/members';
 import { getInvitations } from './actions/invitations';
 import { toast } from 'sonner';
-import { Roles } from '@my-ledger/api/role';
+import { Roles } from '@my-ledger/db/schema';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft } from 'lucide-react';
 import EditBook from './components/edit-book';

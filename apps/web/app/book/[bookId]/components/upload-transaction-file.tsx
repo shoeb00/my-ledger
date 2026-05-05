@@ -1,6 +1,6 @@
 import { useParams } from "next/navigation";
 import { useHasPermission } from "../../../lib";
-import { Roles } from "@my-ledger/api/role";
+import { Roles } from "@my-ledger/db/schema";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { useState } from "react";
 import { Dropzone, DropZoneArea, DropzoneTrigger, useDropzone } from "@/components/ui/dropzone";
@@ -64,8 +64,8 @@ export default function UploadTransactionFile({ refetchAction, hidden, showName 
     });
 
     return <Dialog open={open} onOpenChange={setOpen}>
-        <DialogTrigger hidden={!isOwner || hidden}>
-            <Button onClick={() => setOpen(true)}>
+        <DialogTrigger asChild hidden={!isOwner || hidden}>
+            <Button>
                 <UploadIcon />
                 <span className={showName ? '' : "hidden sm:block"}>
                     Add Transactions from File

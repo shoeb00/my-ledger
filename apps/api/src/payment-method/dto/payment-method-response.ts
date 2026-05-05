@@ -1,6 +1,5 @@
+import { schema } from '@my-ledger/db';
 import { ApiProperty } from '@nestjs/swagger';
-import { PaymentMethod } from '../schema';
-
 export class PaymentMethodResponseDto {
   @ApiProperty()
   id: number;
@@ -17,7 +16,7 @@ export class PaymentMethodResponseDto {
   @ApiProperty()
   updatedAt: Date;
 
-  static from(paymentMethod: PaymentMethod): PaymentMethodResponseDto {
+  static from(paymentMethod: schema.PaymentMethod): PaymentMethodResponseDto {
     return {
       id: paymentMethod.id,
       bookId: paymentMethod.bookId,

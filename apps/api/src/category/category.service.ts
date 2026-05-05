@@ -4,22 +4,19 @@ import {
   Injectable,
   InternalServerErrorException,
 } from '@nestjs/common';
-import * as categorySchema from './schema';
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { DATABASE_CONNECTION } from '../database/database-connection';
-import { eq, and } from 'drizzle-orm';
-import * as booksSchema from '../book/schema';
 import { CreateCategoryRequestDto } from './dto/category-request';
 import { CategoryResponseDto } from './dto/category-response';
+import { and, eq, schema } from '@my-ledger/db';
+import type { DB } from '@my-ledger/db/connection';
 
-const schema = { ...categorySchema, ...booksSchema };
 
 @Injectable()
 export class CategoryService {
   constructor(
     @Inject(DATABASE_CONNECTION)
-    private readonly db: NodePgDatabase<typeof schema>,
-  ) {}
+    private readonly db: DB,
+  ) { }
 
   async getCategories(bookId: number): Promise<CategoryResponseDto[]> {
     const categories = await this.db.query.categories.findMany({
@@ -32,7 +29,6 @@ export class CategoryService {
   async createCategory(
     body: CreateCategoryRequestDto,
   ): Promise<CategoryResponseDto> {
-    // Check if category already exists for this book
     const existing = await this.db.query.categories.findFirst({
       where: and(
         eq(schema.categories.bookId, body.bookId),

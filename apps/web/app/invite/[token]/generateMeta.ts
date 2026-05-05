@@ -5,6 +5,12 @@ export async function generateMetadata({ params }: { params: { token: string } }
     const { token } = params;
 
     return {
+        title: "Invitation | My Ledger",
+        description: "Join My Ledger and manage credits & debits seamlessly.",
+        robots: {
+            index: false,
+            follow: false,
+        },
         openGraph: {
             title: "My Ledger – Invitation",
             description: "Join My Ledger and manage credits & debits seamlessly.",
