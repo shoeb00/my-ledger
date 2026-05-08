@@ -313,7 +313,7 @@ importers:
         specifier: 0.31.6
         version: 0.31.6
       tsup:
-        specifier: 8.5.1
+        specifier: ^8.4.0
         version: 8.5.1(jiti@2.6.1)(postcss@8.5.6)(typescript@5.9.2)
       typescript:
         specifier: ^5.7.3
