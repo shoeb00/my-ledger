@@ -1,22 +1,27 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { toast } from 'sonner';
-import { Loader2, X, Plus } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
-import LoaderCircle from '../../../../components/loader';
+import { useState, useEffect, useCallback } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { toast } from "sonner";
+import { Loader2, X, Plus } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import LoaderCircle from "../../../../components/loader";
 
 interface Item {
   id: number;
   name: string;
 }
 
-interface ClassificationManagerProps {
+interface ClassificationManagerProps<T extends Item> {
   bookId: number;
-  fetchData: (params: { bookId: number }) => Promise<{ data: any[]; err?: string | null }>;
-  createData: (params: { bookId: number; name: string }) => Promise<{ data?: any; err?: string | null }>;
+  fetchData: (params: {
+    bookId: number;
+  }) => Promise<{ data: T[]; err?: string | null }>;
+  createData: (params: {
+    bookId: number;
+    name: string;
+  }) => Promise<{ data?: T; err?: string | null }>;
   deleteData: (params: { id: number }) => Promise<{ err?: string | null }>;
   updateEvent: string;
   labels: {
@@ -27,20 +32,20 @@ interface ClassificationManagerProps {
   };
 }
 
-export default function ClassificationManager({
+export default function ClassificationManager<T extends Item>({
   bookId,
   fetchData,
   createData,
   deleteData,
   updateEvent,
   labels,
-}: ClassificationManagerProps) {
-  const [items, setItems] = useState<Item[]>([]);
+}: ClassificationManagerProps<T>) {
+  const [items, setItems] = useState<T[]>([]);
   const [loading, setLoading] = useState(true);
-  const [newName, setNewName] = useState('');
+  const [newName, setNewName] = useState("");
   const [adding, setAdding] = useState(false);
 
-  const fetchItems = async () => {
+  const fetchItems = useCallback(async () => {
     setLoading(true);
     const { err, data } = await fetchData({ bookId });
     if (err) {
@@ -49,11 +54,11 @@ export default function ClassificationManager({
       setItems(data.sort((a, b) => a.name.localeCompare(b.name)));
     }
     setLoading(false);
-  };
+  }, [bookId, fetchData]);
 
   useEffect(() => {
     fetchItems();
-  }, [bookId]);
+  }, [fetchItems]);
 
   const handleAdd = async (name: string) => {
     if (!name.trim()) return;
@@ -64,7 +69,7 @@ export default function ClassificationManager({
       toast.error(err);
     } else {
       toast.success(labels.addSuccess);
-      setNewName('');
+      setNewName("");
       fetchItems();
       window.dispatchEvent(new Event(updateEvent));
     }
@@ -79,13 +84,15 @@ export default function ClassificationManager({
       toast.error(err);
     } else {
       toast.success(labels.deleteSuccess);
-      setItems(items.filter(item => item.id !== id));
+      setItems(items.filter((item) => item.id !== id));
       window.dispatchEvent(new Event(updateEvent));
     }
     setLoading(false);
   };
 
-  const isDuplicate = items.some(item => item.name.toLowerCase() === newName.toLowerCase());
+  const isDuplicate = items.some(
+    (item) => item.name.toLowerCase() === newName.toLowerCase(),
+  );
 
   return (
     <div className="space-y-4">
@@ -93,22 +100,31 @@ export default function ClassificationManager({
         <Input
           placeholder={labels.placeholder}
           value={newName}
-          onChange={e => setNewName(e.target.value)}
-          onKeyDown={e => e.key === 'Enter' && !isDuplicate && handleAdd(newName)}
+          onChange={(e) => setNewName(e.target.value)}
+          onKeyDown={(e) =>
+            e.key === "Enter" && !isDuplicate && handleAdd(newName)
+          }
         />
-        <Button onClick={() => handleAdd(newName)} disabled={adding || !newName || isDuplicate}>
-          {adding ? <Loader2 className="animate-spin h-4 w-4" /> : <Plus className="h-4 w-4" />}
+        <Button
+          onClick={() => handleAdd(newName)}
+          disabled={adding || !newName || isDuplicate}
+        >
+          {adding ? (
+            <Loader2 className="animate-spin h-4 w-4" />
+          ) : (
+            <Plus className="h-4 w-4" />
+          )}
           <span className="ml-2 hidden sm:inline">{labels.addLabel}</span>
         </Button>
       </div>
 
       <div className="flex">
-        <LoaderCircle loading={loading} className={loading ? 'min-h-30' : ''}>
+        <LoaderCircle loading={loading} className={loading ? "min-h-30" : ""}>
           <div className="flex flex-row flex-wrap gap-2 sm:max-w-[50%]">
-            {items.map(item => (
+            {items.map((item) => (
               <Badge
                 key={item.id}
-                variant={'outline'}
+                variant={"outline"}
                 hashString={item.name}
                 className="px-3 py-1 text-sm font-normal gap-2 pr-1"
               >

@@ -1,27 +1,27 @@
-'use client';
-import { useParams, useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import { BookResponse, getBook } from '../../actions/get-books';
-import { getBookMembers } from './actions/members';
-import { getInvitations } from './actions/invitations';
-import { toast } from 'sonner';
-import { Roles } from '@my-ledger/db/schema';
-import { Button } from '@/components/ui/button';
-import { ChevronLeft } from 'lucide-react';
-import EditBook from './components/edit-book';
-import DeleteBook from './components/delete-book';
-import TransferBook from './components/transfer-book';
-import MemberList from './components/member';
-import LoaderCircle from '../../../components/loader';
-import InvitationList from './components/invites';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import AddOrInviteUser from './components/addOrInviteUser';
-import UploadTransactionFile from '../components/upload-transaction-file';
-import { useHasPermission } from '../../../lib';
-import { Share2Icon } from 'lucide-react';
-import { createInviteLink } from '../../../invite/[token]/actions/invite';
-import CategoryManager from './components/category-manager';
-import PaymentMethodManager from './components/payment-method-manager';
+"use client";
+import { useParams, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { BookResponse, getBook } from "../../actions/get-books";
+import { getBookMembers } from "./actions/members";
+import { getInvitations } from "./actions/invitations";
+import { toast } from "sonner";
+import { Roles } from "@my-ledger/db/schema";
+import { Button } from "@/components/ui/button";
+import { ChevronLeft } from "lucide-react";
+import EditBook from "./components/edit-book";
+import DeleteBook from "./components/delete-book";
+import TransferBook from "./components/transfer-book";
+import MemberList from "./components/member";
+import LoaderCircle from "../../../components/loader";
+import InvitationList from "./components/invites";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import AddOrInviteUser from "./components/addOrInviteUser";
+import UploadTransactionFile from "../components/upload-transaction-file";
+import { useHasPermission } from "../../../lib";
+import { Share2Icon } from "lucide-react";
+import { createInviteLink } from "../../../invite/[token]/actions/invite";
+import CategoryManager from "./components/category-manager";
+import PaymentMethodManager from "./components/payment-method-manager";
 
 export type Member = {
   userId: number;
@@ -50,7 +50,7 @@ export default function BookInfo() {
   const [refetchAction, setRefetchAction] = useState(false);
   const [members, setMembers] = useState<Member[]>([]);
   const [invites, setInvites] = useState<Invitation[]>([]);
-  const [activeTab, setActiveTab] = useState('members');
+  const [activeTab, setActiveTab] = useState("members");
 
   const copyLink = async () => {
     setLoading(true);
@@ -60,8 +60,9 @@ export default function BookInfo() {
       toast.error(err);
       return;
     }
-    await navigator.clipboard.writeText(data.link);
-    toast.success('Link copied to clipboard');
+    const res = data as { link: string };
+    await navigator.clipboard.writeText(res.link);
+    toast.success("Link copied to clipboard");
   };
 
   const isOwner = useHasPermission(Roles.AUTHOR);
@@ -80,7 +81,9 @@ export default function BookInfo() {
       if (err) {
         toast.error(err);
       } else {
-        const membersList = [...(data as Member[])].sort((a, b) => a.role.localeCompare(b.role));
+        const membersList = [...(data as Member[])].sort((a, b) =>
+          a.role.localeCompare(b.role),
+        );
         setMembers(membersList);
       }
       setLoading(false);
@@ -111,7 +114,9 @@ export default function BookInfo() {
             <h1 className="text-lg max-h-6 sm:text-2xl sm:max-h-8 max-w-120 font-bold line-clamp-1">
               {book?.name}
             </h1>
-            <h4 className="text-xs line-clamp-2">{book?.description || 'No description'}</h4>
+            <h4 className="text-xs line-clamp-2">
+              {book?.description || "No description"}
+            </h4>
           </div>
         </div>
         <div className="flex flex-row items-center gap-2" hidden={!isOwner}>
@@ -132,13 +137,17 @@ export default function BookInfo() {
                 )}
               </div>
               <div className="flex gap-2">
-                <Button onClick={() => copyLink()} hidden={activeTab === 'members'}>
-                  <Share2Icon /> <span className="hidden sm:block">Copy invite Link</span>
+                <Button
+                  onClick={() => copyLink()}
+                  hidden={activeTab === "members"}
+                >
+                  <Share2Icon />{" "}
+                  <span className="hidden sm:block">Copy invite Link</span>
                 </Button>
                 <AddOrInviteUser
                   userDetails={members}
                   refetchAction={() => setRefetchAction(!refetchAction)}
-                  tab={activeTab as 'invites' | 'members'}
+                  tab={activeTab as "invites" | "members"}
                   setActiveTabAction={setActiveTab}
                   showName={false}
                 />
@@ -164,40 +173,57 @@ export default function BookInfo() {
               <div className="flex flex-col gap-8">
                 <div>
                   <h2 className="font-semibold mb-1">Book Details</h2>
-                  <p className="text-sm text-muted-foreground mb-4">Update the name and description of your book.</p>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Update the name and description of your book.
+                  </p>
                   <EditBook
                     bookId={bookId}
-                    name={book?.name || ''}
+                    name={book?.name || ""}
                     refetchAction={() => setRefetchAction(!refetchAction)}
-                    description={book?.description || ''}
+                    description={book?.description || ""}
                   />
                 </div>
 
                 <div className="border-t pt-8">
                   <h2 className="font-semibold mb-1">Payment Methods</h2>
-                  <p className="text-sm text-muted-foreground mb-4">Manage the payment methods available for transactions.</p>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Manage the payment methods available for transactions.
+                  </p>
                   <PaymentMethodManager bookId={Number(bookId)} />
                 </div>
 
                 <div className="border-t pt-8">
                   <h2 className="font-semibold mb-1">Categories</h2>
-                  <p className="text-sm text-muted-foreground mb-4">Manage the categories available for transactions.</p>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Manage the categories available for transactions.
+                  </p>
                   <CategoryManager bookId={Number(bookId)} />
                 </div>
 
                 <div className="border-t pt-8" hidden={!isOwner}>
                   <h2 className="font-semibold mb-1">Transfer Ownership</h2>
-                  <p className="text-sm text-muted-foreground mb-4">Transfer this book to another member. Your role will be demoted to Editor.</p>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Transfer this book to another member. Your role will be
+                    demoted to Editor.
+                  </p>
                   <TransferBook
-                    bookName={book?.name || ''}
+                    bookName={book?.name || ""}
                     refetchAction={() => setRefetchAction(!refetchAction)}
                   />
                 </div>
 
-                <div className="border-t border-destructive/40 pt-8 pb-4" hidden={!isOwner}>
-                  <h2 className="font-semibold text-destructive mb-1">Danger Zone</h2>
-                  <p className="text-sm text-muted-foreground mb-4">Permanently delete this book and all its transactions. This cannot be undone.</p>
-                  <DeleteBook bookId={bookId} name={book?.name || ''} />
+                <div
+                  className="border-t border-destructive/40 pt-8 pb-4"
+                  hidden={!isOwner}
+                >
+                  <h2 className="font-semibold text-destructive mb-1">
+                    Danger Zone
+                  </h2>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Permanently delete this book and all its transactions. This
+                    cannot be undone.
+                  </p>
+                  <DeleteBook bookId={bookId} name={book?.name || ""} />
                 </div>
               </div>
             </TabsContent>
