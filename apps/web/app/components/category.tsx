@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { getCategories } from '../book/actions/category';
-import { DEFAULT_CATEGORIES } from '../lib/constants';
-import ClassificationSelect from './classification-select';
+import { getCategories } from "../book/actions/category";
+import { DEFAULT_CATEGORIES } from "../lib/constants";
+import ClassificationSelect from "./classification-select";
 
 export default function CategorySelect({
   categoryId,
@@ -11,7 +11,7 @@ export default function CategorySelect({
   categoryName,
   setCategoryName,
   allowNone,
-  onlyExisting
+  onlyExisting,
 }: {
   categoryId: number | null;
   setCategoryId: (v: number | null) => void;

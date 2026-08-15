@@ -1,9 +1,13 @@
-import { Inject, Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { DATABASE_CONNECTION } from '../database/database-connection';
 import { CreateBookRequestDto } from './dto/create-book-request';
 import { BookResponseDto } from './dto/book-response';
 import { GetBookRequestDto } from './dto/get-book-request';
-import { and, desc, eq, sql, schema } from '@my-ledger/db';
+import { and, eq, sql, schema } from '@my-ledger/db';
 import type { DB } from '@my-ledger/db/connection';
 import { Roles } from '../permissions/enum/roles';
 import { RequestContextService } from '../common/request-context.service';
@@ -16,26 +20,27 @@ export class BookService {
     @Inject(DATABASE_CONNECTION)
     private readonly db: DB,
     private readonly cxt: RequestContextService,
-  ) { }
+  ) {}
 
   async getBooks(query: GetBookRequestDto): Promise<BookResponseDto[]> {
     const { name, bookId } = query;
     const user = this.cxt.getUser();
-    const rows = await this.db
-      .select({
-        book: schema.books,
-        role: schema.permissions.role,
-        lastTransaction: sql<Date>`max(${schema.transactions.createdAt})`.as('lastTransaction'),
-      })
-      .from(schema.permissions)
-      .leftJoin(schema.books, eq(schema.books.id, schema.permissions.bookId))
-      .leftJoin(
-        schema.transactions,
-        eq(schema.books.id, schema.transactions.bookId),
-      )
-      .where(eq(schema.permissions.userId, user.id))
-      .groupBy(schema.books.id, schema.permissions.role)
-      .orderBy(desc(schema.books.updatedAt));
+    const rows = await this.db.query.permissions.findMany({
+      where: eq(schema.permissions.userId, user.id),
+      with: {
+        book: {
+          with: {
+            transactions: {
+              columns: {
+                createdAt: true,
+              },
+              orderBy: (t, { desc }) => [desc(t.createdAt)],
+              limit: 1,
+            },
+          },
+        },
+      },
+    });
     if (rows.length === 0) return [];
     const books: BookResponseDto[] = [];
     for (const row of rows) {
@@ -44,7 +49,7 @@ export class BookService {
       books.push({
         ...row.book!,
         role: row.role,
-        lastTransaction: row.lastTransaction as Date,
+        lastTransaction: row.book?.transactions[0]?.createdAt ?? undefined,
       });
     }
     return books;
@@ -150,8 +155,12 @@ export class BookService {
       'Paytm',
     ];
     await this.db.transaction(async () => {
-      await this.db.insert(schema.categories).values(DEFAULT_CATEGORIES.map(name => ({ name, bookId })));
-      await this.db.insert(schema.paymentMethods).values(DEFAULT_PAYMENT_METHODS.map(name => ({ name, bookId })));
+      await this.db
+        .insert(schema.categories)
+        .values(DEFAULT_CATEGORIES.map((name) => ({ name, bookId })));
+      await this.db
+        .insert(schema.paymentMethods)
+        .values(DEFAULT_PAYMENT_METHODS.map((name) => ({ name, bookId })));
     });
   }
 }
