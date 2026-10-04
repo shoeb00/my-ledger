@@ -1,4 +1,8 @@
-import { Inject, Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { DATABASE_CONNECTION } from '../database/database-connection';
 import { CreateBookRequestDto } from './dto/create-book-request';
 import { BookResponseDto } from './dto/book-response';
@@ -16,7 +20,7 @@ export class BookService {
     @Inject(DATABASE_CONNECTION)
     private readonly db: DB,
     private readonly cxt: RequestContextService,
-  ) { }
+  ) {}
 
   async getBooks(query: GetBookRequestDto): Promise<BookResponseDto[]> {
     const { name, bookId } = query;
@@ -25,7 +29,9 @@ export class BookService {
       .select({
         book: schema.books,
         role: schema.permissions.role,
-        lastTransaction: sql<Date>`max(${schema.transactions.createdAt})`.as('lastTransaction'),
+        lastTransaction: sql<Date>`max(${schema.transactions.createdAt})`.as(
+          'lastTransaction',
+        ),
       })
       .from(schema.permissions)
       .leftJoin(schema.books, eq(schema.books.id, schema.permissions.bookId))
@@ -44,7 +50,7 @@ export class BookService {
       books.push({
         ...row.book!,
         role: row.role,
-        lastTransaction: row.lastTransaction as Date,
+        lastTransaction: row.lastTransaction,
       });
     }
     return books;
@@ -150,8 +156,12 @@ export class BookService {
       'Paytm',
     ];
     await this.db.transaction(async () => {
-      await this.db.insert(schema.categories).values(DEFAULT_CATEGORIES.map(name => ({ name, bookId })));
-      await this.db.insert(schema.paymentMethods).values(DEFAULT_PAYMENT_METHODS.map(name => ({ name, bookId })));
+      await this.db
+        .insert(schema.categories)
+        .values(DEFAULT_CATEGORIES.map((name) => ({ name, bookId })));
+      await this.db
+        .insert(schema.paymentMethods)
+        .values(DEFAULT_PAYMENT_METHODS.map((name) => ({ name, bookId })));
     });
   }
 }

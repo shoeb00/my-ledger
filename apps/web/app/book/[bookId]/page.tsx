@@ -17,12 +17,21 @@ import { getTransaction } from "./actions/get-transaction";
 import TransactionList, { TransactionRow } from "../components/transaction";
 import { getBook } from "../actions/get-books";
 import { Book } from "@my-ledger/db/schema";
-import { ChevronLeft, EllipsisVerticalIcon, SettingsIcon, XCircleIcon } from "lucide-react";
+import {
+  ChevronLeft,
+  EllipsisVerticalIcon,
+  SettingsIcon,
+  XCircleIcon,
+} from "lucide-react";
 import AddTransactionDialog from "./components/add-transaction";
 import LoaderCircle from "../../components/loader";
 import { toast } from "sonner";
 import { fmtCurrency, fmtDate } from "../../lib";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { CalendarIcon } from "lucide-react";
 import { DateRange } from "react-day-picker";
@@ -78,7 +87,9 @@ export default function PageClient() {
   const [refetchBookDetails, setRefetchBookDetails] = useState(false);
   const [advanceSearch, setAdvanceSearch] = useState(false);
   const [categoryFilter, setCategoryFilter] = useState<number | null>(null);
-  const [paymentMethodFilter, setPaymentMethodFilter] = useState<number | null>(null);
+  const [paymentMethodFilter, setPaymentMethodFilter] = useState<number | null>(
+    null,
+  );
 
   useEffect(() => {
     const t = setTimeout(() => setDebouncedQuery(query), 250);
@@ -159,8 +170,8 @@ export default function PageClient() {
 
   // TODO: scroll to the top on page change
   const currentPage = Math.floor(offset / limit) + 1;
-  const nextPage = () => setOffset(prev => prev + limit);
-  const prevPage = () => setOffset(prev => Math.max(0, prev - limit));
+  const nextPage = () => setOffset((prev) => prev + limit);
+  const prevPage = () => setOffset((prev) => Math.max(0, prev - limit));
 
   return (
     <div className="sm:space-y-2 md:space-y-6 w-full flex flex-col min-h-[calc(100vh-140px)]">
@@ -189,10 +200,14 @@ export default function PageClient() {
               </strong>
             </span>
             <span>
-              Credited: <strong className="text-blue-600">{fmtCurrency(credited)}</strong>
+              Credited:{" "}
+              <strong className="text-blue-600">{fmtCurrency(credited)}</strong>
             </span>
             <span>
-              Debited: <strong className="text-destructive">{fmtCurrency(debited)}</strong>
+              Debited:{" "}
+              <strong className="text-destructive">
+                {fmtCurrency(debited)}
+              </strong>
             </span>
           </div>
         </div>
@@ -221,12 +236,15 @@ export default function PageClient() {
               Reset
             </Button>
             <Select
-              onValueChange={v => {
+              onValueChange={(v) => {
                 setPaymentType(v as paymentType);
                 setOffset(0);
               }}
             >
-              <SelectTrigger aria-label="Payment Type" className="min-w-25 w-fit">
+              <SelectTrigger
+                aria-label="Payment Type"
+                className="min-w-25 w-fit"
+              >
                 <SelectValue placeholder="Transaction type" />
               </SelectTrigger>
               <SelectContent>
@@ -238,7 +256,7 @@ export default function PageClient() {
             <Input
               placeholder="Search description..."
               value={query}
-              onChange={e => {
+              onChange={(e) => {
                 setQuery(e.target.value);
                 setOffset(0);
               }}
@@ -258,7 +276,10 @@ export default function PageClient() {
         </div>
       </section>
 
-      <section className="grid grid-cols-3 md:grid-cols-4 gap-3" hidden={!advanceSearch}>
+      <section
+        className="grid grid-cols-3 md:grid-cols-4 gap-3"
+        hidden={!advanceSearch}
+      >
         <div className="md:col-span-2">
           <label className="text-xs text-muted-foreground">Date Range</label>
           <Popover>
@@ -267,7 +288,7 @@ export default function PageClient() {
                 variant={"outline"}
                 className={cn(
                   "w-full justify-start text-left font-normal",
-                  !dateRange && "text-muted-foreground"
+                  !dateRange && "text-muted-foreground",
                 )}
               >
                 <CalendarIcon className="mr-2 h-4 w-4" />
@@ -308,7 +329,7 @@ export default function PageClient() {
           <Input
             type="number"
             value={minAmount ?? ""}
-            onChange={e => {
+            onChange={(e) => {
               setMinAmount(e.target.value || undefined);
               setOffset(0);
             }}
@@ -320,7 +341,7 @@ export default function PageClient() {
           <Input
             type="number"
             value={maxAmount ?? ""}
-            onChange={e => {
+            onChange={(e) => {
               setMaxAmount(e.target.value || undefined);
               setOffset(0);
             }}
@@ -329,19 +350,28 @@ export default function PageClient() {
         </div>
       </section>
 
-      <section className="flex items-center gap-4 w-full" hidden={!advanceSearch}>
+      <section
+        className="flex items-center gap-4 w-full"
+        hidden={!advanceSearch}
+      >
         <div className="flex flex-col sm:flex-row justify-between gap-2 my-2 w-full">
           <div className="flex flex-row gap-2">
             <PaymentMethodSelect
               paymentMethodId={paymentMethodFilter}
-              setPaymentMethodId={v => { setPaymentMethodFilter(v); setOffset(0); }}
+              setPaymentMethodId={(v) => {
+                setPaymentMethodFilter(v);
+                setOffset(0);
+              }}
               bookId={Number(bookId)}
               allowNone
               onlyExisting
             />
             <CategorySelect
               categoryId={categoryFilter}
-              setCategoryId={v => { setCategoryFilter(v); setOffset(0); }}
+              setCategoryId={(v) => {
+                setCategoryFilter(v);
+                setOffset(0);
+              }}
               bookId={Number(bookId)}
               allowNone
               onlyExisting
@@ -350,7 +380,7 @@ export default function PageClient() {
           <div className="flex flex-row gap-2 w-full">
             <div className="flex justify-between gap-2 w-full">
               <Select
-                onValueChange={v => {
+                onValueChange={(v) => {
                   setSort(v);
                   setOffset(0);
                 }}
@@ -367,7 +397,7 @@ export default function PageClient() {
                 </SelectContent>
               </Select>
               <Select
-                onValueChange={v => {
+                onValueChange={(v) => {
                   setOrder(v as order);
                   setOffset(0);
                 }}
@@ -385,7 +415,7 @@ export default function PageClient() {
               <div className="flex items-center gap-2 ml-auto">
                 <label className="text-[11px] sm:text-sm">Per page</label>
                 <Select
-                  onValueChange={v => {
+                  onValueChange={(v) => {
                     setLimit(Number(v));
                     setOffset(0);
                   }}
@@ -405,11 +435,14 @@ export default function PageClient() {
             </div>
           </div>
         </div>
-
       </section>
 
       <LoaderCircle loading={loading}>
-        <TransactionList bookId={bookId} transactions={transactions} refetchAction={refetch} />
+        <TransactionList
+          bookId={bookId}
+          transactions={transactions}
+          refetchAction={refetch}
+        />
       </LoaderCircle>
 
       <section className="flex items-center justify-between mt-auto pt-4 border-t">
@@ -418,7 +451,10 @@ export default function PageClient() {
             Prev
           </Button>
           <div>Page {currentPage}</div>
-          <Button onClick={nextPage} disabled={totalCount <= offset + limit || loading}>
+          <Button
+            onClick={nextPage}
+            disabled={totalCount <= offset + limit || loading}
+          >
             Next
           </Button>
         </div>

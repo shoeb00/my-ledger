@@ -1,4 +1,4 @@
-import { callApi } from '../../../lib/api';
+import { callApi } from "../../../lib/api";
 
 export async function deleteTransaction({
   transactionId,
@@ -8,5 +8,5 @@ export async function deleteTransaction({
   bookId: string;
 }) {
   const endpoint = `/v1/transaction/delete/${transactionId}`;
-  return await callApi(endpoint, 'DELETE', { bookId });
+  return await callApi(endpoint, "DELETE", { bookId });
 }

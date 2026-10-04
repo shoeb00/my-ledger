@@ -1,7 +1,7 @@
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 // eslint-disable-next-line turbo/no-undeclared-env-vars
-const debugging = process.env.NODE_ENV === 'development';
-type Method = 'GET' | 'POST' | 'PUT' | 'DELETE';
+const debugging = process.env.NODE_ENV === "development";
+type Method = "GET" | "POST" | "PUT" | "DELETE";
 
 const safeParseResponse = async (response: Response) => {
   try {
@@ -9,7 +9,7 @@ const safeParseResponse = async (response: Response) => {
     if (data.statusCode > 201) throw new Error(data.message);
     return data;
   } catch (error) {
-    if (debugging) console.error('Error parsing response', error);
+    if (debugging) console.error("Error parsing response", error);
     if (response.status > 201) throw error;
     return null;
   }
@@ -20,7 +20,7 @@ interface ClerkGlobal {
   openSignIn?: () => void;
   session?: {
     getToken: () => string;
-  }
+  };
 }
 
 declare global {
@@ -48,13 +48,14 @@ export const callApi = async (
   query?: object,
   body?: object,
   // TODO: add types for the data response
-): Promise<{ err: string | null; data: any }> => { // eslint-disable-line @typescript-eslint/no-explicit-any
+): Promise<{ err: string | null; data: any }> => {
+  // eslint-disable-line @typescript-eslint/no-explicit-any
   let err = null;
   let data = null;
 
   try {
     await waitForClerk();
-    if (!window.Clerk?.session) throw new Error('Session not initiated');
+    if (!window.Clerk?.session) throw new Error("Session not initiated");
 
     const token = await window.Clerk.session.getToken();
     const url = new URL(API_URL + endpoint);
@@ -65,10 +66,10 @@ export const callApi = async (
       }
     }
     if (debugging) {
-      console.log('url:', url);
-      console.log('method:', method);
-      console.log('body:', body);
-      console.log('token:', token);
+      console.log("url:", url);
+      console.log("method:", method);
+      console.log("body:", body);
+      console.log("token:", token);
     }
 
     const headers: HeadersInit = {
@@ -79,20 +80,20 @@ export const callApi = async (
       method,
       headers,
     };
-    if (body && method !== 'GET' && method !== 'DELETE') {
-      headers['Content-Type'] = 'application/json';
+    if (body && method !== "GET" && method !== "DELETE") {
+      headers["Content-Type"] = "application/json";
       options.body = JSON.stringify(body);
     }
 
     const response = await fetch(url.toString(), options);
     data = await safeParseResponse(response);
-    if (debugging) console.log('data:', data);
+    if (debugging) console.log("data:", data);
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Oops, something went wrong';
+    const message =
+      error instanceof Error ? error.message : "Oops, something went wrong";
     err = message;
-    if (debugging) console.log('error', error);
+    if (debugging) console.log("error", error);
   }
 
   return { err, data };
 };
-

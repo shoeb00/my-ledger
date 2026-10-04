@@ -1,13 +1,13 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { updateBook, type UpdateBookRequest } from '../actions/book';
-import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
-import { toast } from 'sonner';
-import { Button } from '@/components/ui/button';
-import { Roles } from '@my-ledger/db/schema';
-import { useHasPermission } from '../../../../lib';
+import { useEffect, useState } from "react";
+import { updateBook, type UpdateBookRequest } from "../actions/book";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { Roles } from "@my-ledger/db/schema";
+import { useHasPermission } from "../../../../lib";
 
 interface Props extends UpdateBookRequest {
   refetchAction: () => void;
@@ -15,14 +15,14 @@ interface Props extends UpdateBookRequest {
 
 export default function EditBook(body: Props) {
   const [loading, setLoading] = useState(false);
-  const [name, setName] = useState(body.name ?? '');
-  const [desc, setDesc] = useState(body.description ?? '');
+  const [name, setName] = useState(body.name ?? "");
+  const [desc, setDesc] = useState(body.description ?? "");
 
   const isOwner = useHasPermission(Roles.AUTHOR);
 
   useEffect(() => {
-    setName(body.name ?? '');
-    setDesc(body.description ?? '');
+    setName(body.name ?? "");
+    setDesc(body.description ?? "");
   }, [body.name, body.description]);
 
   const handleUpdate = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -36,7 +36,7 @@ export default function EditBook(body: Props) {
     if (err) {
       toast.error(err);
     } else {
-      toast.success('Book updated successfully');
+      toast.success("Book updated successfully");
       refetchAction();
     }
     setLoading(false);
@@ -51,7 +51,7 @@ export default function EditBook(body: Props) {
         <Input
           id="book-name"
           name="name"
-          onChange={e => setName(e.target.value)}
+          onChange={(e) => setName(e.target.value)}
           value={name}
           placeholder="Book Name"
           required
@@ -65,13 +65,13 @@ export default function EditBook(body: Props) {
           id="book-description"
           name="description"
           value={desc}
-          onChange={e => setDesc(e.target.value)}
+          onChange={(e) => setDesc(e.target.value)}
           placeholder="Book Description"
           maxLength={120}
         />
       </div>
       <Button type="submit" disabled={loading || !name}>
-        {loading ? 'Saving...' : 'Save Changes'}
+        {loading ? "Saving..." : "Save Changes"}
       </Button>
     </form>
   );

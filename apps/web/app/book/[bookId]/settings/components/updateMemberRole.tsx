@@ -1,35 +1,35 @@
-import { useState } from 'react';
-import { Member } from '../page';
+import { useState } from "react";
+import { Member } from "../page";
 import {
   Dialog,
   DialogContent,
   DialogFooter,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog';
+} from "@/components/ui/dialog";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { Button } from '@/components/ui/button';
-import { updateBookMembers } from '../actions/members';
-import { useParams } from 'next/navigation';
-import { toast } from 'sonner';
-import { Roles } from '@my-ledger/db/schema';
-import { UserCog2Icon } from 'lucide-react';
-import { Label } from '@/components/ui/label';
-import { useHasPermission } from '../../../../lib';
-import LoaderCircle from '../../../../components/loader';
+} from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+import { updateBookMembers } from "../actions/members";
+import { useParams } from "next/navigation";
+import { toast } from "sonner";
+import { Roles } from "@my-ledger/db/schema";
+import { UserCog2Icon } from "lucide-react";
+import { Label } from "@/components/ui/label";
+import { useHasPermission } from "../../../../lib";
+import LoaderCircle from "../../../../components/loader";
 
 type Props = {
   member: Member;
   refetchAction: () => void;
 };
 
-export type MemberRole = Omit<Roles, 'author'>;
+export type MemberRole = Omit<Roles, "author">;
 
 export default function UpdateMemberRole({ member, refetchAction }: Props) {
   const param = useParams();
@@ -57,7 +57,7 @@ export default function UpdateMemberRole({ member, refetchAction }: Props) {
     if (err) {
       toast.error(err);
     } else {
-      toast.success('Member role updated successfully');
+      toast.success("Member role updated successfully");
       refetchAction();
     }
     setLoading(false);
@@ -67,7 +67,12 @@ export default function UpdateMemberRole({ member, refetchAction }: Props) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button disabled={member.role === Roles.AUTHOR} hidden={!isOwner} size="sm" variant="ghost">
+        <Button
+          disabled={member.role === Roles.AUTHOR}
+          hidden={!isOwner}
+          size="sm"
+          variant="ghost"
+        >
           <UserCog2Icon />
         </Button>
       </DialogTrigger>
@@ -77,7 +82,10 @@ export default function UpdateMemberRole({ member, refetchAction }: Props) {
             <DialogTitle>Change Member Role</DialogTitle>
             <div className="grid gap-3 mt-4">
               <Label>Role</Label>
-              <Select value={role as string} onValueChange={v => setRole(v as MemberRole)}>
+              <Select
+                value={role as string}
+                onValueChange={(v) => setRole(v as MemberRole)}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder={member.role} />
                 </SelectTrigger>
@@ -88,11 +96,15 @@ export default function UpdateMemberRole({ member, refetchAction }: Props) {
               </Select>
             </div>
             <DialogFooter className="pt-5">
-              <Button variant="outline" type="button" onClick={() => setOpen(false)}>
+              <Button
+                variant="outline"
+                type="button"
+                onClick={() => setOpen(false)}
+              >
                 Cancel
               </Button>
               <Button type="submit" disabled={loading}>
-                {loading ? 'Updating...' : 'Update'}
+                {loading ? "Updating..." : "Update"}
               </Button>
             </DialogFooter>
           </form>

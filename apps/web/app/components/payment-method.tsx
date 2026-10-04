@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { getPaymentMethods } from '../book/actions/payment-method';
-import { DEFAULT_PAYMENT_METHODS } from '../lib/constants';
-import ClassificationSelect from './classification-select';
+import { getPaymentMethods } from "../book/actions/payment-method";
+import { DEFAULT_PAYMENT_METHODS } from "../lib/constants";
+import ClassificationSelect from "./classification-select";
 
 export default function PaymentMethodSelect({
   paymentMethodId,
@@ -11,7 +11,7 @@ export default function PaymentMethodSelect({
   paymentMethodName,
   setPaymentMethodName,
   allowNone,
-  onlyExisting
+  onlyExisting,
 }: {
   paymentMethodId: number | null;
   setPaymentMethodId: (v: number | null) => void;

@@ -1,7 +1,7 @@
 export enum Roles {
-  AUTHOR = 'author',
-  EDITOR = 'editor',
-  VIEWER = 'viewer',
+  AUTHOR = "author",
+  EDITOR = "editor",
+  VIEWER = "viewer",
 }
 
 export const ROLE_RANK: Record<Roles, number> = {
