@@ -345,7 +345,7 @@ const useDropzone = <TUploadRes, TUploadError = string>(
 
       const onDropFilePromises = slicedNewFiles.map(async (file, index) => {
         if (fileCount + 1 > maxNewFiles) {
-          await onRemoveFile(fileStatuses[index]?.id || '');
+          await onRemoveFile(fileStatuses[index]?.id || "");
         }
 
         const id = crypto.randomUUID();

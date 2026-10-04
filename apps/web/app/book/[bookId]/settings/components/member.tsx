@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import { Badge } from '@/components/ui/badge';
-import type { Member } from '../page';
-import { Roles } from '@my-ledger/db/schema';
-import RemoveMember from './removeMember';
-import UpdateMemberRole from './updateMemberRole';
-import AddOrInviteUser from './addOrInviteUser';
-import { EyeIcon, ShieldCheckIcon, SquarePenIcon } from 'lucide-react';
+import { Badge } from "@/components/ui/badge";
+import type { Member } from "../page";
+import { Roles } from "@my-ledger/db/schema";
+import RemoveMember from "./removeMember";
+import UpdateMemberRole from "./updateMemberRole";
+import AddOrInviteUser from "./addOrInviteUser";
+import { EyeIcon, ShieldCheckIcon, SquarePenIcon } from "lucide-react";
 
 export function MemberRow({
   member,
@@ -33,12 +33,12 @@ export function MemberRow({
         <UpdateMemberRole member={member} refetchAction={refetchAction} />
         <Badge
           className="capitalize shrink-0 min-h-6 w-fit sm:w-[120px]"
-          variant='secondary'
+          variant="secondary"
         >
           {member.role === Roles.AUTHOR && <ShieldCheckIcon />}
           {member.role === Roles.EDITOR && <SquarePenIcon />}
           {member.role === Roles.VIEWER && <EyeIcon />}
-          <span className='hidden sm:block'>{member.role}</span>
+          <span className="hidden sm:block">{member.role}</span>
         </Badge>
       </div>
     </article>
@@ -56,15 +56,22 @@ export default function MemberList({
     return (
       <div className="rounded-md border border-dashed h-85 p-6 text-center text-xs sm:text-sm text-muted-foreground">
         <div className="mb-2 font-medium">No members yet</div>
-        <div className="mb-4 text-xs">Add a member to see them listed here.</div>
-        <AddOrInviteUser tab="members" refetchAction={refetchAction} userDetails={[]} showName={true} />
+        <div className="mb-4 text-xs">
+          Add a member to see them listed here.
+        </div>
+        <AddOrInviteUser
+          tab="members"
+          refetchAction={refetchAction}
+          userDetails={[]}
+          showName={true}
+        />
       </div>
     );
   }
 
   return (
     <section className="h-105 overflow-auto space-y-2">
-      {members.map(m => (
+      {members.map((m) => (
         <MemberRow member={m} key={m.email} refetchAction={refetchAction} />
       ))}
     </section>

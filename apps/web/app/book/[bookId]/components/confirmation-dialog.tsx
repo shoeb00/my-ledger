@@ -1,14 +1,14 @@
-import { Button } from '@/components/ui/button';
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
   DialogFooter,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog';
-import { Trash2Icon } from 'lucide-react';
-import { useState } from 'react';
-import LoaderCircle from '../../../components/loader';
+} from "@/components/ui/dialog";
+import { Trash2Icon } from "lucide-react";
+import { useState } from "react";
+import LoaderCircle from "../../../components/loader";
 
 type Props = {
   handleDelete: (
@@ -37,20 +37,26 @@ export default function ConfirmationDialog({
       <DialogContent className="sm:max-w-[425px]">
         <LoaderCircle loading={loading}>
           <form
-            onSubmit={e => {
+            onSubmit={(e) => {
               e.preventDefault();
               handleDelete(setLoading, setOpen, loading);
             }}
             className="no-style"
           >
-            <DialogTitle className="font-bold text-2xl">Are you sure? </DialogTitle>
+            <DialogTitle className="font-bold text-2xl">
+              Are you sure?{" "}
+            </DialogTitle>
             <p className="mt-4">The action cannot be undone</p>
             <DialogFooter className="pt-5">
-              <Button variant="outline" type="button" onClick={() => setOpen(false)}>
+              <Button
+                variant="outline"
+                type="button"
+                onClick={() => setOpen(false)}
+              >
                 Cancel
               </Button>
               <Button type="submit" disabled={loading} variant="destructive">
-                {loading ? 'Deleting...' : 'Delete'}
+                {loading ? "Deleting..." : "Delete"}
               </Button>
             </DialogFooter>
           </form>

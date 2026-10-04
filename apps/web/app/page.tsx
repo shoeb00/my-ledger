@@ -25,8 +25,8 @@ export default function Home() {
 
           <p className="mt-4 max-w-prose text-sm sm:text-base text-muted-foreground">
             my-ledger lets you migrate your existing cashbook.in data and
-            continue tracking credits and debits without complexity.
-            Clean UI, no ads, and no lock-in.
+            continue tracking credits and debits without complexity. Clean UI,
+            no ads, and no lock-in.
           </p>
 
           <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -38,15 +38,14 @@ export default function Home() {
               </SignUpButton>
 
               <SignInButton mode="modal">
-                <Button className="w-full sm:w-auto">
-                  Sign in
-                </Button>
+                <Button className="w-full sm:w-auto">Sign in</Button>
               </SignInButton>
             </SignedOut>
           </div>
 
           <p className="mt-4 text-xs text-muted-foreground">
-            We never access or post your personal data. OAuth is used only for authentication.
+            We never access or post your personal data. OAuth is used only for
+            authentication.
           </p>
         </div>
 
@@ -60,7 +59,6 @@ export default function Home() {
             />
           </div>
         </div>
-
       </main>
 
       <footer className="mx-auto max-w-6xl px-4 pb-6 text-xs text-muted-foreground">

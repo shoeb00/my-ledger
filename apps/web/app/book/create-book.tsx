@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import React, { useRef, useState } from 'react';
-import { Button } from '@/components/ui/button';
+import React, { useRef, useState } from "react";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogTrigger,
@@ -10,13 +10,13 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-} from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { createBook } from './actions/create-book';
-import { toast } from 'sonner';
-import { useRolesContext } from '../context';
-import LoaderCircle from '../components/loader';
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { createBook } from "./actions/create-book";
+import { toast } from "sonner";
+import { useRolesContext } from "../context";
+import LoaderCircle from "../components/loader";
 
 export default function CreateBook({
   refetchAction,
@@ -42,7 +42,7 @@ export default function CreateBook({
       formRef.current?.reset();
       refetchAction();
       refetchRoles();
-      toast.success('Book created successfully');
+      toast.success("Book created successfully");
     }
     setOpen(false);
     setLoading(false);
@@ -67,7 +67,14 @@ export default function CreateBook({
             <div className="grid gap-4">
               <div className="grid gap-3">
                 <Label htmlFor="name">Name</Label>
-                <Input id="name" name="name" placeholder="Trip to Goa" required minLength={3} maxLength={50} />
+                <Input
+                  id="name"
+                  name="name"
+                  placeholder="Trip to Goa"
+                  required
+                  minLength={3}
+                  maxLength={50}
+                />
               </div>
 
               <div className="grid gap-3">
@@ -83,12 +90,16 @@ export default function CreateBook({
             </div>
 
             <DialogFooter className="pt-5">
-              <Button variant="outline" type="button" onClick={() => setOpen(false)}>
+              <Button
+                variant="outline"
+                type="button"
+                onClick={() => setOpen(false)}
+              >
                 Cancel
               </Button>
 
               <Button type="submit" disabled={loading}>
-                {loading ? 'Saving…' : 'Save'}
+                {loading ? "Saving…" : "Save"}
               </Button>
             </DialogFooter>
           </form>

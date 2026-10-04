@@ -1,7 +1,11 @@
-'use client';
+"use client";
 
-import { getCategories, createCategory, deleteCategory } from '../../../actions/category';
-import ClassificationManager from './classification-manager';
+import {
+  getCategories,
+  createCategory,
+  deleteCategory,
+} from "../../../actions/category";
+import ClassificationManager from "./classification-manager";
 
 export default function CategoryManager({ bookId }: { bookId: number }) {
   return (
@@ -15,7 +19,7 @@ export default function CategoryManager({ bookId }: { bookId: number }) {
         placeholder: "New Category Name",
         addSuccess: "Category added",
         deleteSuccess: "Category deleted",
-        addLabel: "Add"
+        addLabel: "Add",
       }}
     />
   );

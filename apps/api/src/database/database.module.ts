@@ -32,4 +32,4 @@ import { createDb } from '@my-ledger/db/connection';
   ],
   exports: [DATABASE_CONNECTION, DATABASE_POOL, DatabaseHealthService],
 })
-export class DatabaseModule { }
+export class DatabaseModule {}

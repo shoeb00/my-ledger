@@ -9,15 +9,20 @@ const badgeVariants = cva(
   {
     variants: {
       variant: {
-        default: "border-transparent bg-primary text-primary-foreground [a&]:hover:bg-primary/90",
+        default:
+          "border-transparent bg-primary text-primary-foreground [a&]:hover:bg-primary/90",
         secondary:
           "border-transparent bg-secondary text-secondary-foreground [a&]:hover:bg-secondary/90",
         destructive:
           "border-transparent bg-destructive text-white [a&]:hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
-        outline: "text-foreground [a&]:hover:bg-accent [a&]:hover:text-accent-foreground",
-        author: "border-transparent bg-[var(--role-author)] text-white [a&]:hover:bg-[var(--role-author)/90]",
-        editor: "border-transparent bg-[var(--role-editor)] text-white [a&]:hover:bg-[var(--role-editor)/90]",
-        viewer: "border-transparent bg-[var(--role-viewer)] text-white [a&]:hover:bg-[var(--role-viewer)/90]",
+        outline:
+          "text-foreground [a&]:hover:bg-accent [a&]:hover:text-accent-foreground",
+        author:
+          "border-transparent bg-[var(--role-author)] text-white [a&]:hover:bg-[var(--role-author)/90]",
+        editor:
+          "border-transparent bg-[var(--role-editor)] text-white [a&]:hover:bg-[var(--role-editor)/90]",
+        viewer:
+          "border-transparent bg-[var(--role-viewer)] text-white [a&]:hover:bg-[var(--role-viewer)/90]",
       },
     },
     defaultVariants: {
@@ -33,15 +38,18 @@ function Badge({
   asChild = false,
   ...props
 }: React.ComponentProps<"span"> &
-  VariantProps<typeof badgeVariants> & { asChild?: boolean; hashString?: string | null }) {
+  VariantProps<typeof badgeVariants> & {
+    asChild?: boolean;
+    hashString?: string | null;
+  }) {
   const Comp = asChild ? Slot : "span";
 
   const inlineStyles = hashString
     ? {
-      borderColor: stringToColor(hashString),
-      color: stringToColor(hashString),
-      backgroundColor: "transparent",
-    }
+        borderColor: stringToColor(hashString),
+        color: stringToColor(hashString),
+        backgroundColor: "transparent",
+      }
     : {};
 
   return (
