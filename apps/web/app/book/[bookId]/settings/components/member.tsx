@@ -5,7 +5,7 @@ import type { Member } from "../page";
 import { Roles } from "@my-ledger/db/schema";
 import RemoveMember from "./removeMember";
 import UpdateMemberRole from "./updateMemberRole";
-import AddOrInviteUser from "./addOrInviteUser";
+import AddOrInviteUser, { type UserDetails } from "./addOrInviteUser";
 import { EyeIcon, ShieldCheckIcon, SquarePenIcon } from "lucide-react";
 
 export function MemberRow({
@@ -48,8 +48,12 @@ export function MemberRow({
 export default function MemberList({
   members,
   refetchAction,
+  userEmails,
+  userEmailsLoading,
 }: {
   members: Member[];
+  userEmails: UserDetails[];
+  userEmailsLoading: boolean;
   refetchAction: () => void;
 }) {
   if (!members || members.length === 0) {
@@ -63,6 +67,8 @@ export default function MemberList({
           tab="members"
           refetchAction={refetchAction}
           userDetails={[]}
+          userEmails={userEmails}
+          userEmailsLoading={userEmailsLoading}
           showName={true}
         />
       </div>

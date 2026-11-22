@@ -1,6 +1,6 @@
 "use client";
 import type { Invitation } from "../page";
-import AddOrInviteUser from "./addOrInviteUser";
+import AddOrInviteUser, { type UserDetails } from "./addOrInviteUser";
 import CancelInvitation from "./cancelInvite";
 import { fmtDate } from "../../../../lib";
 
@@ -39,8 +39,12 @@ export default function InvitationList({
   refetchAction,
   loading,
   setActiveTabAction,
+  userEmails,
+  userEmailsLoading,
 }: {
   invitations: Invitation[];
+  userEmails: UserDetails[];
+  userEmailsLoading: boolean;
   refetchAction: () => void;
   loading: boolean;
   setActiveTabAction: (tab: "members" | "invites") => void;
@@ -56,6 +60,8 @@ export default function InvitationList({
           tab="invites"
           refetchAction={refetchAction}
           userDetails={[]}
+          userEmails={userEmails}
+          userEmailsLoading={userEmailsLoading}
           setActiveTabAction={setActiveTabAction}
           showName={true}
         />

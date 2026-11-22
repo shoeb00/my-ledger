@@ -22,7 +22,10 @@ interface ClassificationManagerProps {
     bookId: number;
     name: string;
   }) => Promise<{ data?: any; err?: string | null }>;
-  deleteData: (params: { id: number }) => Promise<{ err?: string | null }>;
+  deleteData: (params: {
+    id: number;
+    bookId: number;
+  }) => Promise<{ err?: string | null }>;
   updateEvent: string;
   labels: {
     placeholder: string;
@@ -64,13 +67,19 @@ export default function ClassificationManager({
     if (!name.trim()) return;
     setLoading(true);
     setAdding(true);
-    const { err } = await createData({ bookId, name });
+    const { err, data } = await createData({ bookId, name });
     if (err) {
       toast.error(err);
     } else {
       toast.success(labels.addSuccess);
       setNewName("");
-      fetchItems();
+      if (data) {
+        setItems((current) =>
+          [...current, data as Item].sort((a, b) =>
+            a.name.localeCompare(b.name),
+          ),
+        );
+      }
       window.dispatchEvent(new Event(updateEvent));
     }
     setLoading(false);
@@ -79,12 +88,12 @@ export default function ClassificationManager({
 
   const handleDelete = async (id: number) => {
     setLoading(true);
-    const { err } = await deleteData({ id });
+    const { err } = await deleteData({ id, bookId });
     if (err) {
       toast.error(err);
     } else {
       toast.success(labels.deleteSuccess);
-      setItems(items.filter((item) => item.id !== id));
+      setItems((current) => current.filter((item) => item.id !== id));
       window.dispatchEvent(new Event(updateEvent));
     }
     setLoading(false);
