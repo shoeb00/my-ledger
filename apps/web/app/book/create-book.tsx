@@ -19,10 +19,8 @@ import { useRolesContext } from "../context";
 import LoaderCircle from "../components/loader";
 
 export default function CreateBook({
-  refetchAction,
   books,
 }: {
-  refetchAction: () => void;
   books: number;
 }) {
   const formRef = useRef<HTMLFormElement | null>(null);
@@ -40,7 +38,6 @@ export default function CreateBook({
       toast.error(err);
     } else {
       formRef.current?.reset();
-      refetchAction();
       refetchRoles();
       toast.success("Book created successfully");
     }
