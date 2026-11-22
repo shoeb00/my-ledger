@@ -1,17 +1,17 @@
-import Papa from 'papaparse';
-import { parseIST } from '../../../lib';
-import { AddTransactionRequest } from '../actions/add-transaction';
+import Papa from "papaparse";
+import { parseIST } from "../../../lib";
+import { AddTransactionRequest } from "../actions/add-transaction";
 
 type InputRow = {
   Date: string;
   Time: string;
   Remark: string;
   Party?: string;
-  'Entry By'?: string;
+  "Entry By"?: string;
   Category: string;
   Mode: string;
-  'Cash In': string;
-  'Cash Out': string;
+  "Cash In": string;
+  "Cash Out": string;
   Balance: string;
 };
 function buildTransaction(row: InputRow): AddTransactionRequest {
@@ -19,15 +19,16 @@ function buildTransaction(row: InputRow): AddTransactionRequest {
     Remark: description,
     Category: category,
     Mode: paymentType,
-    'Cash In': cashIn,
-    'Cash Out': cashOut,
+    "Cash In": cashIn,
+    "Cash Out": cashOut,
     Date,
     Time,
   } = row;
 
   const createdAt = parseIST(Date, Time);
 
-  const amount = cashIn && cashIn !== null ? String(cashIn) : `-${cashOut ?? 0}`;
+  const amount =
+    cashIn && cashIn !== null ? String(cashIn) : `-${cashOut ?? 0}`;
 
   return {
     createdAt,
@@ -36,7 +37,7 @@ function buildTransaction(row: InputRow): AddTransactionRequest {
     categoryName: category,
     paymentMethodName: paymentType,
     paymentMethodId: null,
-    categoryId: null
+    categoryId: null,
   };
 }
 
@@ -45,14 +46,14 @@ export function parseCsvFile(file: File): Promise<AddTransactionRequest[]> {
     Papa.parse<InputRow>(file, {
       escapeChar: '"',
       quoteChar: '"',
-      delimiter: ',',
-      newline: '',
-      encoding: 'UTF-8',
+      delimiter: ",",
+      newline: "",
+      encoding: "UTF-8",
       header: true,
       skipEmptyLines: true,
 
       transformHeader: (h: string) => h.trim(),
-      transform: (v: string) => (v === '' ? null : v),
+      transform: (v: string) => (v === "" ? null : v),
 
       complete: (json: { data: []; errors: Error[] }) => {
         try {
@@ -62,7 +63,7 @@ export function parseCsvFile(file: File): Promise<AddTransactionRequest[]> {
           }
 
           if (!json.data.length) {
-            reject(new Error('File is empty'));
+            reject(new Error("File is empty"));
             return;
           }
 

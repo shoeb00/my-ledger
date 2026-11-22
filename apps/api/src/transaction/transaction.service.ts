@@ -40,7 +40,7 @@ export class TransactionService {
     @Inject(DATABASE_CONNECTION)
     private readonly db: DB,
     private readonly cxt: RequestContextService,
-  ) { }
+  ) {}
 
   async get(id: number): Promise<TransactionResponseDto> {
     const record = await this.db.query.transactions.findFirst({

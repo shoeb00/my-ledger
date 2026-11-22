@@ -14,7 +14,6 @@ import { DATABASE_CONNECTION } from '../database/database-connection';
 import { Roles } from '../permissions/enum/roles';
 import { PermissionsResponse } from '../permissions/dto/permissions-response';
 
-
 @Injectable()
 export class InvitationsService {
   constructor(
@@ -23,7 +22,7 @@ export class InvitationsService {
     private readonly permissionsService: PermissionsService,
     private readonly cxt: RequestContextService,
     private readonly clerkService: ClerkService,
-  ) { }
+  ) {}
   async getInvitations(bookId: number) {
     const user = this.cxt.getUser();
     return await this.db.query.invitations.findMany({

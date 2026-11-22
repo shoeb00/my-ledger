@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
 import {
-    getPaymentMethods,
-    createPaymentMethod,
-    deletePaymentMethod,
-} from '../../../actions/payment-method';
-import ClassificationManager from './classification-manager';
+  getPaymentMethods,
+  createPaymentMethod,
+  deletePaymentMethod,
+} from "../../../actions/payment-method";
+import ClassificationManager from "./classification-manager";
 
 export default function PaymentMethodManager({ bookId }: { bookId: number }) {
   return (
@@ -19,7 +19,7 @@ export default function PaymentMethodManager({ bookId }: { bookId: number }) {
         placeholder: "New Payment Method Name",
         addSuccess: "Payment method added",
         deleteSuccess: "Payment method deleted",
-        addLabel: "Add"
+        addLabel: "Add",
       }}
     />
   );

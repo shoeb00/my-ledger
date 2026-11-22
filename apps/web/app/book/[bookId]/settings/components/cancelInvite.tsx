@@ -1,8 +1,8 @@
-import ConfirmationDialog from '../../components/confirmation-dialog';
-import { cancelInvitation } from '../actions/invitations';
-import { toast } from 'sonner';
-import { useHasPermission } from '../../../../lib';
-import { Roles } from '@my-ledger/db/schema';
+import ConfirmationDialog from "../../components/confirmation-dialog";
+import { cancelInvitation } from "../actions/invitations";
+import { toast } from "sonner";
+import { useHasPermission } from "../../../../lib";
+import { Roles } from "@my-ledger/db/schema";
 
 export default function CancelInvitation({
   inviteId,
@@ -16,7 +16,7 @@ export default function CancelInvitation({
   const canEdit = !useHasPermission(Roles.EDITOR);
   const handleCancelInvite = async (
     setLoading: React.Dispatch<React.SetStateAction<boolean>>,
-    setOpen: React.Dispatch<React.SetStateAction<boolean>>
+    setOpen: React.Dispatch<React.SetStateAction<boolean>>,
   ) => {
     if (loading) return;
     setLoading(true);
@@ -24,11 +24,13 @@ export default function CancelInvitation({
     if (err) {
       toast.error(err);
     } else {
-      toast.success('Invitation cancelled successfully');
+      toast.success("Invitation cancelled successfully");
       refetchAction();
     }
     setLoading(false);
     setOpen(false);
   };
-  return <ConfirmationDialog handleDelete={handleCancelInvite} hidden={canEdit} />;
+  return (
+    <ConfirmationDialog handleDelete={handleCancelInvite} hidden={canEdit} />
+  );
 }

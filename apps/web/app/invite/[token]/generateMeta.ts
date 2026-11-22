@@ -1,31 +1,35 @@
 import type { Metadata } from "next";
 
-export async function generateMetadata({ params }: { params: { token: string } }): Promise<Metadata> {
-    const baseUrl = process.env.NEXT_PUBLIC_WEB_URL!;
-    const { token } = params;
+export async function generateMetadata({
+  params,
+}: {
+  params: { token: string };
+}): Promise<Metadata> {
+  const baseUrl = process.env.NEXT_PUBLIC_WEB_URL!;
+  const { token } = params;
 
-    return {
-        title: "Invitation | My Ledger",
-        description: "Join My Ledger and manage credits & debits seamlessly.",
-        robots: {
-            index: false,
-            follow: false,
+  return {
+    title: "Invitation | My Ledger",
+    description: "Join My Ledger and manage credits & debits seamlessly.",
+    robots: {
+      index: false,
+      follow: false,
+    },
+    openGraph: {
+      title: "My Ledger – Invitation",
+      description: "Join My Ledger and manage credits & debits seamlessly.",
+      url: `${baseUrl}/invite/${token}`,
+      images: [
+        {
+          url: `${baseUrl}/og-image.png`,
+          width: 1200,
+          height: 630,
         },
-        openGraph: {
-            title: "My Ledger – Invitation",
-            description: "Join My Ledger and manage credits & debits seamlessly.",
-            url: `${baseUrl}/invite/${token}`,
-            images: [
-                {
-                    url: `${baseUrl}/og-image.png`,
-                    width: 1200,
-                    height: 630,
-                },
-            ],
-        },
-        twitter: {
-            card: "summary_large_image",
-            images: [`${baseUrl}/og-image.png`],
-        },
-    };
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      images: [`${baseUrl}/og-image.png`],
+    },
+  };
 }

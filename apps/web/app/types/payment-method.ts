@@ -16,5 +16,6 @@ export interface GetPaymentMethodsRequest {
 }
 
 export interface DeletePaymentMethodRequest {
+  bookId: number;
   id: number;
 }

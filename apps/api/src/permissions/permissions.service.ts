@@ -15,7 +15,6 @@ import { RequestContextService } from '../common/request-context.service';
 import { Roles } from './enum/roles';
 import { UpdatePermissionsRequestDto } from './dto/create-permissions-request';
 
-
 @Injectable()
 export class PermissionsService {
   constructor(

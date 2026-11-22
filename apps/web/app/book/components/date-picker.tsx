@@ -1,17 +1,21 @@
-'use client';
+"use client";
 
-import * as React from 'react';
-import { CalendarIcon, Clock2Icon } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Calendar } from '@/components/ui/calendar';
+import * as React from "react";
+import { CalendarIcon, Clock2Icon } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from '@/components/ui/popover';
-import { cn } from '@/lib/utils';
-import { fmtDate } from '../../lib';
-import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group';
+} from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
+import { fmtDate } from "../../lib";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "@/components/ui/input-group";
 
 interface DatePickerProps {
   date: Date | undefined;
@@ -30,12 +34,16 @@ export function DatePicker({ date, setDate, time, setTime }: DatePickerProps) {
         <Button
           variant={"outline"}
           className={cn(
-            'w-full justify-start text-left font-normal',
-            !date && 'text-muted-foreground'
+            "w-full justify-start text-left font-normal",
+            !date && "text-muted-foreground",
           )}
         >
           <CalendarIcon className="mr-2 h-4 w-4" />
-          {date && !popoverOpen ? fmtDate(date, true) : <span>Pick a date</span>}
+          {date && !popoverOpen ? (
+            fmtDate(date, true)
+          ) : (
+            <span>Pick a date</span>
+          )}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0" align="start">
@@ -46,7 +54,7 @@ export function DatePicker({ date, setDate, time, setTime }: DatePickerProps) {
           autoFocus
           disabled={(date) => date > new Date()}
         />
-        <div className='m-2'>
+        <div className="m-2">
           <InputGroup>
             <InputGroupInput
               id="time-from"
@@ -54,8 +62,8 @@ export function DatePicker({ date, setDate, time, setTime }: DatePickerProps) {
               step="1"
               defaultValue={time}
               onChange={(e) => {
-                setTime(e.target.value)
-                setDate(date)
+                setTime(e.target.value);
+                setDate(date);
               }}
               className="appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
             />

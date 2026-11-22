@@ -1,6 +1,6 @@
-import { cn } from '@/lib/utils';
-import { Loader2 } from 'lucide-react';
-import React, { PropsWithChildren } from 'react';
+import { cn } from "@/lib/utils";
+import { Loader2 } from "lucide-react";
+import React, { PropsWithChildren } from "react";
 
 export default function LoaderCircle({
   loading,
@@ -8,7 +8,7 @@ export default function LoaderCircle({
   className,
 }: PropsWithChildren<{ loading: boolean; className?: string }>) {
   return (
-    <div className={cn('relative w-full', className)}>
+    <div className={cn("relative w-full", className)}>
       {loading && (
         <div className="absolute inset-0 z-20 flex items-center justify-center">
           <div className="absolute inset-0 bg-background/50 backdrop-blur-sm" />
@@ -17,8 +17,8 @@ export default function LoaderCircle({
       )}
       <div
         className={cn(
-          'relative w-full h-full flex flex-col gap-4',
-          loading && 'pointer-events-none',
+          "relative w-full h-full flex flex-col gap-4",
+          loading && "pointer-events-none",
         )}
         aria-busy={loading}
       >

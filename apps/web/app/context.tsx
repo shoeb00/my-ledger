@@ -1,16 +1,26 @@
-import { createContext, useEffect, useState, useCallback, useContext } from "react";
+import {
+  createContext,
+  useEffect,
+  useState,
+  useCallback,
+  useContext,
+} from "react";
 import { BookResponse, getBook } from "./book/actions/get-books";
 import { useUser } from "@clerk/nextjs";
 
 type RolesContextValue = {
   roles: BookResponse[];
   loading: boolean;
-  refetchRoles: () => void;
-}
+  refetchRoles: () => Promise<void>;
+};
 
 const RolesContext = createContext<RolesContextValue | null>(null);
 
-export default function RolesProvider({ children }: { children: React.ReactNode }) {
+export default function RolesProvider({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const [roles, setRoles] = useState<BookResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const { isSignedIn, isLoaded } = useUser();
@@ -55,6 +65,6 @@ export const useBookRole = (bookId: string) => {
 
   if (loading) return { role: null, loading };
 
-  const role = roles.find(r => r.id.toString() === bookId)?.role ?? null;
+  const role = roles.find((r) => r.id.toString() === bookId)?.role ?? null;
   return { role, loading };
 };

@@ -1,22 +1,22 @@
-import { Button } from '@/components/ui/button';
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
   DialogTrigger,
   DialogFooter,
   DialogTitle,
-} from '@/components/ui/dialog';
-import { useEffect, useState } from 'react';
-import { Input } from '@/components/ui/input';
-import { addTransaction } from '../actions/add-transaction';
-import { Plus, Minus } from 'lucide-react';
-import { toast } from 'sonner';
-import { fmtCurrency, useHasPermission, zonedTime } from '../../../lib';
-import { Roles } from '@my-ledger/db/schema';
-import LoaderCircle from '../../../components/loader';
-import CategorySelect from '../../../components/category';
-import PaymentMethodSelect from '../../../components/payment-method';
-import { DatePicker } from '../../components/date-picker';
+} from "@/components/ui/dialog";
+import { useEffect, useState } from "react";
+import { Input } from "@/components/ui/input";
+import { addTransaction } from "../actions/add-transaction";
+import { Plus, Minus } from "lucide-react";
+import { toast } from "sonner";
+import { fmtCurrency, useHasPermission, zonedTime } from "../../../lib";
+import { Roles } from "@my-ledger/db/schema";
+import LoaderCircle from "../../../components/loader";
+import CategorySelect from "../../../components/category";
+import PaymentMethodSelect from "../../../components/payment-method";
+import { DatePicker } from "../../components/date-picker";
 
 export default function AddTransactionDialog({
   bookId,
@@ -27,27 +27,29 @@ export default function AddTransactionDialog({
 }) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [description, setDescription] = useState('');
+  const [description, setDescription] = useState("");
   const [paymentMethodId, setPaymentMethodId] = useState<number | null>(null);
-  const [paymentMethodName, setPaymentMethodName] = useState<string | null>(null);
+  const [paymentMethodName, setPaymentMethodName] = useState<string | null>(
+    null,
+  );
   const [categoryId, setCategoryId] = useState<number | null>(null);
   const [categoryName, setCategoryName] = useState<string | null>(null);
-  const [amountStr, setAmountStr] = useState('');
+  const [amountStr, setAmountStr] = useState("");
   const [isPositive, setIsPositive] = useState(true);
   const [date, setDate] = useState<Date | undefined>(new Date());
   const [time, setTime] = useState<string>(zonedTime(date!));
 
   function resetForm() {
-    setDescription('');
+    setDescription("");
     setPaymentMethodId(null);
     setPaymentMethodName(null);
     setCategoryId(null);
     setCategoryName(null);
-    setAmountStr('');
+    setAmountStr("");
     setIsPositive(true);
     setDate(new Date());
     setLoading(false);
-    setTime(zonedTime(date!))
+    setTime(zonedTime(date!));
   }
 
   useEffect(() => {
@@ -55,14 +57,14 @@ export default function AddTransactionDialog({
   }, [open]);
 
   useEffect(() => {
-    const [hour, min] = time.split(':')
-    date?.setHours(Number(hour), Number(min), 0, 0)
-    setDate(date)
-  }, [time])
+    const [hour, min] = time.split(":");
+    date?.setHours(Number(hour), Number(min), 0, 0);
+    setDate(date);
+  }, [time]);
 
   async function handleAdd(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    const amount = Number(amountStr.replace(/[^\d.]/g, ''));
+    const amount = Number(amountStr.replace(/[^\d.]/g, ""));
     const finalAmount = isPositive ? amount : -amount;
     const payload = {
       description,
@@ -70,7 +72,7 @@ export default function AddTransactionDialog({
       paymentMethodName,
       categoryId,
       categoryName,
-      amount: finalAmount?.toFixed(2).toString() || '0',
+      amount: finalAmount?.toFixed(2).toString() || "0",
       bookId: Number(bookId),
       createdAt: date!.toISOString(),
     };
@@ -81,7 +83,7 @@ export default function AddTransactionDialog({
     } else {
       resetForm();
       refetchAction();
-      toast.success('Transaction added successfully');
+      toast.success("Transaction added successfully");
     }
     setOpen(false);
     setLoading(false);
@@ -96,7 +98,7 @@ export default function AddTransactionDialog({
   const canEdit = !useHasPermission(Roles.EDITOR);
 
   return (
-    <Dialog open={open} onOpenChange={o => setOpen(o)}>
+    <Dialog open={open} onOpenChange={(o) => setOpen(o)}>
       <DialogTrigger asChild>
         <Button disabled={loading} hidden={canEdit} className="w-fit">
           <Plus className="h-4 w-4" /> Transaction
@@ -105,12 +107,14 @@ export default function AddTransactionDialog({
       <DialogContent>
         <LoaderCircle loading={loading}>
           <form onSubmit={handleAdd} className="no-style">
-            <DialogTitle className="font-bold text-2xl">Add Transaction</DialogTitle>
+            <DialogTitle className="font-bold text-2xl">
+              Add Transaction
+            </DialogTitle>
             <div className="flex gap-4 justify-between mt-4">
               <Button
                 className="flex-1"
                 type="button"
-                variant={isPositive ? 'success' : 'outline'}
+                variant={isPositive ? "success" : "outline"}
                 onClick={() => setIsPositive(true)}
               >
                 <Plus className="h-4 w-4" />
@@ -119,7 +123,7 @@ export default function AddTransactionDialog({
               <Button
                 className="flex-1"
                 type="button"
-                variant={!isPositive ? 'destructive' : 'outline'}
+                variant={!isPositive ? "destructive" : "outline"}
                 onClick={() => setIsPositive(false)}
               >
                 <Minus className="h-4 w-4" />
@@ -128,16 +132,16 @@ export default function AddTransactionDialog({
             </div>
             <div className="grid gap-4 mt-4">
               <Input
-                placeholder={fmtCurrency('12.99')}
+                placeholder={fmtCurrency("12.99")}
                 value={amountStr}
-                onChange={e => handleAmountInput(e.target.value)}
+                onChange={(e) => handleAmountInput(e.target.value)}
                 maxLength={14}
                 required
               />
               <Input
                 placeholder="Transaction description"
                 value={description}
-                onChange={e => setDescription(e.target.value)}
+                onChange={(e) => setDescription(e.target.value)}
               />
               <div className="flex flex-row gap-4">
                 <PaymentMethodSelect
@@ -155,14 +159,26 @@ export default function AddTransactionDialog({
                   bookId={Number(bookId)}
                 />
               </div>
-              <DatePicker date={date} setDate={setDate} time={time} setTime={setTime} />
+              <DatePicker
+                date={date}
+                setDate={setDate}
+                time={time}
+                setTime={setTime}
+              />
             </div>
             <DialogFooter className="pt-5">
-              <Button variant="outline" type="button" onClick={() => setOpen(false)}>
+              <Button
+                variant="outline"
+                type="button"
+                onClick={() => setOpen(false)}
+              >
                 Cancel
               </Button>
-              <Button type="submit" disabled={loading || amountStr === fmtCurrency('')}>
-                {loading ? 'Adding...' : 'Add'}
+              <Button
+                type="submit"
+                disabled={loading || amountStr === fmtCurrency("")}
+              >
+                {loading ? "Adding..." : "Add"}
               </Button>
             </DialogFooter>
           </form>

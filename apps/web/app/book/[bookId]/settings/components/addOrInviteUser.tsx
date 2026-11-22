@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
+import { useMemo, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -8,23 +8,23 @@ import {
   DialogFooter,
   DialogTitle,
   DialogDescription,
-} from '@/components/ui/dialog';
-import { toast } from 'sonner';
-import { MailPlusIcon, UserPlus2Icon } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { getEmails, inviteUser } from '../actions/invitations';
-import { Member } from '../page';
+} from "@/components/ui/dialog";
+import { toast } from "sonner";
+import { MailPlusIcon, UserPlus2Icon } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { inviteUser } from "../actions/invitations";
+import { Member } from "../page";
 import {
   Command,
   CommandEmpty,
   CommandGroup,
   CommandInput,
   CommandItem,
-} from '@/components/ui/command';
-import { useParams } from 'next/navigation';
-import { Roles } from '@my-ledger/db/schema';
-import { useHasPermission } from '../../../../lib';
-import LoaderCircle from '../../../../components/loader';
+} from "@/components/ui/command";
+import { useParams } from "next/navigation";
+import { Roles } from "@my-ledger/db/schema";
+import { useHasPermission } from "../../../../lib";
+import LoaderCircle from "../../../../components/loader";
 
 export type UserDetails = {
   name: string;
@@ -34,9 +34,11 @@ export type UserDetails = {
 
 type Props = {
   userDetails: Partial<Member>[];
-  refetchAction: () => void;
-  tab: 'members' | 'invites';
-  setActiveTabAction?: (tab: 'members' | 'invites') => void;
+  userEmails: UserDetails[];
+  userEmailsLoading: boolean;
+  refetchAction: (addedMember?: boolean) => void;
+  tab: "members" | "invites";
+  setActiveTabAction?: (tab: "members" | "invites") => void;
   showName: boolean;
 };
 
@@ -46,47 +48,46 @@ export default function AddOrInviteUser(body: Props) {
   const bookId = params.bookId as string;
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [email, setEmail] = useState('');
-  const [users, setUsers] = useState<UserDetails[]>([]);
+  const [email, setEmail] = useState("");
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const canEdit = !useHasPermission(Roles.EDITOR);
 
-  useEffect(() => {
-    (async () => {
-      setLoading(true);
-      const result = await getEmails();
-      const emails = body.userDetails.map(({ email }) => email);
-      const data = result.data as UserDetails[];
-      const filteredUsers = data.filter(({ email }) => !emails.includes(email));
-      setUsers(filteredUsers);
-      if (result.err) {
-        toast.error(result.err);
-      }
-      setLoading(false);
-    })();
-  }, [body.userDetails]);
+  const users = useMemo(() => {
+    const memberEmails = new Set(
+      body.userDetails.map(({ email }) => email).filter(Boolean),
+    );
+    return body.userEmails.filter(({ email }) => !memberEmails.has(email));
+  }, [body.userDetails, body.userEmails]);
 
-  const isMemberTab = body.tab === 'members';
-  const title = isMemberTab ? 'Add User' : 'Send Invitation';
-  const action = isMemberTab ? 'Add' : 'Invite';
-  const loadingAction = isMemberTab ? 'Adding...' : 'Inviting...';
+  const isMemberTab = body.tab === "members";
+  const title = isMemberTab ? "Add User" : "Send Invitation";
+  const action = isMemberTab ? "Add" : "Invite";
+  const loadingAction = isMemberTab ? "Adding..." : "Inviting...";
   const buttonCheck =
-    (isMemberTab && !users.find(({ email: e }) => e === email)?.email) || !emailRegex.test(email);
+    (isMemberTab && !users.find(({ email: e }) => e === email)?.email) ||
+    !emailRegex.test(email);
 
   const handleUpdate = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (loading) return;
     setLoading(true);
     const { refetchAction } = body;
-    const { err, data } = await inviteUser({ email, bookId, role: Roles.VIEWER });
+    const { err, data } = await inviteUser({
+      email,
+      bookId,
+      role: Roles.VIEWER,
+    });
     if (err) {
       toast.error(err);
     } else {
-      if (data === null) {
-        toast.success('User found, adding as a member');
-        if (body.setActiveTabAction) body.setActiveTabAction('members');
-      } else toast.success(`User ${isMemberTab ? 'added' : 'invited'} successfully`);
-      refetchAction();
+      const isDirectMember = typeof data === "object" && data !== null;
+      if (!isMemberTab && isDirectMember) {
+        toast.success("User found, adding as a member");
+        if (body.setActiveTabAction) body.setActiveTabAction("members");
+      } else {
+        toast.success(`User ${isMemberTab ? "added" : "invited"} successfully`);
+      }
+      refetchAction(isDirectMember);
     }
     setOpen(false);
     setLoading(false);
@@ -95,10 +96,10 @@ export default function AddOrInviteUser(body: Props) {
   return (
     <Dialog
       open={open}
-      onOpenChange={isOpen => {
+      onOpenChange={(isOpen) => {
         setOpen(isOpen);
         if (isOpen) {
-          setEmail('');
+          setEmail("");
         }
       }}
     >
@@ -111,14 +112,16 @@ export default function AddOrInviteUser(body: Props) {
             </>
           ) : (
             <>
-              <MailPlusIcon />{' '}
-              <span className={body.showName ? '' : 'hidden sm:block'}>{title}</span>
+              <MailPlusIcon />{" "}
+              <span className={body.showName ? "" : "hidden sm:block"}>
+                {title}
+              </span>
             </>
           )}
         </Button>
       </DialogTrigger>
       <DialogContent>
-        <LoaderCircle loading={loading}>
+        <LoaderCircle loading={loading || body.userEmailsLoading}>
           <form onSubmit={handleUpdate} className="no-style">
             <DialogTitle>{title}</DialogTitle>
             <DialogDescription className="mt-4">Email</DialogDescription>
@@ -129,7 +132,9 @@ export default function AddOrInviteUser(body: Props) {
                   value={email}
                   onValueChange={setEmail}
                 ></CommandInput>
-                {isMemberTab && <CommandEmpty>No users found, try inviting</CommandEmpty>}
+                {isMemberTab && (
+                  <CommandEmpty>No users found, try inviting</CommandEmpty>
+                )}
                 {isMemberTab && (
                   <CommandGroup className="overflow-auto">
                     {users.map(({ name, email: userEmail }) => (
@@ -152,10 +157,17 @@ export default function AddOrInviteUser(body: Props) {
               </Command>
             </div>
             <DialogFooter className="pt-5">
-              <Button variant="outline" type="button" onClick={() => setOpen(false)}>
+              <Button
+                variant="outline"
+                type="button"
+                onClick={() => setOpen(false)}
+              >
                 Cancel
               </Button>
-              <Button type="submit" disabled={loading || buttonCheck}>
+              <Button
+                type="submit"
+                disabled={loading || body.userEmailsLoading || buttonCheck}
+              >
                 {loading ? loadingAction : action}
               </Button>
             </DialogFooter>

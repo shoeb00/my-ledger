@@ -1,5 +1,5 @@
-import * as schema from './schema/index.js'
-export * from './schema/index.js'
+import * as schema from "./schema/index.js";
+export * from "./schema/index.js";
 
 export { schema };
-export * from 'drizzle-orm';
+export * from "drizzle-orm";

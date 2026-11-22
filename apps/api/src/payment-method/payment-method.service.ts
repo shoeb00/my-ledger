@@ -10,13 +10,12 @@ import { DATABASE_CONNECTION } from '../database/database-connection';
 import { CreatePaymentMethodRequestDto } from './dto/payment-method-request';
 import { PaymentMethodResponseDto } from './dto/payment-method-response';
 
-
 @Injectable()
 export class PaymentMethodService {
   constructor(
     @Inject(DATABASE_CONNECTION)
     private readonly db: DB,
-  ) { }
+  ) {}
 
   async getPaymentMethods(bookId: number): Promise<PaymentMethodResponseDto[]> {
     const paymentMethods = await this.db.query.paymentMethods.findMany({

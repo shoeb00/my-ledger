@@ -1,8 +1,8 @@
-import { deleteTransaction } from '../actions/delete-transaction';
-import { toast } from 'sonner';
-import ConfirmationDialog from './confirmation-dialog';
-import { Roles } from '@my-ledger/db/schema';
-import { useHasPermission } from '../../../lib';
+import { deleteTransaction } from "../actions/delete-transaction";
+import { toast } from "sonner";
+import ConfirmationDialog from "./confirmation-dialog";
+import { Roles } from "@my-ledger/db/schema";
+import { useHasPermission } from "../../../lib";
 
 export default function DeleteTransactionDialog({
   transactionId,
@@ -25,7 +25,7 @@ export default function DeleteTransactionDialog({
     if (err) {
       toast.error(err);
     } else {
-      toast.success('Transaction deleted successfully');
+      toast.success("Transaction deleted successfully");
       refetchAction();
     }
     setLoading(false);

@@ -11,7 +11,6 @@ import { UserResponseDto } from './dto/user-response';
 import { CreateUserRequestDto } from './dto/create-user-request';
 import { RequestContextService } from '../common/request-context.service';
 
-
 @Injectable()
 export class UserService {
   constructor(
@@ -53,7 +52,7 @@ export class UserService {
           userId: user.id,
         }));
         const bookIds = invitationsRes.map(({ bookId }) => bookId);
-        
+
         await tx.insert(schema.permissions).values(permissions);
         await tx
           .update(schema.books)

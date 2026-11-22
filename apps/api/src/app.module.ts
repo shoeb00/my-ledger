@@ -1,4 +1,5 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import { ScheduleModule } from '@nestjs/schedule';
 import { UserModule } from './user/user.module';
 import { BookModule } from './book/book.module';
 import { DatabaseModule } from './database/database.module';
@@ -20,6 +21,7 @@ import { PaymentMethodModule } from './payment-method/payment-method.module';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
+    ScheduleModule.forRoot(),
     DatabaseModule,
     UserModule,
     BookModule,

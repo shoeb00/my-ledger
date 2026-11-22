@@ -10,13 +10,12 @@ import { CategoryResponseDto } from './dto/category-response';
 import { and, eq, schema } from '@my-ledger/db';
 import type { DB } from '@my-ledger/db/connection';
 
-
 @Injectable()
 export class CategoryService {
   constructor(
     @Inject(DATABASE_CONNECTION)
     private readonly db: DB,
-  ) { }
+  ) {}
 
   async getCategories(bookId: number): Promise<CategoryResponseDto[]> {
     const categories = await this.db.query.categories.findMany({
@@ -62,6 +61,8 @@ export class CategoryService {
 
     await this.db
       .delete(schema.categories)
-      .where(and(eq(schema.categories.id, id), eq(schema.categories.bookId, bookId)));
+      .where(
+        and(eq(schema.categories.id, id), eq(schema.categories.bookId, bookId)),
+      );
   }
 }

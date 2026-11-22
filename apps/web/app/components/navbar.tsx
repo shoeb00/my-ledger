@@ -1,9 +1,15 @@
-'use client';
-import { Button } from '@/components/ui/button';
-import { SignedIn, SignedOut, SignInButton, SignUpButton, UserButton } from '@clerk/nextjs';
-import { LogIn, MoonIcon, SunDimIcon, UserPlus } from 'lucide-react';
-import Image from 'next/image';
-import { useRouter } from 'next/navigation';
+"use client";
+import { Button } from "@/components/ui/button";
+import {
+  SignedIn,
+  SignedOut,
+  SignInButton,
+  SignUpButton,
+  UserButton,
+} from "@clerk/nextjs";
+import { LogIn, MoonIcon, SunDimIcon, UserPlus } from "lucide-react";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 export default function Navbar({
   theme,
@@ -18,22 +24,24 @@ export default function Navbar({
       <div>
         <Button
           variant="ghost"
-          onClick={() => router.push('/home')}
+          onClick={() => router.push("/home")}
           className="hover:bg-transparent h-auto p-0 flex items-center gap-2"
         >
           <Image
-            src={theme ? '/logo-dark.svg' : '/logo.svg'}
+            src={theme ? "/logo-dark.svg" : "/logo.svg"}
             alt="My Ledger Logo"
             width={40}
             height={40}
             className="w-8 h-8 sm:w-10 sm:h-10 object-contain"
           />
-          <h1 className="font-[family-name:var(--font-tangerine)] font-black text-4xl">my-ledger</h1>
+          <h1 className="font-[family-name:var(--font-tangerine)] font-black text-4xl">
+            my-ledger
+          </h1>
         </Button>
       </div>
       <div className="flex flex-row items-center gap-4">
         <Button variant="ghost" onClick={setThemeAction}>
-          {' '}
+          {" "}
           {theme ? <SunDimIcon /> : <MoonIcon />}
         </Button>
         <SignedIn>
@@ -42,7 +50,7 @@ export default function Navbar({
             appearance={{
               elements: {
                 userButtonBox: {
-                  textTransform: 'capitalize',
+                  textTransform: "capitalize",
                 },
               },
             }}
@@ -64,8 +72,8 @@ export default function Navbar({
           </SignUpButton>
           <SignUpButton mode="modal">
             <Button variant="outline" className="hidden sm:inline-flex">
-              {' '}
-              Create Account{' '}
+              {" "}
+              Create Account{" "}
             </Button>
           </SignUpButton>
         </SignedOut>
