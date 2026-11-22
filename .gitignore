@@ -14,6 +14,9 @@ coverage
 # Turbo
 .turbo
 
+# Kilo / Agent Manager state and worktrees
+.kilo
+
 # Vercel
 .vercel
 
