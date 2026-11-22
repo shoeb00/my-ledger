@@ -146,7 +146,7 @@ export default function PageClient() {
 
   useEffect(() => {
     fetchTransactions();
-  }, [fetchTransactions, refetchTransactions, refetchBookDetails]);
+  }, [fetchTransactions, refetchTransactions]);
 
   useEffect(() => {
     (async () => {
@@ -164,8 +164,8 @@ export default function PageClient() {
   }, [bookId, refetchBookDetails]);
 
   const refetch = () => {
-    setRefetchBookDetails(!refetchBookDetails);
-    setRefetchTransactions(!refetchTransactions);
+    setRefetchBookDetails((current) => !current);
+    setRefetchTransactions((current) => !current);
   };
 
   // TODO: scroll to the top on page change

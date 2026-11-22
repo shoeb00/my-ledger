@@ -1,9 +1,8 @@
 "use client";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { BookResponse, getBook } from "../../actions/get-books";
 import { getBookMembers } from "./actions/members";
-import { getInvitations } from "./actions/invitations";
+import { getEmails, getInvitations } from "./actions/invitations";
 import { toast } from "sonner";
 import { Roles } from "@my-ledger/db/schema";
 import { Button } from "@/components/ui/button";
@@ -15,13 +14,14 @@ import MemberList from "./components/member";
 import LoaderCircle from "../../../components/loader";
 import InvitationList from "./components/invites";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import AddOrInviteUser from "./components/addOrInviteUser";
+import AddOrInviteUser, { type UserDetails } from "./components/addOrInviteUser";
 import UploadTransactionFile from "../components/upload-transaction-file";
 import { useHasPermission } from "../../../lib";
 import { Share2Icon } from "lucide-react";
 import { createInviteLink } from "../../../invite/[token]/actions/invite";
 import CategoryManager from "./components/category-manager";
 import PaymentMethodManager from "./components/payment-method-manager";
+import { useRolesContext } from "../../../context";
 
 export type Member = {
   userId: number;
@@ -45,17 +45,38 @@ export default function BookInfo() {
   const router = useRouter();
   const params = useParams();
   const bookId = params.bookId as string;
-  const [loading, setLoading] = useState(true);
-  const [book, setBook] = useState<BookResponse | null>(null);
-  const [refetchAction, setRefetchAction] = useState(false);
+  const { roles: books, loading: bookLoading, refetchRoles } = useRolesContext();
+  const [membersLoading, setMembersLoading] = useState(true);
+  const [invitationsLoading, setInvitationsLoading] = useState(false);
+  const [actionLoading, setActionLoading] = useState(false);
+  const [refetchMembers, setRefetchMembers] = useState(false);
+  const [refetchInvitations, setRefetchInvitations] = useState(false);
   const [members, setMembers] = useState<Member[]>([]);
   const [invites, setInvites] = useState<Invitation[]>([]);
+  const [userEmails, setUserEmails] = useState<UserDetails[]>([]);
+  const [userEmailsLoading, setUserEmailsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState("members");
 
+  const book = books.find((b) => b.id.toString() === bookId);
+  const loading =
+    bookLoading || membersLoading || invitationsLoading || actionLoading;
+
+  const refreshMembers = () => {
+    setRefetchMembers((current) => !current);
+  };
+
+  const refreshInvitations = () => {
+    setRefetchInvitations((current) => !current);
+  };
+
+  const refreshBook = () => {
+    refetchRoles();
+  };
+
   const copyLink = async () => {
-    setLoading(true);
+    setActionLoading(true);
     const { err, data } = await createInviteLink(bookId);
-    setLoading(false);
+    setActionLoading(false);
     if (err) {
       toast.error(err);
       return;
@@ -65,17 +86,26 @@ export default function BookInfo() {
   };
 
   const isOwner = useHasPermission(Roles.AUTHOR);
+  const canEdit = useHasPermission(Roles.EDITOR);
+
   useEffect(() => {
+    if (!canEdit) return;
+
     (async () => {
-      const { err, data } = await getBook(bookId);
-      if (err) toast.error(err);
-      if (data[0]) setBook(data[0]);
+      setUserEmailsLoading(true);
+      const { err, data } = await getEmails();
+      if (err) {
+        toast.error(err);
+      } else {
+        setUserEmails(data as UserDetails[]);
+      }
+      setUserEmailsLoading(false);
     })();
-  }, [bookId, refetchAction]);
+  }, [canEdit]);
 
   useEffect(() => {
     (async () => {
-      setLoading(true);
+      setMembersLoading(true);
       const { err, data } = await getBookMembers(bookId);
       if (err) {
         toast.error(err);
@@ -85,22 +115,24 @@ export default function BookInfo() {
         );
         setMembers(membersList);
       }
-      setLoading(false);
+      setMembersLoading(false);
     })();
-  }, [bookId, refetchAction]);
+  }, [bookId, refetchMembers]);
 
   useEffect(() => {
+    if (activeTab !== "invitations") return;
+
     (async () => {
-      setLoading(true);
+      setInvitationsLoading(true);
       const { err, data } = await getInvitations(bookId);
       if (err) {
         toast.error(err);
       } else {
         setInvites(data as Invitation[]);
       }
-      setLoading(false);
+      setInvitationsLoading(false);
     })();
-  }, [refetchAction, bookId]);
+  }, [activeTab, refetchInvitations, bookId]);
 
   return (
     <div>
@@ -119,7 +151,11 @@ export default function BookInfo() {
           </div>
         </div>
         <div className="flex flex-row items-center gap-2" hidden={!isOwner}>
-          <UploadTransactionFile hidden={!isOwner} showName={false} />
+          <UploadTransactionFile
+            hidden={!isOwner}
+            showName={false}
+            refetchAction={refetchRoles}
+          />
         </div>
       </div>
       <div className="flex flex-col gap-4 mt-4">
@@ -145,7 +181,12 @@ export default function BookInfo() {
                 </Button>
                 <AddOrInviteUser
                   userDetails={members}
-                  refetchAction={() => setRefetchAction(!refetchAction)}
+                  userEmails={userEmails}
+                  userEmailsLoading={userEmailsLoading}
+                  refetchAction={(addedMember) => {
+                    if (addedMember || activeTab === "members") refreshMembers();
+                    else refreshInvitations();
+                  }}
                   tab={activeTab as "invites" | "members"}
                   setActiveTabAction={setActiveTab}
                   showName={false}
@@ -157,13 +198,17 @@ export default function BookInfo() {
             <TabsContent value="members">
               <MemberList
                 members={members}
-                refetchAction={() => setRefetchAction(!refetchAction)}
+                userEmails={userEmails}
+                userEmailsLoading={userEmailsLoading}
+                refetchAction={refreshMembers}
               />
             </TabsContent>
             <TabsContent value="invitations">
               <InvitationList
                 invitations={invites}
-                refetchAction={() => setRefetchAction(!refetchAction)}
+                userEmails={userEmails}
+                userEmailsLoading={userEmailsLoading}
+                refetchAction={refreshInvitations}
                 loading={loading}
                 setActiveTabAction={setActiveTab}
               />
@@ -178,7 +223,7 @@ export default function BookInfo() {
                   <EditBook
                     bookId={bookId}
                     name={book?.name || ""}
-                    refetchAction={() => setRefetchAction(!refetchAction)}
+                    refetchAction={refreshBook}
                     description={book?.description || ""}
                   />
                 </div>
@@ -207,7 +252,12 @@ export default function BookInfo() {
                   </p>
                   <TransferBook
                     bookName={book?.name || ""}
-                    refetchAction={() => setRefetchAction(!refetchAction)}
+                    userEmails={userEmails}
+                    userEmailsLoading={userEmailsLoading}
+                    refetchAction={() => {
+                      refreshMembers();
+                      refreshBook();
+                    }}
                   />
                 </div>
 

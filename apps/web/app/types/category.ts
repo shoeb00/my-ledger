@@ -16,5 +16,6 @@ export interface GetCategoriesRequest {
 }
 
 export interface DeleteCategoryRequest {
+  bookId: number;
   id: number;
 }

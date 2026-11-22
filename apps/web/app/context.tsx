@@ -11,7 +11,7 @@ import { useUser } from "@clerk/nextjs";
 type RolesContextValue = {
   roles: BookResponse[];
   loading: boolean;
-  refetchRoles: () => void;
+  refetchRoles: () => Promise<void>;
 };
 
 const RolesContext = createContext<RolesContextValue | null>(null);

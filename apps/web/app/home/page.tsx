@@ -18,13 +18,14 @@ import {
 import BookCard from "./components/book";
 import LoaderCircle from "../components/loader";
 import { toast } from "sonner";
-import { BookResponse, getBook } from "../book/actions/get-books";
 import CreateBook from "../book/create-book";
 import { Roles } from "@my-ledger/db/schema";
 import { acceptInvite, getUser } from "../invite/[token]/actions/invite";
 import { useClerk } from "@clerk/nextjs";
+import { useRolesContext } from "../context";
 
 enum SortOptions {
+  LastEntry = "last-entry",
   Newest = "newest",
   Oldest = "oldest",
   BalanceDesc = "balance-desc",
@@ -32,11 +33,9 @@ enum SortOptions {
 }
 
 export default function Home() {
-  const [loading, setLoading] = useState(true);
+  const { roles: books, loading, refetchRoles } = useRolesContext();
   const [query, setQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState(query);
-  const [books, setBooks] = useState<BookResponse[]>([]);
-  const [refetchAction, setRefetchAction] = useState(false);
   const { user } = useClerk();
   const inviteHandledRef = useRef(false);
   const [waitingForRegistration, setWaitingForRegistration] = useState(false);
@@ -51,7 +50,11 @@ export default function Home() {
         const { err: inviteErr, data } = await acceptInvite(token);
         if (inviteErr) {
           if (!inviteErr.includes("already accepted")) toast.error(inviteErr);
-        } else toast.success(data?.message || "Invitation accepted");
+          else await refetchRoles();
+        } else {
+          toast.success(data?.message || "Invitation accepted");
+          await refetchRoles();
+        }
         window.localStorage.removeItem("inviteToken");
         setWaitingForRegistration(false);
         return;
@@ -77,20 +80,7 @@ export default function Home() {
     return () => clearTimeout(t);
   }, [query]);
 
-  useEffect(() => {
-    (async () => {
-      setLoading(true);
-      const { err, data } = await getBook();
-      if (err) {
-        toast.error(err);
-      } else {
-        setBooks(data);
-      }
-      setLoading(false);
-    })();
-  }, [refetchAction]);
-
-  const [sort, setSort] = useState<SortOptions>(SortOptions.Newest);
+  const [sort, setSort] = useState<SortOptions>(SortOptions.LastEntry);
 
   const handleInputChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -107,6 +97,12 @@ export default function Home() {
     );
 
     switch (sort) {
+      case SortOptions.LastEntry:
+        return [...list].sort(
+          (a, z) =>
+            +new Date(z.lastTransaction || z.createdAt) -
+            +new Date(a.lastTransaction || a.createdAt),
+        );
       case SortOptions.Newest:
         return [...list].sort(
           (a, z) => +new Date(z.createdAt) - +new Date(a.createdAt),
@@ -155,27 +151,25 @@ export default function Home() {
             </Button>
           </div>
           <div className="flex justify-between w-full">
-            <Select onValueChange={(v) => setSort(v as SortOptions)}>
+            <Select value={sort} onValueChange={(v) => setSort(v as SortOptions)}>
               <SelectTrigger aria-label="Sort books" className="ml-2">
                 <div className="flex items-center gap-2">
-                  <span className="text-sm">Sort</span>
+                  <span className="text-sm capitalize">{sort.replaceAll("-", " ")}</span>
                 </div>
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="newest">Newest</SelectItem>
-                <SelectItem value="oldest">Oldest</SelectItem>
-                <SelectItem value="balance-desc">
-                  Balance (High → Low)
-                </SelectItem>
-                <SelectItem value="balance-asc">
-                  Balance (Low → High)
-                </SelectItem>
+                {Object.values(SortOptions).map((s) => (
+                  <SelectItem
+                    className="capitalize"
+                    key={s}
+                    value={s}
+                  >
+                    {s.replaceAll("-", " ")}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
-            <CreateBook
-              books={booksCount}
-              refetchAction={() => setRefetchAction(!refetchAction)}
-            />
+            <CreateBook books={booksCount} />
           </div>
         </div>
       </header>
@@ -199,10 +193,7 @@ export default function Home() {
                   Try different keywords or create a new book.
                 </p>
                 <div className="mt-4 flex justify-center">
-                  <CreateBook
-                    books={booksCount}
-                    refetchAction={() => setRefetchAction(!refetchAction)}
-                  />
+                  <CreateBook books={booksCount} />
                 </div>
               </Card>
             </div>

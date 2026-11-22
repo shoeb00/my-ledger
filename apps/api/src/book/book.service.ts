@@ -41,7 +41,11 @@ export class BookService {
       )
       .where(eq(schema.permissions.userId, user.id))
       .groupBy(schema.books.id, schema.permissions.role)
-      .orderBy(desc(schema.books.updatedAt));
+      .orderBy(
+        desc(
+          sql<Date>`coalesce(max(${schema.transactions.createdAt}), ${schema.books.createdAt})`,
+        ),
+      );
     if (rows.length === 0) return [];
     const books: BookResponseDto[] = [];
     for (const row of rows) {
@@ -50,7 +54,7 @@ export class BookService {
       books.push({
         ...row.book!,
         role: row.role,
-        lastTransaction: row.lastTransaction,
+        lastTransaction: row.lastTransaction || row.book?.createdAt,
       });
     }
     return books;

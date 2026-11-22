@@ -44,10 +44,10 @@ export default function UploadTransactionFile({
       toast.error(err);
     } else {
       toast.success(data.message);
+      if (refetchAction) refetchAction();
     }
     setLoading(false);
     setOpen(false);
-    if (refetchAction) refetchAction();
   };
 
   const handleUpload = async (file: File) => {
